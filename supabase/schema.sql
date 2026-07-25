@@ -33,12 +33,13 @@ exception when duplicate_object then null; end $$;
 -- ---------------------------------------------------------------------------
 -- Students
 -- ---------------------------------------------------------------------------
+-- Lesson type deliberately lives on the class, not here: it describes the
+-- course being taught, and the same student can be in more than one.
 create table if not exists students (
   id          uuid primary key default gen_random_uuid(),
   user_id     uuid not null references auth.users (id) on delete cascade,
   name        text not null,
   contact     text,
-  lesson_type text,
   level       text,
   needs       text,
   notes       text,
@@ -48,6 +49,10 @@ create table if not exists students (
 );
 
 create index if not exists students_user_idx on students (user_id, archived, name);
+
+-- Tidy up if you ran an earlier version that put lesson_type on the student.
+-- Safe to run either way; the app ignores the column regardless.
+alter table students drop column if exists lesson_type;
 
 
 -- ---------------------------------------------------------------------------

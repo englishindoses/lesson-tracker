@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { newId, nowISO, useStore } from '../data/store'
-import { LESSON_TYPES, type Student } from '../lib/types'
+import { type Student } from '../lib/types'
 import Modal from './Modal'
 
 function blankStudent(userId: string): Student {
@@ -9,7 +9,6 @@ function blankStudent(userId: string): Student {
     user_id: userId,
     name: '',
     contact: null,
-    lesson_type: null,
     level: null,
     needs: null,
     notes: null,
@@ -85,9 +84,6 @@ export default function StudentsView() {
                   <span className="style-hand text-lg">{s.name}</span>
                   {s.level && <span className="text-xs text-ink-faint">{s.level}</span>}
                 </div>
-                {s.lesson_type && (
-                  <div className="mt-0.5 text-xs text-ink-soft">{s.lesson_type}</div>
-                )}
                 {s.needs && (
                   <p className="mt-2 line-clamp-2 text-sm text-ink-soft">{s.needs}</p>
                 )}
@@ -191,29 +187,14 @@ function StudentEditor({
           />
         </Field>
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Field label="Lesson type">
-            <input
-              className="field"
-              list="lesson-types"
-              value={draft.lesson_type ?? ''}
-              onChange={(e) => set('lesson_type', e.target.value || null)}
-            />
-            <datalist id="lesson-types">
-              {LESSON_TYPES.map((t) => (
-                <option key={t} value={t} />
-              ))}
-            </datalist>
-          </Field>
-          <Field label="Level">
-            <input
-              className="field"
-              placeholder="B1, C1…"
-              value={draft.level ?? ''}
-              onChange={(e) => set('level', e.target.value || null)}
-            />
-          </Field>
-        </div>
+        <Field label="Level">
+          <input
+            className="field"
+            placeholder="B1, C1…"
+            value={draft.level ?? ''}
+            onChange={(e) => set('level', e.target.value || null)}
+          />
+        </Field>
 
         <Field label="Contact">
           <input

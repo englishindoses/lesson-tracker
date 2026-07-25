@@ -10,12 +10,12 @@ export type Presence =
   | 'teacher_cancellation'
   | 'reschedule'
 
+/** Lesson type lives on the Class, not here -- it's a property of the course. */
 export interface Student {
   id: string
   user_id: string
   name: string
   contact: string | null
-  lesson_type: string | null
   level: string | null
   needs: string | null
   notes: string | null

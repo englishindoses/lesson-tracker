@@ -138,8 +138,8 @@ export default function ClassEditor({
           <Field label="Usual lesson length (minutes)">
             <NumberField
               className="field tabular"
-              min={5}
-              step={5}
+              min={0}
+              step={15}
               value={durationDraft}
               fallback={60}
               onChange={setDurationDraft}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useStore } from './data/store'
 import { useTheme } from './lib/theme'
 import { exportCSV, exportJSON } from './lib/exportData'
@@ -7,6 +7,7 @@ import StudentsView from './components/StudentsView'
 import ClassesView from './components/ClassesView'
 import ClassView from './components/ClassView'
 import ThemeMenu from './components/ThemeMenu'
+import Menu from './components/Menu'
 
 type Tab = 'classes' | 'students'
 
@@ -23,11 +24,26 @@ export default function App() {
 
   const [tab, setTab] = useState<Tab>('classes')
   const [openClassId, setOpenClassId] = useState<string | null>(null)
-  const [menuOpen, setMenuOpen] = useState(false)
+
+  const headerRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     void init()
   }, [init])
+
+  // Anything else that wants to stick below the header needs its real height,
+  // which changes with font size and screen width -- so publish it as a
+  // variable rather than hardcoding a guess.
+  useEffect(() => {
+    const el = headerRef.current
+    if (!el) return
+    const publish = () =>
+      document.documentElement.style.setProperty('--header-h', `${el.offsetHeight}px`)
+    publish()
+    const observer = new ResizeObserver(publish)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [userId])
 
   if (!authReady) {
     return (
@@ -51,33 +67,33 @@ export default function App() {
 
   return (
     <div className="dotgrid min-h-screen">
-      <header className="no-print sticky top-0 z-30 border-b border-rule bg-paper/95 backdrop-blur">
+      {/* Opaque, not bg-paper/95: Tailwind's opacity modifier emits invalid CSS
+          for a var() colour, which leaves the bar see-through. */}
+      <header
+        ref={headerRef}
+        className="no-print sticky top-0 z-30 border-b border-rule bg-paper"
+      >
         <div className="mx-auto flex max-w-[1600px] items-center gap-2 px-3 py-2 sm:gap-3 sm:px-6">
-          <button
-            className="style-hand hidden text-lg leading-none sm:inline sm:text-xl"
-            onClick={() => {
-              setOpenClassId(null)
-              setTab('classes')
-            }}
-          >
-            Lesson Tracker
-          </button>
-
-          <nav className="flex gap-1 sm:ml-2">
-            {(['classes', 'students'] as Tab[]).map((t) => (
+          <nav className="flex gap-1">
+            {(
+              [
+                ['classes', 'Lesson Tracker'],
+                ['students', 'Students'],
+              ] as [Tab, string][]
+            ).map(([value, label]) => (
               <button
-                key={t}
+                key={value}
                 onClick={() => {
-                  setTab(t)
+                  setTab(value)
                   setOpenClassId(null)
                 }}
-                className={`rounded px-2.5 py-1 text-sm capitalize ${
-                  tab === t && !openClassId
+                className={`style-hand rounded px-2.5 py-1 text-base sm:text-lg ${
+                  tab === value && !openClassId
                     ? 'bg-accent-soft text-ink'
                     : 'text-ink-soft hover:text-ink'
                 }`}
               >
-                {t}
+                {label}
               </button>
             ))}
           </nav>
@@ -88,49 +104,41 @@ export default function App() {
 
           <ThemeMenu style={style} mode={mode} setStyle={setStyle} setMode={setMode} />
 
-          <div className="relative">
-            <button className="btn px-2 py-1 text-xs" onClick={() => setMenuOpen((v) => !v)}>
-              ⋯
-            </button>
-            {menuOpen && (
+          <Menu label="⋯" title="More" buttonClass="btn px-2 py-1 text-xs">
+            {(close) => (
               <>
-                <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
-                <div className="card absolute right-0 z-20 mt-1 w-56 p-1 text-sm">
-                  <div className="truncate px-3 py-2 text-xs text-ink-faint">{email}</div>
-                  <div className={`px-3 pb-2 text-xs sm:hidden ${syncColor}`}>
-                    {syncLabel[sync]}
-                  </div>
-                  <button
-                    className="w-full rounded px-3 py-2 text-left hover:bg-accent-soft"
-                    onClick={() => {
-                      exportJSON(snapshot())
-                      setMenuOpen(false)
-                    }}
-                  >
-                    Backup everything (JSON)
-                  </button>
-                  <button
-                    className="w-full rounded px-3 py-2 text-left hover:bg-accent-soft"
-                    onClick={() => {
-                      exportCSV(snapshot())
-                      setMenuOpen(false)
-                    }}
-                  >
-                    Export spreadsheet (CSV)
-                  </button>
-                  <button
-                    className="w-full rounded px-3 py-2 text-left hover:bg-accent-soft"
-                    onClick={() => {
-                      setMenuOpen(false)
-                      void signOut()
-                    }}
-                  >
-                    Sign out
-                  </button>
-                </div>
+                <div className="truncate px-3 py-2 text-xs text-ink-faint">{email}</div>
+                <div className={`px-3 pb-2 text-xs sm:hidden ${syncColor}`}>{syncLabel[sync]}</div>
+                <button
+                  className="w-full rounded px-3 py-2 text-left hover:bg-accent-soft"
+                  onClick={() => {
+                    exportJSON(snapshot())
+                    close()
+                  }}
+                >
+                  Backup everything (JSON)
+                </button>
+                <button
+                  className="w-full rounded px-3 py-2 text-left hover:bg-accent-soft"
+                  onClick={() => {
+                    exportCSV(snapshot())
+                    close()
+                  }}
+                >
+                  Export spreadsheet (CSV)
+                </button>
+                <button
+                  className="w-full rounded px-3 py-2 text-left hover:bg-accent-soft"
+                  onClick={() => {
+                    close()
+                    void signOut()
+                  }}
+                >
+                  Sign out
+                </button>
               </>
             )}
-          </div>
+          </Menu>
         </div>
       </header>
 

@@ -54,7 +54,7 @@ export default function ClassesView({ onOpen }: { onOpen: (id: string) => void }
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <h1 className="style-hand rule-under mr-auto text-2xl">Classes</h1>
+        <h1 className="style-hand rule-under mr-auto text-2xl">Lesson Tracker</h1>
         {!showArchived && grandOwed > 0.005 && (
           <span className="text-sm text-ink-soft">
             Outstanding: <strong className="tabular text-ink">{money(grandOwed)}</strong>

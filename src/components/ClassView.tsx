@@ -6,6 +6,7 @@ import { addDays, duration, formatMonth, money, monthKey, todayISO } from '../li
 import ClassEditor from './ClassEditor'
 import Modal from './Modal'
 import NumberField from './NumberField'
+import DateField from './DateField'
 
 type PaidFilter = 'all' | 'paid' | 'unpaid'
 type KindFilter = 'all' | 'lesson' | 'payment'
@@ -42,6 +43,8 @@ export default function ClassView({
   const [presence, setPresence] = useState<Presence | 'all'>('all')
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [repeating, setRepeating] = useState<Entry | null>(null)
+  // Pinning is a preference, so it survives reloads and applies to every class.
+  const [pinned, setPinned] = useState(() => localStorage.getItem('lt.pinFilters') !== 'off')
 
   const classEntries = useMemo(
     () => allEntries.filter((e) => e.class_id === classId),
@@ -210,7 +213,7 @@ export default function ClassView({
       {/* ------------------------------------------------------------ header */}
       <div className="mb-3 flex flex-wrap items-start gap-2">
         <button className="btn no-print" onClick={onBack}>
-          ← Classes
+          ← Back
         </button>
         <div className="order-last w-full sm:order-none sm:mr-auto sm:w-auto">
           <h1 className="style-hand rule-under text-xl sm:text-2xl">{cls.name}</h1>
@@ -230,7 +233,14 @@ export default function ClassView({
       </div>
 
       {/* ----------------------------------------------------------- filters */}
-      <div className="no-print mb-3 flex flex-wrap items-center gap-2 text-sm">
+      <div
+        style={pinned ? { top: 'var(--header-h, 3.25rem)' } : undefined}
+        className={`no-print mb-3 flex flex-wrap items-center gap-2 text-sm ${
+          pinned
+            ? 'sticky z-20 -mx-3 border-b border-rule bg-paper px-3 py-2 sm:-mx-6 sm:px-6'
+            : ''
+        }`}
+      >
         <select
           className="field field-inline"
           value={month}
@@ -295,12 +305,25 @@ export default function ClassView({
           </button>
         )}
 
-        <div className="flex w-full gap-2 sm:ml-auto sm:w-auto">
+        <div className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto">
           <button className="btn flex-1 sm:flex-none" onClick={addPayment}>
             + Payment
           </button>
           <button className="btn btn-primary flex-1 sm:flex-none" onClick={addLesson}>
             + Lesson
+          </button>
+          <button
+            className={`btn shrink-0 px-2 ${pinned ? 'text-accent' : 'text-ink-faint'}`}
+            aria-pressed={pinned}
+            aria-label={pinned ? 'Unpin filters' : 'Pin filters to the top'}
+            title={pinned ? 'Filters stay on screen — tap to unpin' : 'Pin filters to the top'}
+            onClick={() => {
+              const next = !pinned
+              setPinned(next)
+              localStorage.setItem('lt.pinFilters', next ? 'on' : 'off')
+            }}
+          >
+            {pinned ? '📌' : '📍'}
           </button>
         </div>
       </div>
@@ -359,7 +382,7 @@ export default function ClassView({
       </div>
 
       {/* ------------------------------------------------------------ totals */}
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-rule bg-paper/95 backdrop-blur">
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-rule bg-paper">
         <div className="mx-auto max-w-[1600px] px-3 py-2 sm:px-6">
           {/* phones: the number that matters, big, with the rest underneath */}
           <div className="flex items-baseline justify-between gap-3 lg:hidden">
@@ -451,14 +474,10 @@ function StrikeBox({ entry, onPatch }: RowProps) {
 function DateInput({ entry, onPatch }: RowProps) {
   const isLesson = entry.kind === 'lesson'
   return (
-    <input
-      type="date"
-      className="field tabular"
+    <DateField
       aria-label={isLesson ? 'Lesson date' : 'Due date'}
-      value={(isLesson ? entry.entry_date : entry.due_date) ?? ''}
-      onChange={(e) =>
-        onPatch(isLesson ? { entry_date: e.target.value || null } : { due_date: e.target.value || null })
-      }
+      value={(isLesson ? entry.entry_date : entry.due_date) ?? null}
+      onChange={(iso) => onPatch(isLesson ? { entry_date: iso } : { due_date: iso })}
     />
   )
 }
@@ -467,7 +486,7 @@ function DurationInput({ entry, onPatch }: RowProps) {
   return (
     <NumberField
       min={0}
-      step={5}
+      step={15}
       className="field tabular"
       aria-label="Lesson length in minutes"
       value={entry.duration_min}
@@ -534,13 +553,11 @@ function PaidControl({ entry, line, onPatch, onPayOff }: RowProps) {
           aria-label="Payment received"
         />
         {entry.paid && (
-          <input
-            type="date"
+          <DateField
             className="field tabular text-xs"
-            value={entry.paid_date ?? ''}
-            onChange={(e) => onPatch({ paid_date: e.target.value || null })}
-            title="Date paid"
             aria-label="Date paid"
+            value={entry.paid_date}
+            onChange={(iso) => onPatch({ paid_date: iso })}
           />
         )}
       </div>
