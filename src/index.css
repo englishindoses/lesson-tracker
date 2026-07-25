@@ -1,0 +1,245 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   Two styles, two modes.
+
+     data-style="ink"     dot-grid notebook, warm paper, hand-drawn edges
+     data-style="modern"  clean, high-legibility, no texture
+
+     data-mode="light" | "dark"
+
+   Components never hardcode a colour -- they use the tokens below, so the
+   toggle in the header repaints everything.
+   ========================================================================== */
+
+:root {
+  --radius: 2px;
+  --font-body: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', Menlo, monospace;
+  --font-hand: 'Segoe Print', 'Bradley Hand', 'Snell Roundhand', 'Comic Sans MS', cursive;
+  --grid: transparent;
+  --grid-size: 24px;
+  --paper-texture: none;
+}
+
+/* ---------------------------------------------------------------- ink light */
+[data-style='ink'][data-mode='light'] {
+  --paper: #f6f2e7;
+  --paper-raised: #fbf8f0;
+  --ink: #2b2a26;
+  --ink-soft: #55524a;
+  --ink-faint: #8d887c;
+  --rule: #cfc7b3;
+  --accent: #1c4f8b;
+  --accent-soft: #fbe6a2;
+  --danger: #a33a2a;
+  --good: #3d6b3a;
+  --grid: #d9d0ba;
+  --radius: 3px;
+}
+
+/* ----------------------------------------------------------------- ink dark */
+[data-style='ink'][data-mode='dark'] {
+  --paper: #16171a;
+  --paper-raised: #1d1f23;
+  --ink: #e6e1d4;
+  --ink-soft: #b3ada0;
+  --ink-faint: #7d786e;
+  --rule: #3a3d43;
+  --accent: #8fb8e8;
+  --accent-soft: #4a4326;
+  --danger: #e08b7c;
+  --good: #8fc08a;
+  --grid: #2b2e33;
+  --radius: 3px;
+}
+
+/* ------------------------------------------------------------- modern light */
+[data-style='modern'][data-mode='light'] {
+  --paper: #ffffff;
+  --paper-raised: #f7f7f8;
+  --ink: #17181c;
+  --ink-soft: #5b5f66;
+  --ink-faint: #9aa0a8;
+  --rule: #e4e6e9;
+  --accent: #2563eb;
+  --accent-soft: #dbeafe;
+  --danger: #c02626;
+  --good: #157347;
+  --grid: transparent;
+  --radius: 10px;
+}
+
+/* -------------------------------------------------------------- modern dark */
+[data-style='modern'][data-mode='dark'] {
+  --paper: #0e0f11;
+  --paper-raised: #17191d;
+  --ink: #f1f2f4;
+  --ink-soft: #a8adb5;
+  --ink-faint: #6b7078;
+  --rule: #292c31;
+  --accent: #74a4ff;
+  --accent-soft: #1c2a45;
+  --danger: #f07171;
+  --good: #57b98a;
+  --grid: transparent;
+  --radius: 10px;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+/* The dot grid. Transparent in modern, so the same rule serves both styles. */
+.dotgrid {
+  background-image: radial-gradient(var(--grid) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+  background-position: 8px 8px;
+}
+
+[data-style='ink'] .style-hand {
+  font-family: var(--font-hand);
+  letter-spacing: 0.01em;
+}
+[data-style='modern'] .style-hand {
+  font-family: var(--font-body);
+  font-weight: 650;
+  letter-spacing: -0.015em;
+}
+
+/* Section headings: underlined by hand in ink, plain in modern. */
+[data-style='ink'] .rule-under {
+  border-bottom: 2px solid var(--ink);
+  border-radius: 40% 60% 30% 70% / 100% 100% 4% 4%;
+  padding-bottom: 2px;
+}
+[data-style='modern'] .rule-under {
+  border-bottom: none;
+}
+
+/* Cards read as taped-in notes in ink, as flat panels in modern. */
+.card {
+  background-color: var(--paper-raised);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+}
+[data-style='ink'] .card {
+  border-color: var(--ink-faint);
+  box-shadow: 1px 1px 0 var(--rule);
+}
+[data-style='modern'] .card {
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+}
+
+/* Inputs are ruled lines in ink, boxes in modern. */
+.field {
+  background-color: transparent;
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 0.4rem 0.55rem;
+  width: 100%;
+  font-size: 0.9rem;
+}
+.field:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+[data-style='ink'] .field {
+  border-width: 0 0 1px 0;
+  border-color: var(--ink-faint);
+  border-radius: 0;
+  padding-left: 0.15rem;
+}
+[data-style='ink'] .field:focus {
+  outline: none;
+  border-bottom-color: var(--accent);
+  border-bottom-width: 2px;
+  background-color: var(--accent-soft);
+}
+
+.btn {
+  border: 1px solid var(--ink-faint);
+  border-radius: var(--radius);
+  padding: 0.35rem 0.7rem;
+  font-size: 0.85rem;
+  color: var(--ink);
+  background-color: var(--paper-raised);
+  white-space: nowrap;
+}
+.btn:hover {
+  background-color: var(--accent-soft);
+}
+.btn:disabled {
+  opacity: 0.45;
+}
+.btn-primary {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: var(--paper);
+}
+.btn-primary:hover {
+  filter: brightness(1.12);
+  background-color: var(--accent);
+}
+[data-style='ink'] .btn {
+  border-radius: 8px 6px 9px 5px / 6px 9px 5px 8px;
+}
+
+/* Payment rows sit apart from lesson rows without shouting.
+   Tailwind's /opacity modifiers don't work on var() colours, so this is its
+   own token rather than bg-accent-soft/30. */
+.row-payment {
+  background-color: var(--paper-raised);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+/* The strike-out. A pen line through the row, not a greyed-out cell. */
+.struck {
+  color: var(--ink-faint);
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+  text-decoration-color: var(--danger);
+}
+[data-style='modern'] .struck {
+  text-decoration-color: var(--ink-faint);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Keep the sticky table header legible over scrolling rows. */
+.sticky-head th {
+  background-color: var(--paper);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--rule);
+  border-radius: 99px;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
