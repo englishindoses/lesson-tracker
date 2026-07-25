@@ -5,6 +5,8 @@ bullet-journal style table that tracks attendance, time and payments.
 
 Installable as a PWA on phone and laptop, works offline, syncs through Supabase.
 
+**Live:** https://englishindoses.github.io/lesson-tracker/
+
 ---
 
 ## Setup (once)
@@ -18,9 +20,27 @@ Installable as a PWA on phone and laptop, works offline, syncs through Supabase.
    That creates the tables and the Row Level Security policies.
 3. Go to **Project Settings → API** and copy:
    - **Project URL**
-   - the **anon public** key (*not* `service_role` — that one never leaves the dashboard)
+   - the public key — labelled either **anon public** or **Publishable key**
+     (`sb_publishable_…`) depending on how new your dashboard is. Either works.
 
-### 2. Point the app at it
+   Never copy the **service_role** / **Secret key**. That one bypasses Row Level
+   Security entirely and must stay in the dashboard.
+
+### 2. Allow your app's URLs to sign you in
+
+Magic links are rejected unless the destination is on the allowlist.
+
+**Authentication → URL Configuration:**
+
+- **Site URL:** wherever the app lives, e.g.
+  `https://englishindoses.github.io/lesson-tracker/`
+- **Redirect URLs:** add both the deployed URL and local dev, each with `/**`:
+  ```
+  https://englishindoses.github.io/lesson-tracker/**
+  http://localhost:5173/**
+  ```
+
+### 3. Point the app at it
 
 ```bash
 cp .env.example .env
@@ -106,11 +126,18 @@ laptop simultaneously while offline.
 
 `vite.config.ts` uses a relative base, so the build works from a subpath.
 
-1. Push this folder to a GitHub repo.
-2. Add the two Supabase values as repo **Secrets** (`VITE_SUPABASE_URL`,
-   `VITE_SUPABASE_ANON_KEY`) — the workflow injects them at build time.
+Already set up for this repo — every push to `main` rebuilds and republishes.
+The Supabase values live as repo **Secrets** (`VITE_SUPABASE_URL`,
+`VITE_SUPABASE_ANON_KEY`) and the workflow injects them at build time, so `.env`
+is never committed.
+
+To repeat this from scratch elsewhere:
+
+1. Push the folder to a GitHub repo.
+2. Add those two secrets under **Settings → Secrets and variables → Actions**.
 3. **Settings → Pages → Source: GitHub Actions.**
-4. Push to `main`; the included workflow builds and publishes.
+4. Push to `main`.
+5. Add the new URL to Supabase's **Redirect URLs** (see setup step 2).
 
 Pages only serves from a public repo on the free plan. That's fine here: no
 student data lives in the code, and the anon key is meant to be public — Row
