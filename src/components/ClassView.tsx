@@ -2,23 +2,35 @@ import { useMemo, useState } from 'react'
 import { newId, nowISO, useStore } from '../data/store'
 import { PRESENCE_META, PRESENCE_ORDER, type Entry, type Presence } from '../lib/types'
 import { buildLedger, sortEntries, totalsFor, type Line } from '../lib/ledger'
-import { addDays, duration, formatMonth, money, monthKey, todayISO } from '../lib/format'
+import {
+  addDays,
+  addMonths,
+  duration,
+  formatMonth,
+  money,
+  monthKey,
+  todayISO,
+} from '../lib/format'
 import ClassEditor from './ClassEditor'
 import Modal from './Modal'
 import NumberField from './NumberField'
-import DateField from './DateField'
+import CalendarView from './CalendarView'
+import EntryDialog from './EntryDialog'
+import {
+  AmountInput,
+  DateInput,
+  DeleteButton,
+  DurationInput,
+  NotesInput,
+  PaidControl,
+  PresenceSelect,
+  StrikeBox,
+  type RowProps,
+} from './EntryFields'
 
 type PaidFilter = 'all' | 'paid' | 'unpaid'
 type KindFilter = 'all' | 'lesson' | 'payment'
-
-/** Everything a row editor needs, whether drawn as a table row or a card. */
-interface RowProps {
-  entry: Entry
-  line: Line | undefined
-  monthlyClass: boolean
-  onPatch: (changes: Partial<Entry>) => void
-  onPayOff: () => void
-}
+type ViewMode = 'list' | 'calendar'
 
 export default function ClassView({
   classId,
@@ -43,6 +55,10 @@ export default function ClassView({
   const [presence, setPresence] = useState<Presence | 'all'>('all')
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [repeating, setRepeating] = useState<Entry | null>(null)
+  const [openEntryId, setOpenEntryId] = useState<string | null>(null)
+  const [view, setView] = useState<ViewMode>(
+    () => (localStorage.getItem('lt.classView') as ViewMode) || 'list',
+  )
   // Pinning is a preference, so it survives reloads and applies to every class.
   const [pinned, setPinned] = useState(() => localStorage.getItem('lt.pinFilters') !== 'off')
 
@@ -66,9 +82,15 @@ export default function ClassView({
     return [...set].sort().reverse()
   }, [classEntries])
 
+  // In calendar mode a concrete month is always on screen, so the filter and
+  // the totals stay honest about what you're looking at.
+  const calendarMonth = month === 'all' ? monthKey(todayISO()) : month
+
   const visible = useMemo(() => {
+    const effectiveMonth = view === 'calendar' ? calendarMonth : month
     return sortEntries(classEntries).filter((e) => {
-      if (month !== 'all' && monthKey(e.entry_date ?? e.due_date) !== month) return false
+      if (effectiveMonth !== 'all' && monthKey(e.entry_date ?? e.due_date) !== effectiveMonth)
+        return false
       if (kind !== 'all' && e.kind !== kind) return false
       if (presence !== 'all' && e.presence !== presence) return false
       if (paid !== 'all') {
@@ -79,7 +101,7 @@ export default function ClassView({
       }
       return true
     })
-  }, [classEntries, month, kind, paid, presence, lines])
+  }, [classEntries, view, calendarMonth, month, kind, paid, presence, lines])
 
   const totals = useMemo(() => totalsFor(visible, lines), [visible, lines])
 
@@ -125,16 +147,20 @@ export default function ClassView({
   const lastLessonDate = () =>
     sortEntries(classEntries.filter((e) => e.kind === 'lesson')).at(-1)?.entry_date
 
-  function addLesson() {
-    const previous = lastLessonDate()
-    upsertEntry({
+  function newLessonOn(dateISO: string): Entry {
+    return {
       ...baseEntry(),
       kind: 'lesson',
-      // Weekly classes are the norm, so guess a week after the last one.
-      entry_date: previous ? addDays(previous, 7) : todayISO(),
+      entry_date: dateISO,
       duration_min: cls!.default_duration_min,
       presence: 'present',
-    })
+    }
+  }
+
+  function addLesson() {
+    const previous = lastLessonDate()
+    // Weekly classes are the norm, so guess a week after the last one.
+    upsertEntry(newLessonOn(previous ? addDays(previous, 7) : todayISO()))
   }
 
   function addPayment() {
@@ -144,6 +170,13 @@ export default function ClassView({
       due_date: todayISO(),
       amount: cls!.pricing_mode === 'monthly' ? cls!.monthly_price : cls!.price_per_lesson,
     })
+  }
+
+  /** The + inside a calendar square: create there, then open it for filling in. */
+  function addOnDay(dateISO: string) {
+    const entry = newLessonOn(dateISO)
+    upsertEntry(entry)
+    setOpenEntryId(entry.id)
   }
 
   const patch = (entry: Entry, changes: Partial<Entry>) =>
@@ -164,6 +197,33 @@ export default function ClassView({
       paid_date: todayISO(),
       extra_notes: 'Paid at the lesson',
     })
+  }
+
+  /** Turn a freshly added row into the other kind, carrying its date across. */
+  function switchKind(entry: Entry, next: Entry['kind']) {
+    if (entry.kind === next) return
+    const date = entry.entry_date ?? entry.due_date
+    patch(
+      entry,
+      next === 'lesson'
+        ? {
+            kind: 'lesson',
+            entry_date: date,
+            due_date: null,
+            duration_min: cls!.default_duration_min,
+            presence: 'present',
+          }
+        : {
+            kind: 'payment',
+            due_date: date,
+            entry_date: null,
+            duration_min: null,
+            presence: null,
+            not_charged: false,
+            amount:
+              cls!.pricing_mode === 'monthly' ? cls!.monthly_price : cls!.price_per_lesson,
+          },
+    )
   }
 
   function repeatWeekly(entry: Entry, times: number) {
@@ -195,7 +255,16 @@ export default function ClassView({
       return next
     })
 
-  const filtersActive = month !== 'all' || kind !== 'all' || paid !== 'all' || presence !== 'all'
+  const setViewMode = (next: ViewMode) => {
+    setView(next)
+    localStorage.setItem('lt.classView', next)
+  }
+
+  const filtersActive =
+    (view === 'list' && month !== 'all') ||
+    kind !== 'all' ||
+    paid !== 'all' ||
+    presence !== 'all'
 
   const rowProps = (entry: Entry): RowProps => ({
     entry,
@@ -205,8 +274,12 @@ export default function ClassView({
     onPayOff: () => payOffLesson(entry),
   })
 
+  const openEntry = openEntryId ? classEntries.find((e) => e.id === openEntryId) : undefined
+
   const emptyMessage =
-    classEntries.length === 0 ? 'Empty page. Add your first lesson.' : 'Nothing matches these filters.'
+    classEntries.length === 0
+      ? 'Empty page. Add your first lesson.'
+      : 'Nothing matches these filters.'
 
   return (
     <div className="pb-28 sm:pb-24">
@@ -236,24 +309,63 @@ export default function ClassView({
       <div
         style={pinned ? { top: 'var(--header-h, 3.25rem)' } : undefined}
         className={`no-print mb-3 flex flex-wrap items-center gap-2 text-sm ${
-          pinned
-            ? 'sticky z-20 -mx-3 border-b border-rule bg-paper px-3 py-2 sm:-mx-6 sm:px-6'
-            : ''
+          pinned ? 'sticky z-20 -mx-3 border-b border-rule bg-paper px-3 py-2 sm:-mx-6 sm:px-6' : ''
         }`}
       >
-        <select
-          className="field field-inline"
-          value={month}
-          onChange={(e) => setMonth(e.target.value)}
-          aria-label="Filter by month"
-        >
-          <option value="all">All months</option>
-          {months.map((m) => (
-            <option key={m} value={m}>
-              {formatMonth(m)}
-            </option>
+        {/* list / calendar */}
+        <div className="flex overflow-hidden rounded border border-ink-faint">
+          {(
+            [
+              ['list', 'List'],
+              ['calendar', 'Calendar'],
+            ] as [ViewMode, string][]
+          ).map(([value, label]) => (
+            <button
+              key={value}
+              onClick={() => setViewMode(value)}
+              aria-pressed={view === value}
+              className={`px-2.5 py-1 ${
+                view === value ? 'bg-accent text-paper' : 'text-ink-soft hover:bg-accent-soft'
+              }`}
+            >
+              {label}
+            </button>
           ))}
-        </select>
+        </div>
+
+        {view === 'calendar' ? (
+          <div className="flex items-center gap-1">
+            <button
+              className="btn px-2"
+              onClick={() => setMonth(addMonths(calendarMonth, -1))}
+              aria-label="Previous month"
+            >
+              ‹
+            </button>
+            <span className="min-w-[8.5rem] text-center">{formatMonth(calendarMonth)}</span>
+            <button
+              className="btn px-2"
+              onClick={() => setMonth(addMonths(calendarMonth, 1))}
+              aria-label="Next month"
+            >
+              ›
+            </button>
+          </div>
+        ) : (
+          <select
+            className="field field-inline"
+            value={month}
+            onChange={(e) => setMonth(e.target.value)}
+            aria-label="Filter by month"
+          >
+            <option value="all">All months</option>
+            {months.map((m) => (
+              <option key={m} value={m}>
+                {formatMonth(m)}
+              </option>
+            ))}
+          </select>
+        )}
 
         <select
           className="field field-inline"
@@ -295,7 +407,7 @@ export default function ClassView({
           <button
             className="btn"
             onClick={() => {
-              setMonth('all')
+              if (view === 'list') setMonth('all')
               setKind('all')
               setPaid('all')
               setPresence('all')
@@ -328,58 +440,70 @@ export default function ClassView({
         </div>
       </div>
 
-      {/* ------------------------------------------------- wide screens: table */}
-      <div className="card hidden overflow-x-auto lg:block">
-        <table className="w-full border-collapse text-sm">
-          <thead className="sticky-head">
-            <tr className="border-b border-rule text-left text-xs uppercase tracking-wide text-ink-faint">
-              <th className="w-8 px-2 py-2" title="Tick to not charge for this row" />
-              <th className="px-2 py-2 font-normal">Date</th>
-              <th className="w-24 px-2 py-2 font-normal">Length</th>
-              <th className="w-44 px-2 py-2 font-normal">Presence</th>
-              <th className="w-32 px-2 py-2 text-right font-normal">Amount</th>
-              <th className="w-28 px-2 py-2 text-center font-normal">Paid</th>
-              <th className="px-2 py-2 font-normal">Notes</th>
-              <th className="w-20 px-2 py-2" />
-            </tr>
-          </thead>
-          <tbody>
-            {visible.length === 0 && (
-              <tr>
-                <td colSpan={8} className="px-3 py-10 text-center text-ink-faint">
-                  {emptyMessage}
-                </td>
-              </tr>
-            )}
+      {view === 'calendar' ? (
+        <CalendarView
+          month={calendarMonth}
+          entries={visible}
+          lines={lines}
+          onAdd={addOnDay}
+          onOpen={(entry) => setOpenEntryId(entry.id)}
+        />
+      ) : (
+        <>
+          {/* --------------------------------------------- wide screens: table */}
+          <div className="card hidden overflow-x-auto lg:block">
+            <table className="w-full border-collapse text-sm">
+              <thead className="sticky-head">
+                <tr className="border-b border-rule text-left text-xs uppercase tracking-wide text-ink-faint">
+                  <th className="w-8 px-2 py-2" title="Tick to not charge for this row" />
+                  <th className="px-2 py-2 font-normal">Date</th>
+                  <th className="w-24 px-2 py-2 font-normal">Length</th>
+                  <th className="w-44 px-2 py-2 font-normal">Presence</th>
+                  <th className="w-32 px-2 py-2 text-right font-normal">Amount</th>
+                  <th className="w-28 px-2 py-2 text-center font-normal">Paid</th>
+                  <th className="px-2 py-2 font-normal">Notes</th>
+                  <th className="w-20 px-2 py-2" />
+                </tr>
+              </thead>
+              <tbody>
+                {visible.length === 0 && (
+                  <tr>
+                    <td colSpan={8} className="px-3 py-10 text-center text-ink-faint">
+                      {emptyMessage}
+                    </td>
+                  </tr>
+                )}
 
+                {visible.map((entry) => (
+                  <TableRow
+                    key={entry.id}
+                    {...rowProps(entry)}
+                    expanded={expanded.has(entry.id)}
+                    onToggleExpanded={() => toggleExpanded(entry.id)}
+                    onRepeat={() => setRepeating(entry)}
+                    onDelete={() => deleteEntry(entry.id)}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* -------------------------------------------- narrow screens: cards */}
+          <div className="space-y-2 lg:hidden">
+            {visible.length === 0 && (
+              <p className="card px-3 py-10 text-center text-sm text-ink-faint">{emptyMessage}</p>
+            )}
             {visible.map((entry) => (
-              <TableRow
+              <EntryCard
                 key={entry.id}
                 {...rowProps(entry)}
-                expanded={expanded.has(entry.id)}
-                onToggleExpanded={() => toggleExpanded(entry.id)}
                 onRepeat={() => setRepeating(entry)}
                 onDelete={() => deleteEntry(entry.id)}
               />
             ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* ------------------------------------------------ narrow screens: cards */}
-      <div className="space-y-2 lg:hidden">
-        {visible.length === 0 && (
-          <p className="card px-3 py-10 text-center text-sm text-ink-faint">{emptyMessage}</p>
-        )}
-        {visible.map((entry) => (
-          <EntryCard
-            key={entry.id}
-            {...rowProps(entry)}
-            onRepeat={() => setRepeating(entry)}
-            onDelete={() => deleteEntry(entry.id)}
-          />
-        ))}
-      </div>
+          </div>
+        </>
+      )}
 
       {/* ------------------------------------------------------------ totals */}
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-rule bg-paper">
@@ -387,7 +511,7 @@ export default function ClassView({
           {/* phones: the number that matters, big, with the rest underneath */}
           <div className="flex items-baseline justify-between gap-3 lg:hidden">
             <span className="style-hand text-base">
-              Total{filtersActive ? ' (filtered)' : ''}
+              Total{filtersActive || view === 'calendar' ? ' (filtered)' : ''}
             </span>
             <span className="flex items-baseline gap-2">
               <span className="text-xs text-ink-soft">Owed</span>
@@ -408,7 +532,7 @@ export default function ClassView({
           {/* laptops: one wide line */}
           <div className="hidden flex-wrap items-center gap-x-6 gap-y-1 text-sm lg:flex">
             <span className="style-hand text-base">
-              Total{filtersActive ? ' (filtered)' : ''}
+              Total{filtersActive || view === 'calendar' ? ' (filtered)' : ''}
             </span>
             <Stat label="Lessons" value={String(totals.lessonCount)} />
             <Stat label="Taught" value={duration(totals.taughtMinutes)} />
@@ -428,6 +552,18 @@ export default function ClassView({
       </div>
 
       {editingClass && <ClassEditor cls={cls} existing onClose={() => setEditingClass(false)} />}
+
+      {openEntry && (
+        <EntryDialog
+          props={rowProps(openEntry)}
+          onClose={() => setOpenEntryId(null)}
+          onDelete={() => {
+            deleteEntry(openEntry.id)
+            setOpenEntryId(null)
+          }}
+          onSwitchKind={(next) => switchKind(openEntry, next)}
+        />
+      )}
 
       {repeating && (
         <RepeatDialog
@@ -449,189 +585,6 @@ function Stat({ label, value }: { label: string; value: string }) {
       <span className="text-xs text-ink-faint">{label}</span>
       <span className="tabular">{value}</span>
     </span>
-  )
-}
-
-/* ==========================================================================
-   Field editors, shared by the table and the cards so the two layouts can
-   never drift apart in behaviour.
-   ========================================================================== */
-
-function StrikeBox({ entry, onPatch }: RowProps) {
-  if (entry.kind !== 'lesson') return null
-  return (
-    <input
-      type="checkbox"
-      className="opacity-40 hover:opacity-100"
-      checked={entry.not_charged}
-      onChange={(e) => onPatch({ not_charged: e.target.checked })}
-      title="Don't charge for this lesson"
-      aria-label="Don't charge for this lesson"
-    />
-  )
-}
-
-function DateInput({ entry, onPatch }: RowProps) {
-  const isLesson = entry.kind === 'lesson'
-  return (
-    <DateField
-      aria-label={isLesson ? 'Lesson date' : 'Due date'}
-      value={(isLesson ? entry.entry_date : entry.due_date) ?? null}
-      onChange={(iso) => onPatch(isLesson ? { entry_date: iso } : { due_date: iso })}
-    />
-  )
-}
-
-function DurationInput({ entry, onPatch }: RowProps) {
-  return (
-    <NumberField
-      min={0}
-      step={15}
-      className="field tabular"
-      aria-label="Lesson length in minutes"
-      value={entry.duration_min}
-      onChange={(v) => onPatch({ duration_min: v })}
-    />
-  )
-}
-
-function PresenceSelect({ entry, onPatch }: RowProps) {
-  return (
-    <select
-      className="field"
-      aria-label="Presence"
-      value={entry.presence ?? ''}
-      onChange={(e) => {
-        const next = (e.target.value || null) as Presence | null
-        // Cancellations you don't charge for strike themselves out; you can
-        // always untick it again.
-        onPatch({
-          presence: next,
-          not_charged: next ? !PRESENCE_META[next].chargeable : entry.not_charged,
-        })
-      }}
-    >
-      <option value="">—</option>
-      {PRESENCE_ORDER.map((p) => (
-        <option key={p} value={p}>
-          {PRESENCE_META[p].glyph} {PRESENCE_META[p].label}
-        </option>
-      ))}
-    </select>
-  )
-}
-
-function AmountInput({ entry, line, monthlyClass, onPatch }: RowProps) {
-  const isLesson = entry.kind === 'lesson'
-  return (
-    <NumberField
-      min={0}
-      step="0.01"
-      className="field tabular text-right"
-      aria-label={isLesson ? 'Price for this lesson' : 'Payment amount'}
-      placeholder={isLesson ? (monthlyClass ? '—' : line ? line.charge.toFixed(2) : '') : ''}
-      title={isLesson ? 'Leave blank to use the class price' : undefined}
-      value={entry.amount}
-      onChange={(v) => onPatch({ amount: v })}
-    />
-  )
-}
-
-function PaidControl({ entry, line, onPatch, onPayOff }: RowProps) {
-  if (entry.kind === 'payment') {
-    return (
-      <div className="flex flex-col items-center gap-0.5">
-        <input
-          type="checkbox"
-          checked={entry.paid}
-          onChange={(e) =>
-            onPatch({
-              paid: e.target.checked,
-              paid_date: e.target.checked ? entry.paid_date ?? todayISO() : null,
-            })
-          }
-          aria-label="Payment received"
-        />
-        {entry.paid && (
-          <DateField
-            className="field tabular text-xs"
-            aria-label="Date paid"
-            value={entry.paid_date}
-            onChange={(iso) => onPatch({ paid_date: iso })}
-          />
-        )}
-      </div>
-    )
-  }
-
-  const status = line?.status
-
-  if (status === 'free')
-    return (
-      <span className="text-xs text-ink-faint" title="Nothing to pay">
-        —
-      </span>
-    )
-
-  if (status === 'paid')
-    return (
-      <span className="text-good" title="Covered by a payment">
-        ✓
-      </span>
-    )
-
-  if (status === 'part')
-    return (
-      <button
-        className="text-xs text-ink-soft underline"
-        onClick={onPayOff}
-        title="Partly paid — tap to settle the rest"
-      >
-        part
-      </button>
-    )
-
-  return (
-    <button
-      className="text-ink-faint hover:text-ink"
-      onClick={onPayOff}
-      title="Mark paid — adds a payment row for this amount, dated today"
-      aria-label="Mark paid"
-    >
-      ☐
-    </button>
-  )
-}
-
-function NotesInput({ entry, onPatch }: RowProps) {
-  const isLesson = entry.kind === 'lesson'
-  return (
-    <input
-      className="field"
-      aria-label={isLesson ? 'Lesson notes' : 'Note'}
-      placeholder={isLesson ? 'Lesson notes…' : 'Note…'}
-      value={(isLesson ? entry.lesson_notes : entry.extra_notes) ?? ''}
-      onChange={(e) =>
-        onPatch(
-          isLesson ? { lesson_notes: e.target.value || null } : { extra_notes: e.target.value || null },
-        )
-      }
-    />
-  )
-}
-
-function DeleteButton({ onDelete }: { onDelete: () => void }) {
-  const [confirm, setConfirm] = useState(false)
-  return (
-    <button
-      className={`px-1 ${confirm ? 'text-danger' : 'text-ink-faint hover:text-danger'}`}
-      onClick={() => (confirm ? onDelete() : setConfirm(true))}
-      onBlur={() => setConfirm(false)}
-      title={confirm ? 'Tap again to delete' : 'Delete row'}
-      aria-label={confirm ? 'Confirm delete' : 'Delete row'}
-    >
-      {confirm ? '✓×' : '×'}
-    </button>
   )
 }
 
@@ -663,7 +616,11 @@ function TableRow(
         </td>
 
         <td className={`px-2 py-1.5 ${cell}`}>
-          {isLesson ? <DurationInput {...props} /> : <span className="text-xs text-ink-faint">—</span>}
+          {isLesson ? (
+            <DurationInput {...props} />
+          ) : (
+            <span className="text-xs text-ink-faint">—</span>
+          )}
         </td>
 
         <td className={`px-2 py-1.5 ${cell}`}>

@@ -63,6 +63,32 @@ export function monthKey(iso: string | null): string {
   return iso ? iso.slice(0, 7) : ''
 }
 
+/** Shifts a "YYYY-MM" month bucket, e.g. addMonths('2026-01', -1) -> '2025-12'. */
+export function addMonths(ym: string, delta: number): string {
+  const [y, m] = ym.split('-').map(Number)
+  const shifted = new Date(Date.UTC(y, m - 1 + delta, 1))
+  return `${shifted.getUTCFullYear()}-${pad(shifted.getUTCMonth() + 1)}`
+}
+
+/** Weekday index (0 = Sunday) of the 1st of a "YYYY-MM" month. */
+export function firstWeekdayOfMonth(ym: string): number {
+  const [y, m] = ym.split('-').map(Number)
+  return new Date(Date.UTC(y, m - 1, 1)).getUTCDay()
+}
+
+export function daysInMonth(ym: string): number {
+  const [y, m] = ym.split('-').map(Number)
+  return new Date(Date.UTC(y, m, 0)).getUTCDate()
+}
+
+/** "2026-07" + 25 -> "2026-07-25" */
+export function dateInMonth(ym: string, day: number): string {
+  return `${ym}-${pad(day)}`
+}
+
+export const WEEKDAY_INITIALS = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+export const WEEKDAY_NAMES = WEEKDAYS
+
 export function todayISO(): string {
   const now = new Date()
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`

@@ -1,13 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
-import { parseISODate } from '../lib/format'
+import { formatDate, parseISODate } from '../lib/format'
 
 const pad = (n: number) => String(n).padStart(2, '0')
 
-/** "2026-07-25" -> "25/07/2026" */
+/** "2026-07-25" -> "25/07/2026", the form you actually type. */
 function toDisplay(iso: string | null): string {
   if (!iso) return ''
   const { y, m, d } = parseISODate(iso)
   return `${pad(d)}/${pad(m)}/${y}`
+}
+
+/** "2026-07-25" -> "Sat 25/07/2026", shown while the field is idle. */
+function toIdleDisplay(iso: string | null): string {
+  return iso ? formatDate(iso) : ''
 }
 
 /** Groups digits as the user types: "2507" -> "25/07". */
@@ -51,6 +56,9 @@ export default function DateField({
   className?: string
   'aria-label'?: string
 }) {
+  // Idle it reads "Sat 25/07/2026"; focused it drops to the typeable
+  // "25/07/2026" so the weekday can't get in the way of editing.
+  const [editing, setEditing] = useState(false)
   const [text, setText] = useState(toDisplay(value))
   const ours = useRef<string | null>(value)
   const picker = useRef<HTMLInputElement>(null)
@@ -76,7 +84,11 @@ export default function DateField({
         placeholder="dd/mm/yyyy"
         aria-label={ariaLabel}
         className={`${className} flex-1`}
-        value={text}
+        value={editing ? text : toIdleDisplay(ours.current)}
+        onFocus={() => {
+          setText(toDisplay(ours.current))
+          setEditing(true)
+        }}
         onChange={(e) => {
           const next = mask(e.target.value)
           setText(next)
@@ -86,7 +98,10 @@ export default function DateField({
             if (iso) commit(iso)
           }
         }}
-        onBlur={() => setText(toDisplay(ours.current))}
+        onBlur={() => {
+          setText(toDisplay(ours.current))
+          setEditing(false)
+        }}
       />
 
       <button
