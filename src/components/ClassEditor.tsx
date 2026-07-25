@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { nowISO, useStore } from '../data/store'
 import { LESSON_TYPES, type Class } from '../lib/types'
 import Modal from './Modal'
+import NumberField from './NumberField'
 import { Field } from './StudentsView'
 
 export default function ClassEditor({
@@ -23,8 +24,17 @@ export default function ClassEditor({
   const [draft, setDraft] = useState<Class>(cls)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [picking, setPicking] = useState(false)
+  // Duration is non-null on the record but has to be allowed to sit empty
+  // while you're retyping it, so it gets its own nullable draft.
+  const [durationDraft, setDurationDraft] = useState<number | null>(cls.default_duration_min)
 
   const set = <K extends keyof Class>(k: K, v: Class[K]) => setDraft((d) => ({ ...d, [k]: v }))
+
+  const toSave = (): Class => ({
+    ...draft,
+    default_duration_min: durationDraft ?? 60,
+    updated_at: nowISO(),
+  })
 
   const enrolled = useMemo(
     () =>
@@ -47,7 +57,7 @@ export default function ClassEditor({
   // The class row has to exist before students can be attached to it.
   const ensureSaved = () => {
     if (!useStore.getState().classes.some((c) => c.id === draft.id)) {
-      upsertClass({ ...draft, updated_at: nowISO() })
+      upsertClass(toSave())
     }
   }
 
@@ -91,7 +101,7 @@ export default function ClassEditor({
             className="btn btn-primary"
             disabled={!draft.name.trim()}
             onClick={() => {
-              upsertClass({ ...draft, updated_at: nowISO() })
+              upsertClass(toSave())
               onClose()
             }}
           >
@@ -126,13 +136,13 @@ export default function ClassEditor({
             </datalist>
           </Field>
           <Field label="Usual lesson length (minutes)">
-            <input
+            <NumberField
               className="field tabular"
-              type="number"
               min={5}
               step={5}
-              value={draft.default_duration_min}
-              onChange={(e) => set('default_duration_min', Number(e.target.value) || 60)}
+              value={durationDraft}
+              fallback={60}
+              onChange={setDurationDraft}
             />
           </Field>
         </div>
@@ -161,29 +171,23 @@ export default function ClassEditor({
 
           {draft.pricing_mode === 'per_lesson' ? (
             <Field label="Price per lesson (R$)">
-              <input
+              <NumberField
                 className="field tabular"
-                type="number"
                 min={0}
                 step="0.01"
-                value={draft.price_per_lesson ?? ''}
-                onChange={(e) =>
-                  set('price_per_lesson', e.target.value === '' ? null : Number(e.target.value))
-                }
+                value={draft.price_per_lesson}
+                onChange={(v) => set('price_per_lesson', v)}
               />
             </Field>
           ) : (
             <>
               <Field label="Monthly price (R$)">
-                <input
+                <NumberField
                   className="field tabular"
-                  type="number"
                   min={0}
                   step="0.01"
-                  value={draft.monthly_price ?? ''}
-                  onChange={(e) =>
-                    set('monthly_price', e.target.value === '' ? null : Number(e.target.value))
-                  }
+                  value={draft.monthly_price}
+                  onChange={(v) => set('monthly_price', v)}
                 />
               </Field>
               <p className="mt-2 text-xs text-ink-faint">

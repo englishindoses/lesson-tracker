@@ -72,7 +72,7 @@ export default function StudentsView() {
           {showArchived ? 'Nobody archived.' : 'No students yet — add your first one.'}
         </p>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           {visible.map((s) => {
             const inClasses = classesFor.get(s.id) ?? []
             return (

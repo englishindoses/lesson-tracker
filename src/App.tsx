@@ -6,11 +6,12 @@ import AuthGate from './components/AuthGate'
 import StudentsView from './components/StudentsView'
 import ClassesView from './components/ClassesView'
 import ClassView from './components/ClassView'
+import ThemeMenu from './components/ThemeMenu'
 
 type Tab = 'classes' | 'students'
 
 export default function App() {
-  const { style, mode, toggleStyle, cycleMode } = useTheme()
+  const { style, mode, setStyle, setMode } = useTheme()
   const init = useStore((s) => s.init)
   const authReady = useStore((s) => s.authReady)
   const userId = useStore((s) => s.userId)
@@ -51,9 +52,9 @@ export default function App() {
   return (
     <div className="dotgrid min-h-screen">
       <header className="no-print sticky top-0 z-30 border-b border-rule bg-paper/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center gap-3 px-3 py-2 sm:px-5">
+        <div className="mx-auto flex max-w-[1600px] items-center gap-2 px-3 py-2 sm:gap-3 sm:px-6">
           <button
-            className="style-hand text-lg leading-none sm:text-xl"
+            className="style-hand hidden text-lg leading-none sm:inline sm:text-xl"
             onClick={() => {
               setOpenClassId(null)
               setTab('classes')
@@ -62,7 +63,7 @@ export default function App() {
             Lesson Tracker
           </button>
 
-          <nav className="ml-2 flex gap-1">
+          <nav className="flex gap-1 sm:ml-2">
             {(['classes', 'students'] as Tab[]).map((t) => (
               <button
                 key={t}
@@ -85,21 +86,7 @@ export default function App() {
             {syncLabel[sync]}
           </span>
 
-          <button
-            className="btn px-2 py-1 text-xs"
-            onClick={toggleStyle}
-            title={`Style: ${style === 'ink' ? 'notebook' : 'modern'} — tap to switch`}
-          >
-            {style === 'ink' ? '✎ notebook' : '▢ modern'}
-          </button>
-
-          <button
-            className="btn px-2 py-1 text-xs"
-            onClick={cycleMode}
-            title={`Appearance: ${mode}`}
-          >
-            {mode === 'system' ? '◐' : mode === 'light' ? '☀' : '☾'}
-          </button>
+          <ThemeMenu style={style} mode={mode} setStyle={setStyle} setMode={setMode} />
 
           <div className="relative">
             <button className="btn px-2 py-1 text-xs" onClick={() => setMenuOpen((v) => !v)}>
@@ -147,7 +134,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-3 py-4 sm:px-5 sm:py-6">
+      <main className="mx-auto max-w-[1600px] px-3 py-4 sm:px-6 sm:py-6">
         {openClassId ? (
           <ClassView classId={openClassId} onBack={() => setOpenClassId(null)} />
         ) : tab === 'classes' ? (

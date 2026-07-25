@@ -75,7 +75,7 @@ export default function ClassesView({ onOpen }: { onOpen: (id: string) => void }
             : 'No classes yet. Add students first, then set up a class.'}
         </p>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           {cards.map(({ cls, totals, names }) => (
             <button
               key={cls.id}

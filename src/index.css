@@ -18,7 +18,9 @@
   --radius: 2px;
   --font-body: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', Menlo, monospace;
-  --font-hand: 'Segoe Print', 'Bradley Hand', 'Snell Roundhand', 'Comic Sans MS', cursive;
+  /* Headings. A readable old-style serif rather than a script face -- it still
+     reads as a notebook, but you can take it in at a glance on a phone. */
+  --font-hand: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
   --grid: transparent;
   --grid-size: 24px;
   --paper-texture: none;
@@ -111,7 +113,7 @@ body {
 
 [data-style='ink'] .style-hand {
   font-family: var(--font-hand);
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
 }
 [data-style='modern'] .style-hand {
   font-family: var(--font-body);
