@@ -216,7 +216,7 @@ export default function ClassView({
 
       {/* ----------------------------------------------------------- filters */}
       <div className="no-print mb-3 flex flex-wrap items-center gap-2 text-sm">
-        <select className="field w-auto" value={month} onChange={(e) => setMonth(e.target.value)}>
+        <select className="field field-inline" value={month} onChange={(e) => setMonth(e.target.value)}>
           <option value="all">All months</option>
           {months.map((m) => (
             <option key={m} value={m}>
@@ -226,7 +226,7 @@ export default function ClassView({
         </select>
 
         <select
-          className="field w-auto"
+          className="field field-inline"
           value={kind}
           onChange={(e) => setKind(e.target.value as KindFilter)}
         >
@@ -236,7 +236,7 @@ export default function ClassView({
         </select>
 
         <select
-          className="field w-auto"
+          className="field field-inline"
           value={paid}
           onChange={(e) => setPaid(e.target.value as PaidFilter)}
         >
@@ -246,7 +246,7 @@ export default function ClassView({
         </select>
 
         <select
-          className="field w-auto"
+          className="field field-inline"
           value={presence}
           onChange={(e) => setPresence(e.target.value as Presence | 'all')}
         >

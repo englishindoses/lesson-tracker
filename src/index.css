@@ -157,6 +157,12 @@ body {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
+/* Filters and other controls that should size to their content. `.field` is
+   plain CSS living after Tailwind's utilities, so it beats w-auto -- this
+   opts back out explicitly. */
+.field-inline {
+  width: auto;
+}
 [data-style='ink'] .field {
   border-width: 0 0 1px 0;
   border-color: var(--ink-faint);
@@ -213,7 +219,19 @@ body {
   text-decoration-thickness: 1.5px;
   text-decoration-color: var(--danger);
 }
-[data-style='modern'] .struck {
+/* Form controls don't inherit text-decoration, so the pen line has to be
+   drawn on them directly or a struck row looks untouched. */
+.struck input,
+.struck select {
+  color: var(--ink-faint);
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+  text-decoration-color: var(--danger);
+}
+
+[data-style='modern'] .struck,
+[data-style='modern'] .struck input,
+[data-style='modern'] .struck select {
   text-decoration-color: var(--ink-faint);
 }
 
