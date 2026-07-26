@@ -428,32 +428,32 @@ const S = {
   'edges.clean.hint': ['Plain boxes', 'Caixas simples'],
 
   'doodles.minimalist.hint': [
-    'A leaf and three dots, barely there',
-    'Uma folha e três pontinhos, quase nada',
+    'A leaf, dots, a tick, a flourish',
+    'Uma folha, pontinhos, um tique, um floreio',
   ],
   'doodles.cozy.hint': [
-    'Teacup, hearts, daisies, a banner',
-    'Xícara, corações, margaridas, uma faixa',
+    'Teapot, books, candle, jar of flowers',
+    'Bule, livros, vela, jarro de flores',
   ],
   'doodles.whimsical.hint': [
-    'Starbursts, loops, arrows, a speech bubble',
-    'Estrelas, voltas, setas, um balão de fala',
+    'Starbursts, loops, bunting, confetti',
+    'Estrelas, voltas, bandeirinhas, confete',
   ],
   'doodles.botanical.hint': [
-    'Ferns, monstera, wildflowers, cactus',
-    'Samambaia, costela-de-adão, flores do campo, cacto',
+    'Fern, monstera, eucalyptus, acorns',
+    'Samambaia, costela-de-adão, eucalipto, bolotas',
   ],
   'doodles.seaside.hint': [
-    'Shells, ripples, starfish, seaweed',
-    'Conchas, ondinhas, estrela-do-mar, alga',
+    'Conch, palm, seaweed, a sailboat',
+    'Búzio, palmeira, alga, um veleiro',
   ],
   'doodles.berry.hint': [
-    'Cherries, berry branches, blossom',
-    'Cerejas, ramos de frutinhas, flores',
+    'Cherries, grapes, blossom, vine',
+    'Cerejas, uvas, flores, trepadeira',
   ],
   'doodles.typewriter.hint': [
-    'Asterisks, paperclips, note cards, dashes',
-    'Asteriscos, clipes, fichas, tracinhos',
+    'Index cards, paperclips, a pencil',
+    'Fichas, clipes, um lápis',
   ],
   'doodles.none': ['None', 'Nenhum'],
   'doodles.none.hint': ['Clean margins', 'Margens limpas'],
