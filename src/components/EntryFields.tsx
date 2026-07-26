@@ -95,7 +95,15 @@ export function AmountInput({ entry, line, monthlyClass, onPatch }: RowProps) {
       step="0.01"
       className="field tabular text-right"
       aria-label={isLesson ? t('entry.priceForLesson') : t('entry.paymentAmount')}
-      placeholder={isLesson ? (monthlyClass ? '—' : line ? line.charge.toFixed(2) : '') : ''}
+      placeholder={
+        isLesson
+          ? monthlyClass || line?.status === 'pending'
+            ? '—'
+            : line
+              ? line.charge.toFixed(2)
+              : ''
+          : ''
+      }
       title={isLesson ? t('entry.blankUsesClassPrice') : undefined}
       value={entry.amount}
       onChange={(v) => onPatch({ amount: v })}
@@ -133,9 +141,12 @@ export function PaidControl({ entry, line, onPatch, onPayOff }: RowProps) {
 
   const status = line?.status
 
-  if (status === 'free')
+  if (status === 'free' || status === 'pending')
     return (
-      <span className="text-xs text-ink-faint" title={t('entry.nothingToPay')}>
+      <span
+        className="text-xs text-ink-faint"
+        title={status === 'pending' ? t('entry.notMarkedYet') : t('entry.nothingToPay')}
+      >
         —
       </span>
     )

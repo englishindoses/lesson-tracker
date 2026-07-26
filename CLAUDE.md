@@ -61,6 +61,10 @@ and might not be noticed for months. `src/lib/ledger.ts` owns all of it, and
 Charges:
 - **Per-lesson class**: every lesson row that isn't struck out charges the class
   price, or the row's own `amount` if it was overridden.
+- **A lesson with no presence recorded charges nothing** — its ledger status is
+  `pending`. A row put in the diary for next month is a plan, not a lesson, so
+  it stays out of charged, owed and the paid filter until she marks it. It does
+  still count in the lesson count and the scheduled time.
 - **Monthly class**: lessons charge nothing. A payment row *is* the monthly
   invoice, so its amount is the charge.
 

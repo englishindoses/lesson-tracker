@@ -104,6 +104,8 @@ export default function ClassView({
       if (presence !== 'all' && e.presence !== presence) return false
       if (paid !== 'all') {
         const status = lines.get(e.id)?.status
+        // An unmarked lesson is neither: there is no money on it either way.
+        if (status === 'pending') return false
         const isPaid = status === 'paid' || status === 'received' || status === 'free'
         if (paid === 'paid' && !isPaid) return false
         if (paid === 'unpaid' && isPaid) return false

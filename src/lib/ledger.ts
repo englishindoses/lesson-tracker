@@ -4,8 +4,10 @@ import type { Class, Entry } from './types'
  * The money model.
  *
  * Charges (what the student owes you)
- *   - per-lesson class: every lesson row that isn't struck out charges the
- *     class price, or the row's own amount if you overrode it.
+ *   - per-lesson class: every lesson row that isn't struck out, and has a
+ *     presence recorded, charges the class price, or the row's own amount if
+ *     you overrode it. A row with no presence yet is a plan, not a lesson, so
+ *     it charges nothing until you mark it.
  *   - monthly class: lessons charge nothing. A payment row *is* the monthly
  *     invoice, so its amount is the charge.
  *
@@ -28,6 +30,7 @@ export type PaidStatus =
   | 'paid' // fully covered by money received
   | 'due' // charged, not yet covered
   | 'free' // struck out, or a non-charging lesson on a monthly package
+  | 'pending' // no presence recorded yet -- not part of the money at all
   | 'received' // a payment row that has been received
   | 'expected' // a payment row still outstanding
 
@@ -71,6 +74,9 @@ export function sortEntries(entries: Entry[]): Entry[] {
 
 export function lessonCharge(entry: Entry, cls: Class): number {
   if (entry.kind !== 'lesson' || entry.not_charged) return 0
+  // A lesson you haven't marked yet hasn't happened as far as the money is
+  // concerned -- a row put in the diary for next month must not be charged.
+  if (entry.presence == null) return 0
   if (entry.amount != null) return entry.amount
   if (cls.pricing_mode === 'monthly') return 0
   return cls.price_per_lesson ?? 0
@@ -95,7 +101,8 @@ export function buildLedger(cls: Class, allEntries: Entry[]): Ledger {
         charge,
         credit: 0,
         covered: 0,
-        status: charge > 0 ? 'due' : 'free',
+        status:
+          entry.presence == null ? 'pending' : charge > 0 ? 'due' : 'free',
       })
     } else {
       const amount = entry.amount ?? 0

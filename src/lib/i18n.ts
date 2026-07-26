@@ -280,6 +280,10 @@ const S = {
   'entry.paymentReceived': ['Payment received', 'Pagamento recebido'],
   'entry.datePaid': ['Date paid', 'Data do pagamento'],
   'entry.nothingToPay': ['Nothing to pay', 'Nada a pagar'],
+  'entry.notMarkedYet': [
+    'No presence recorded yet — this lesson charges nothing until you mark it',
+    'Presença ainda não registrada — esta aula não cobra nada até você marcá-la',
+  ],
   'entry.coveredByPayment': ['Covered by a payment', 'Coberta por um pagamento'],
   'entry.markPaid': ['Mark paid', 'Marcar como paga'],
   'entry.markPaidHint': [

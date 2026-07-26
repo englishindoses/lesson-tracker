@@ -166,6 +166,40 @@ section('A struck-out lesson charges nothing but keeps its time')
 }
 
 // ---------------------------------------------------------------------------
+section('A lesson with no presence recorded is not money yet')
+{
+  const entries = [
+    lesson('done', '2026-03-04'),
+    lesson('planned', '2026-08-05', { presence: null }),
+  ]
+  const led = buildLedger(perLesson, entries)
+  const t = totalsFor(entries, led.lines)
+  check('the unmarked lesson is pending', led.lines.get('planned')!.status, 'pending')
+  check('it charges nothing', led.lines.get('planned')!.charge, 0)
+  check('only the marked lesson is charged', t.charged, 100)
+  check('and only that one is owed', led.owed, 100)
+  check('but it is still on the books as time', t.scheduledMinutes, 120)
+  check('and still counted as a lesson', t.lessonCount, 2)
+
+  // A price typed in ahead of time is still not a charge until it is marked.
+  const priced = [lesson('planned', '2026-08-05', { presence: null, amount: 150 })]
+  check('an override does not charge it either', buildLedger(perLesson, priced).owed, 0)
+
+  // Money already in hand should not be eaten by a lesson that hasn't happened.
+  const ahead = [
+    lesson('planned', '2026-08-05', { presence: null }),
+    payment('p', '2026-08-01', 100, true),
+  ]
+  const a = buildLedger(perLesson, ahead)
+  check('a payment ahead stays as credit', a.credit, 100)
+  check('and the unmarked lesson does not swallow it', a.lines.get('planned')!.status, 'pending')
+
+  // Marking it turns it into a real charge.
+  const marked = [lesson('planned', '2026-08-05'), payment('p', '2026-08-01', 100, true)]
+  check('once marked, the credit settles it', buildLedger(perLesson, marked).lines.get('planned')!.status, 'paid')
+}
+
+// ---------------------------------------------------------------------------
 section('Presence rules')
 {
   const noShow = [lesson('l1', '2026-03-04', { presence: 'no_show' })]
