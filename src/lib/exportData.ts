@@ -187,12 +187,12 @@ export function exportLessonsCSV(snap: Snapshot, o: ExportOptions) {
 }
 
 /**
- * One row per student: who they are, what they need, and how the months chosen
- * added up for them.
+ * One row per student: who they are, what they need, which classes they are
+ * in, and how much teaching they had in the months chosen.
  *
- * The money is per class, so a student sharing a class with someone else shows
- * that class's figures — there is no way to split a shared class between two
- * people, and pretending otherwise would be worse than saying so.
+ * No money here on purpose. Money is owed by a class, not by a person — a
+ * class can have two students in it, and splitting its figures between them
+ * would be an invention. The classes sheet carries it.
  */
 export function exportStudentsCSV(snap: Snapshot, o: ExportOptions) {
   const lang = getLang()
@@ -202,7 +202,6 @@ export function exportStudentsCSV(snap: Snapshot, o: ExportOptions) {
   const header: TKey[] = [
     'students.name', 'csv.contact', 'csv.level', 'csv.needs', 'csv.studentNotes', 'csv.archived',
     'csv.classes', 'csv.months', 'csv.lessonCount', 'csv.taughtTime', 'csv.scheduledTime',
-    'csv.charged', 'csv.received', 'csv.owedNow',
   ]
 
   const months = rangeWords(o, say)
@@ -215,7 +214,6 @@ export function exportStudentsCSV(snap: Snapshot, o: ExportOptions) {
       classes.flatMap((c) => [...(ledgers.get(c.id)?.lines.entries() ?? [])]),
     )
     const t = totalsFor(mine, lines)
-    const owed = classes.reduce((sum, c) => sum + (ledgers.get(c.id)?.owed ?? 0), 0)
 
     return [
       s.name,
@@ -229,14 +227,63 @@ export function exportStudentsCSV(snap: Snapshot, o: ExportOptions) {
       t.lessonCount,
       t.taughtMinutes,
       t.scheduledMinutes,
-      num(t.charged),
-      num(t.received),
-      num(owed),
     ]
   })
 
   download(
     `lesson-tracker-students-${rangeTag(o)}.csv`,
+    'text/csv;charset=utf-8',
+    toCSV(header.map(say), rows),
+  )
+}
+
+/**
+ * One row per class, and this is where the money lives: charged and received
+ * for the months chosen, and what the class owes overall.
+ *
+ * Owed is deliberately not filtered by month — what is outstanding is a fact
+ * about the class as a whole, the same rule the bottom bar follows.
+ */
+export function exportClassesCSV(snap: Snapshot, o: ExportOptions) {
+  const lang = getLang()
+  const say = (key: TKey) => translate(lang, key)
+  const { classes, visible, ledgers, studentsOfClass } = select(snap, o)
+
+  const header: TKey[] = [
+    'csv.className', 'csv.students', 'csv.type', 'csv.pricing', 'csv.price', 'csv.archived',
+    'csv.months', 'csv.lessonCount', 'csv.taughtTime', 'csv.scheduledTime',
+    'csv.charged', 'csv.received', 'csv.owedNow',
+  ]
+
+  const months = rangeWords(o, say)
+
+  const rows = classes.map((c) => {
+    const led = ledgers.get(c.id)
+    const t = totalsFor(
+      visible.filter((e) => e.class_id === c.id),
+      led?.lines ?? new Map<string, Line>(),
+    )
+    const monthlyClass = c.pricing_mode === 'monthly'
+
+    return [
+      c.name,
+      (studentsOfClass.get(c.id) ?? []).map((s) => s.name).join(', '),
+      c.lesson_type ?? '',
+      say(monthlyClass ? 'classEditor.monthly' : 'classEditor.perLesson'),
+      num((monthlyClass ? c.monthly_price : c.price_per_lesson) ?? 0),
+      say(c.archived ? 'csv.yes' : 'csv.no'),
+      months,
+      t.lessonCount,
+      t.taughtMinutes,
+      t.scheduledMinutes,
+      num(t.charged),
+      num(t.received),
+      num(led?.owed ?? 0),
+    ]
+  })
+
+  download(
+    `lesson-tracker-classes-${rangeTag(o)}.csv`,
     'text/csv;charset=utf-8',
     toCSV(header.map(say), rows),
   )
@@ -254,6 +301,6 @@ export function monthsPresent(snap: Snapshot): string[] {
 
 /** How many rows an export would carry — so a pointless download can be caught. */
 export function countRows(snap: Snapshot, o: ExportOptions) {
-  const { students, visible } = select(snap, o)
-  return { students: students.length, entries: visible.length }
+  const { students, classes, visible } = select(snap, o)
+  return { students: students.length, classes: classes.length, entries: visible.length }
 }

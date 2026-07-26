@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useStore } from '../data/store'
 import {
   countRows,
+  exportClassesCSV,
   exportJSON,
   exportLessonsCSV,
   exportStudentsCSV,
@@ -123,51 +124,21 @@ function Toggle({
   )
 }
 
-/**
- * The exports. Two spreadsheets rather than one: a student reads across
- * (details and totals), a lesson reads down (one row each). Both answer to the
- * same two questions — which months, and whether the archived count.
- *
- * The backup deliberately ignores both: a restore file that only holds half
- * the data is a trap.
- */
-function ExportControls() {
-  const { t } = useT()
-  // Subscribed, not just read through snapshot(), so the month list and the
-  // row counts follow a sync arriving while this page is open.
-  const entries = useStore((s) => s.entries)
-  const students = useStore((s) => s.students)
-  const snapshot = useStore((s) => s.snapshot)
-
-  const [opts, setOpts] = useState<ExportOptions>({
-    from: null,
-    to: null,
-    includeArchived: false,
-  })
-
-  const snap = { ...snapshot(), entries, students }
-  const months = monthsPresent(snap)
-  const counts = countRows(snap, opts)
-  const empty = !counts.entries && !counts.students
-
-  // Picking a "from" after the "to" would mean an empty file; the other end
-  // moves with it rather than leaving her with nothing.
-  const setFrom = (v: string | null) =>
-    setOpts((o) => ({ ...o, from: v, to: o.to && v && v > o.to ? v : o.to }))
-  const setTo = (v: string | null) =>
-    setOpts((o) => ({ ...o, to: v, from: o.from && v && v < o.from ? v : o.from }))
-
-  const MonthSelect = ({
-    label,
-    value,
-    onChange,
-    openLabel,
-  }: {
-    label: string
-    value: string | null
-    onChange: (v: string | null) => void
-    openLabel: string
-  }) => (
+/** One end of the month range. Outside the component, so it isn't remounted. */
+function MonthSelect({
+  label,
+  months,
+  value,
+  onChange,
+  openLabel,
+}: {
+  label: string
+  months: string[]
+  value: string | null
+  onChange: (v: string | null) => void
+  openLabel: string
+}) {
+  return (
     <label className="text-sm">
       <span className="mr-1.5 text-ink-soft">{label}</span>
       <select
@@ -184,6 +155,44 @@ function ExportControls() {
       </select>
     </label>
   )
+}
+
+/**
+ * The exports. Three spreadsheets, each answering one question: who the
+ * students are, what each class is owed, and what happened on each day. The
+ * money sits on the classes sheet, because a class is what owes money — it can
+ * have two students in it, and there is no honest way to split it between them.
+ *
+ * All three take the same month range and archived switch. The backup
+ * deliberately ignores both: a restore file that only holds half the data is a
+ * trap.
+ */
+function ExportControls() {
+  const { t } = useT()
+  // Subscribed, not just read through snapshot(), so the month list and the
+  // row counts follow a sync arriving while this page is open.
+  const entries = useStore((s) => s.entries)
+  const students = useStore((s) => s.students)
+  const classes = useStore((s) => s.classes)
+  const snapshot = useStore((s) => s.snapshot)
+
+  const [opts, setOpts] = useState<ExportOptions>({
+    from: null,
+    to: null,
+    includeArchived: false,
+  })
+
+  const snap = { ...snapshot(), entries, students, classes }
+  const months = monthsPresent(snap)
+  const counts = countRows(snap, opts)
+  const empty = !counts.entries && !counts.students && !counts.classes
+
+  // Picking a "from" after the "to" would mean an empty file; the other end
+  // moves with it rather than leaving her with nothing.
+  const setFrom = (v: string | null) =>
+    setOpts((o) => ({ ...o, from: v, to: o.to && v && v > o.to ? v : o.to }))
+  const setTo = (v: string | null) =>
+    setOpts((o) => ({ ...o, to: v, from: o.from && v && v < o.from ? v : o.from }))
 
   return (
     <>
@@ -191,12 +200,14 @@ function ExportControls() {
       <div className="mb-3 flex flex-wrap items-center gap-3">
         <MonthSelect
           label={t('settings.exportFrom')}
+          months={months}
           value={opts.from}
           onChange={setFrom}
           openLabel={t('settings.fromStart')}
         />
         <MonthSelect
           label={t('settings.exportTo')}
+          months={months}
           value={opts.to}
           onChange={setTo}
           openLabel={t('settings.toEnd')}
@@ -221,6 +232,14 @@ function ExportControls() {
         </button>
         <button
           className="btn"
+          disabled={!counts.classes}
+          title={t('settings.exportClassesHint')}
+          onClick={() => exportClassesCSV(snap, opts)}
+        >
+          {t('settings.exportClasses')} ({counts.classes})
+        </button>
+        <button
+          className="btn"
           disabled={!counts.entries}
           title={t('settings.exportLessonsHint')}
           onClick={() => exportLessonsCSV(snap, opts)}
@@ -230,6 +249,7 @@ function ExportControls() {
       </div>
       {empty && <p className="mt-2 text-sm text-danger">{t('settings.nothingToExport')}</p>}
       <p className="mt-1 text-sm text-ink-faint">{t('settings.exportStudentsHint')}</p>
+      <p className="text-sm text-ink-faint">{t('settings.exportClassesHint')}</p>
       <p className="text-sm text-ink-faint">{t('settings.exportLessonsHint')}</p>
 
       <div className="mt-5 border-t border-rule pt-4">

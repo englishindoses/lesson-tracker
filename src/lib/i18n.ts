@@ -345,6 +345,9 @@ const S = {
   'csv.received': ['Received', 'Recebido'],
   'csv.owedNow': ['Owed now', 'Devendo agora'],
   'csv.months': ['Months', 'Meses'],
+  'csv.pricing': ['Pricing', 'Cobrança'],
+  'csv.price': ['Price', 'Preço'],
+  'csv.className': ['Class', 'Turma'],
   'csv.allMonths': ['Everything', 'Tudo'],
   'csv.status.paid': ['Paid', 'Paga'],
   'csv.status.due': ['Unpaid', 'A pagar'],
@@ -402,8 +405,13 @@ const S = {
   ],
   'settings.exportStudents': ['Students (CSV)', 'Alunos (CSV)'],
   'settings.exportStudentsHint': [
-    'One row per student: their details, their classes, and their totals for the months chosen.',
-    'Uma linha por aluno: os dados dele, as turmas e os totais dos meses escolhidos.',
+    'One row per student: their details, their classes, and how many lessons they had in the months chosen.',
+    'Uma linha por aluno: os dados dele, as turmas e quantas aulas teve nos meses escolhidos.',
+  ],
+  'settings.exportClasses': ['Classes and money (CSV)', 'Turmas e valores (CSV)'],
+  'settings.exportClassesHint': [
+    'One row per class, with the money: charged, received and owed. Money belongs to a class, not to a person — a class can have two students in it.',
+    'Uma linha por turma, com os valores: cobrado, recebido e devendo. O dinheiro é da turma, não da pessoa — uma turma pode ter dois alunos.',
   ],
   'settings.exportLessons': ['Lessons and payments (CSV)', 'Aulas e pagamentos (CSV)'],
   'settings.exportLessonsHint': [

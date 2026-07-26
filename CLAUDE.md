@@ -150,20 +150,23 @@ immediately rather than at the next sign-in.
 
 ## Exports
 
-`src/lib/exportData.ts`, driven from Settings → Your data. Three files:
+`src/lib/exportData.ts`, driven from Settings → Your data. Four files:
 
 - **Students CSV** — one row per student: contact, level, needs, notes,
-  archived, their classes, then their totals for the months chosen (lessons,
-  time taught, time on the books, charged, received, owed now). The money is
-  per *class*, so two students sharing one class each show that class's
-  figures; there is no honest way to split it.
+  archived, their classes, and their teaching for the months chosen (lessons,
+  time taught, time on the books). **No money.** Money belongs to a class, not
+  to a person — a class can hold two students and there is no honest way to
+  split it between them.
+- **Classes CSV** — one row per class, and where the money lives: students,
+  type, pricing, price, lessons, time, charged, received, owed now. Owed is
+  not filtered by month, matching the bottom bar.
 - **Lessons CSV** — one row per lesson and payment: date, class, students,
   type, duration, presence, the ledger's charge (not the typed amount),
   payment received, status, date paid, both notes columns.
 - **Backup JSON** — always the whole thing, deliberately ignoring the options.
   A restore file holding half the data is a trap.
 
-Both spreadsheets take a month range (`from`/`to`, "YYYY-MM", either end
+All three spreadsheets take a month range (`from`/`to`, "YYYY-MM", either end
 open) and an include-archived switch, off by default. The ledger is still built
 on each class's full history and only the *rows* are filtered, so a March
 payment settles a February lesson even in a March-only export.
