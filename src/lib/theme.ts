@@ -1,10 +1,18 @@
 import { useCallback, useEffect, useState } from 'react'
 
-export type StyleName = 'ink' | 'modern'
+export type StyleName = 'minimalist' | 'cozy' | 'whimsical' | 'modern'
 export type ModeSetting = 'light' | 'dark' | 'system'
 
 const STYLE_KEY = 'lt.style'
 const MODE_KEY = 'lt.mode'
+
+const STYLES: StyleName[] = ['minimalist', 'cozy', 'whimsical', 'modern']
+
+/** Falls back cleanly for anyone still holding the old 'ink' preference. */
+export function readStyle(): StyleName {
+  const stored = localStorage.getItem(STYLE_KEY) as StyleName | null
+  return stored && STYLES.includes(stored) ? stored : 'minimalist'
+}
 
 function prefersDark() {
   return window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -22,9 +30,7 @@ function applyMode(mode: ModeSetting) {
  * either notebook style can be read at night.
  */
 export function useTheme() {
-  const [style, setStyleState] = useState<StyleName>(
-    () => (localStorage.getItem(STYLE_KEY) as StyleName) || 'ink',
-  )
+  const [style, setStyleState] = useState<StyleName>(readStyle)
   const [mode, setModeState] = useState<ModeSetting>(
     () => (localStorage.getItem(MODE_KEY) as ModeSetting) || 'system',
   )
@@ -53,15 +59,5 @@ export function useTheme() {
     localStorage.setItem(MODE_KEY, m)
   }, [])
 
-  const toggleStyle = useCallback(
-    () => setStyle(style === 'ink' ? 'modern' : 'ink'),
-    [style, setStyle],
-  )
-
-  const cycleMode = useCallback(() => {
-    const order: ModeSetting[] = ['system', 'light', 'dark']
-    setMode(order[(order.indexOf(mode) + 1) % order.length])
-  }, [mode, setMode])
-
-  return { style, mode, setStyle, setMode, toggleStyle, cycleMode }
+  return { style, mode, setStyle, setMode }
 }

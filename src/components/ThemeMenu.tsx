@@ -2,8 +2,10 @@ import type { ModeSetting, StyleName } from '../lib/theme'
 import Menu from './Menu'
 
 const STYLES: { value: StyleName; label: string; hint: string }[] = [
-  { value: 'ink', label: 'Notebook', hint: 'Dot grid, warm paper' },
-  { value: 'modern', label: 'Modern', hint: 'Clean and plain' },
+  { value: 'minimalist', label: 'Minimalist', hint: 'Muted sage, terracotta, ochre' },
+  { value: 'cozy', label: 'Cozy', hint: 'Handwritten, soft pastels' },
+  { value: 'whimsical', label: 'Whimsical', hint: 'Hand-drawn, bright neon' },
+  { value: 'modern', label: 'Modern', hint: 'Plain, not a journal' },
 ]
 
 const MODES: { value: ModeSetting; label: string }[] = [
@@ -37,7 +39,7 @@ export default function ThemeMenu({
       {(close) => (
         <>
           <div className="px-3 pb-1 pt-2 text-xs uppercase tracking-wide text-ink-faint">
-            Style
+            Bullet journal style
           </div>
           {STYLES.map((s) => (
             <button

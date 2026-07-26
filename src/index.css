@@ -1,63 +1,168 @@
-﻿@tailwind base;
+﻿/* Must stay first: CSS discards @import that follows any other rule. */
+@import './fonts.css';
+
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ==========================================================================
-   Two styles, two modes.
+   Four styles, two modes.
 
-     data-style="ink"     dot-grid notebook, warm paper, hand-drawn edges
-     data-style="modern"  clean, high-legibility, no texture
+     data-style="minimalist"  bullet journal, muted, Quicksand + Inter
+     data-style="cozy"        bullet journal, pastel, Sacramento + Caveat
+     data-style="whimsical"   bullet journal, neon, Amatic SC + Patrick Hand
+     data-style="modern"      clean, high-legibility, no texture
 
      data-mode="light" | "dark"
 
-   Components never hardcode a colour -- they use the tokens below, so the
-   toggle in the header repaints everything.
+   Components never hardcode a colour or a font -- they use the tokens below,
+   so the Theme menu repaints everything.
+
+   Each bullet journal theme is built from a text colour and three highlighter
+   colours (green, red, orange). The highlighters are used as backgrounds, the
+   way a real highlighter is; --good, --danger and --accent are darkened
+   versions of the same hues for text and icons, which the pastels are too pale
+   to serve as.
    ========================================================================== */
 
 :root {
   --radius: 2px;
   --font-body: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-hand: var(--font-body);
+  --font-accent: var(--font-body);
   --font-mono: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', Menlo, monospace;
-  /* Headings. A readable old-style serif rather than a script face -- it still
-     reads as a notebook, but you can take it in at a glance on a phone. */
-  --font-hand: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
   --grid: transparent;
   --grid-size: 24px;
-  --paper-texture: none;
+  --heading-weight: 700;
+  --heading-scale: 1;
+  --body-scale: 1;
 }
 
-/* ---------------------------------------------------------------- ink light */
-[data-style='ink'][data-mode='light'] {
-  --paper: #f6f2e7;
-  --paper-raised: #fbf8f0;
-  --ink: #2b2a26;
-  --ink-soft: #55524a;
-  --ink-faint: #8d887c;
-  --rule: #cfc7b3;
-  --accent: #1c4f8b;
-  --accent-soft: #fbe6a2;
-  --danger: #a33a2a;
-  --good: #3d6b3a;
-  --good-soft: #e6efe0;
-  --grid: #d9d0ba;
-  --radius: 3px;
+/* ============================================================ 1. MINIMALIST */
+[data-style='minimalist'] {
+  --font-hand: 'Quicksand', ui-sans-serif, system-ui, sans-serif;
+  --font-accent: 'Quicksand', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --heading-weight: 700;
+  --radius: 6px;
 }
 
-/* ----------------------------------------------------------------- ink dark */
-[data-style='ink'][data-mode='dark'] {
-  --paper: #16171a;
-  --paper-raised: #1d1f23;
-  --ink: #e6e1d4;
-  --ink-soft: #b3ada0;
-  --ink-faint: #7d786e;
-  --rule: #3a3d43;
-  --accent: #8fb8e8;
-  --accent-soft: #4a4326;
-  --danger: #e08b7c;
-  --good: #8fc08a;
-  --good-soft: #1e2a1e;
-  --grid: #2b2e33;
-  --radius: 3px;
+[data-style='minimalist'][data-mode='light'] {
+  --paper: #fbfbf9;
+  --paper-raised: #ffffff;
+  --ink: #2b2d42; /* charcoal ink */
+  --ink-soft: #575a70;
+  --ink-faint: #8b8ea0;
+  --rule: #dedee0;
+  --accent: #b07d2a; /* muted ochre, darkened for buttons */
+  --accent-soft: #f2cc8f; /* muted ochre highlighter */
+  --danger: #b4482c; /* soft terracotta, darkened */
+  --danger-soft: #e07a5f;
+  --good: #4f7248; /* muted sage, darkened */
+  --good-soft: #dfe8db;
+  --grid: #e4e4e6;
+}
+
+[data-style='minimalist'][data-mode='dark'] {
+  --paper: #16171d;
+  --paper-raised: #1e2029;
+  --ink: #e8e9f0;
+  --ink-soft: #a9acbd;
+  --ink-faint: #74778a;
+  --rule: #343747;
+  --accent: #f2cc8f;
+  --accent-soft: #4a3d24;
+  --danger: #e07a5f;
+  --danger-soft: #4a2a22;
+  --good: #a8c3a0;
+  --good-soft: #24301f;
+  --grid: #2a2d38;
+}
+
+/* ================================================================== 2. COZY */
+[data-style='cozy'] {
+  --font-hand: 'Sacramento', 'Segoe Script', cursive;
+  --font-accent: 'Amatic SC', 'Segoe Print', cursive;
+  --font-body: 'Caveat', 'Segoe Print', cursive;
+  --heading-weight: 400;
+  --heading-scale: 1.45; /* Sacramento runs small */
+  --body-scale: 1.12; /* so does Caveat */
+  --radius: 10px;
+}
+
+[data-style='cozy'][data-mode='light'] {
+  --paper: #fdf6ec;
+  --paper-raised: #fffbf4;
+  --ink: #332c27; /* warm dark brown */
+  --ink-soft: #5d5147;
+  --ink-faint: #8d7f72;
+  --rule: #e3d5c3;
+  --accent: #c1873c; /* pastel peach, darkened */
+  --accent-soft: #ffdab4; /* pastel peach highlighter */
+  --danger: #bd5680; /* pastel rose, darkened */
+  --danger-soft: #ffcbe1;
+  --good: #6d8b4c; /* pastel mint, darkened */
+  --good-soft: #e7f0d8;
+  --grid: #e8dac6;
+}
+
+[data-style='cozy'][data-mode='dark'] {
+  --paper: #1c1815;
+  --paper-raised: #26211c;
+  --ink: #f2e7db;
+  --ink-soft: #c2b2a2;
+  --ink-faint: #8d7f72;
+  --rule: #3d352d;
+  --accent: #ffdab4;
+  --accent-soft: #4a3a28;
+  --danger: #ffcbe1;
+  --danger-soft: #452833;
+  --good: #d6e5bd;
+  --good-soft: #29331f;
+  --grid: #332b24;
+}
+
+/* ============================================================= 3. WHIMSICAL */
+[data-style='whimsical'] {
+  --font-hand: 'Amatic SC', 'Segoe Print', cursive;
+  --font-accent: 'Indie Flower', 'Segoe Print', cursive;
+  --font-body: 'Patrick Hand', 'Segoe Print', cursive;
+  --heading-weight: 700;
+  --heading-scale: 1.35; /* Amatic SC is very condensed */
+  --body-scale: 1.06;
+  --radius: 4px;
+}
+
+[data-style='whimsical'][data-mode='light'] {
+  --paper: #fffdf6;
+  --paper-raised: #ffffff;
+  --ink: #1a1a2e; /* deep midnight slate */
+  --ink-soft: #4a4a63;
+  --ink-faint: #85859c;
+  --rule: #dcdce4;
+  --accent: #e2542b; /* vivid orange, darkened enough for white text */
+  --accent-soft: #ffd9c9; /* vivid orange, lightened for a highlight */
+  --danger: #e0193f; /* neon coral red */
+  --danger-soft: #ffd4dc;
+  --good: #6f8c00; /* electric lime, darkened to be legible */
+  --good-soft: #eaffb0;
+  --grid: #e6e6ee;
+}
+
+[data-style='whimsical'][data-mode='dark'] {
+  --paper: #12121f;
+  --paper-raised: #1b1b2e;
+  --ink: #f2f2fa;
+  --ink-soft: #b0b0c8;
+  --ink-faint: #75758f;
+  --rule: #2e2e46;
+  --accent: #ff7f50;
+  --accent-soft: #47281c;
+  --danger: #ff355e;
+  --danger-soft: #451825;
+  --good: #ccff00;
+  --good-soft: #2b3300;
+  --grid: #24243a;
 }
 
 /* ------------------------------------------------------------- modern light */
@@ -71,6 +176,7 @@
   --accent: #2563eb;
   --accent-soft: #dbeafe;
   --danger: #c02626;
+  --danger-soft: #fbe0e0;
   --good: #157347;
   --good-soft: #e3f4ea;
   --grid: transparent;
@@ -88,6 +194,7 @@
   --accent: #74a4ff;
   --accent-soft: #1c2a45;
   --danger: #f07171;
+  --danger-soft: #3a1f1f;
   --good: #57b98a;
   --good-soft: #15251d;
   --grid: transparent;
@@ -98,6 +205,12 @@ html,
 body,
 #root {
   height: 100%;
+}
+
+/* Handwritten faces have a smaller x-height, so the themes that use them nudge
+   the root size up rather than looking cramped. */
+html {
+  font-size: calc(100% * var(--body-scale));
 }
 
 body {
@@ -115,9 +228,14 @@ body {
   background-position: 8px 8px;
 }
 
-[data-style='ink'] .style-hand {
+/* Headings. The journal themes each bring their own face and their own size
+   correction, since a condensed script sets far smaller than a sans at the
+   same nominal size. */
+.style-hand {
   font-family: var(--font-hand);
-  letter-spacing: 0;
+  font-weight: var(--heading-weight);
+  font-size: calc(1em * var(--heading-scale));
+  line-height: 1.15;
 }
 [data-style='modern'] .style-hand {
   font-family: var(--font-body);
@@ -125,8 +243,13 @@ body {
   letter-spacing: -0.015em;
 }
 
-/* Section headings: underlined by hand in ink, plain in modern. */
-[data-style='ink'] .rule-under {
+/* Small labels and the totals bar wording -- the theme's accent face. */
+.style-accent {
+  font-family: var(--font-accent);
+}
+
+/* Section headings: hand-underlined in the journal themes, plain in modern. */
+html:not([data-style='modern']) .rule-under {
   border-bottom: 2px solid var(--ink);
   border-radius: 40% 60% 30% 70% / 100% 100% 4% 4%;
   padding-bottom: 2px;
@@ -135,13 +258,13 @@ body {
   border-bottom: none;
 }
 
-/* Cards read as taped-in notes in ink, as flat panels in modern. */
+/* Cards read as taped-in notes in the journal themes, flat panels in modern. */
 .card {
   background-color: var(--paper-raised);
   border: 1px solid var(--rule);
   border-radius: var(--radius);
 }
-[data-style='ink'] .card {
+html:not([data-style='modern']) .card {
   border-color: var(--ink-faint);
   box-shadow: 1px 1px 0 var(--rule);
 }
@@ -149,7 +272,7 @@ body {
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
 }
 
-/* Inputs are ruled lines in ink, boxes in modern. */
+/* Inputs are ruled lines in the journal themes, boxes in modern. */
 .field {
   background-color: transparent;
   color: var(--ink);
@@ -169,13 +292,13 @@ body {
 .field-inline {
   width: auto;
 }
-[data-style='ink'] .field {
+html:not([data-style='modern']) .field {
   border-width: 0 0 1px 0;
   border-color: var(--ink-faint);
   border-radius: 0;
   padding-left: 0.15rem;
 }
-[data-style='ink'] .field:focus {
+html:not([data-style='modern']) .field:focus {
   outline: none;
   border-bottom-color: var(--accent);
   border-bottom-width: 2px;
@@ -206,7 +329,7 @@ body {
   filter: brightness(1.12);
   background-color: var(--accent);
 }
-[data-style='ink'] .btn {
+html:not([data-style='modern']) .btn {
   border-radius: 8px 6px 9px 5px / 6px 9px 5px 8px;
 }
 

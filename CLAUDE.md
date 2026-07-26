@@ -118,8 +118,28 @@ idle, plain `25/07/2026` while focused.
 - Laptop (1024px+): the full table. Below that: stacked cards. Same field
   components in both, so they can't drift apart — see `EntryFields.tsx`.
 - Calendar view shares those components too, via `EntryDialog`.
-- Two styles (notebook / modern) and light/dark, all driven by CSS variables in
-  `index.css`. Components never hardcode a colour.
+- Four styles and light/dark, all driven by CSS variables in `index.css`.
+  Components never hardcode a colour or a font.
+  - **Minimalist** — Quicksand + Inter, muted sage/terracotta/ochre
+  - **Cozy** — Sacramento + Amatic SC + Caveat, soft pastels
+  - **Whimsical** — Amatic SC + Indie Flower + Patrick Hand, neon
+  - **Modern** — system sans, plain, not a journal
+
+  The three journal themes share rules via `html:not([data-style='modern'])`.
+  Each supplies `--font-hand`, `--font-accent`, `--font-body`, and a
+  `--heading-scale` / `--body-scale` correction, because a condensed script sets
+  far smaller than a sans at the same nominal size.
+
+  Highlighter colours are used as backgrounds (`--good-soft`, `--danger-soft`,
+  `--accent-soft`); `--good`, `--danger` and `--accent` are darkened versions of
+  the same hues, since pastels and neons are unreadable as text.
+
+- Fonts are **self-hosted** in `src/fonts/`, not linked from Google, so the app
+  keeps its typography offline. Regenerate with `node scripts/fetch-fonts.mjs`;
+  licences are in `FONT-LICENCES.md`. They live in `src/` rather than `public/`
+  so Vite rewrites the URLs — an absolute `/fonts/` path breaks under the Pages
+  subpath. `@import './fonts.css'` must stay the first line of `index.css`, or
+  CSS discards it.
 
 ## Commands
 

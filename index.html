@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-style="ink">
+<html lang="en" data-style="minimalist">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
@@ -11,7 +11,9 @@
     <script>
       // Applied before first paint so the app never flashes the wrong theme.
       try {
-        var s = localStorage.getItem('lt.style') || 'ink'
+        var known = ['minimalist', 'cozy', 'whimsical', 'modern']
+        var stored = localStorage.getItem('lt.style')
+        var s = known.indexOf(stored) >= 0 ? stored : 'minimalist'
         var m = localStorage.getItem('lt.mode') || 'system'
         var dark =
           m === 'dark' ||
