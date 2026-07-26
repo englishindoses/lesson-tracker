@@ -23,6 +23,11 @@ export default function App() {
 
   const [tab, setTab] = useState<Tab>('classes')
   const [openClassId, setOpenClassId] = useState<string | null>(null)
+  /** Where the gear was pressed, so pressing it again goes back there. */
+  const [beforeSettings, setBeforeSettings] = useState<{ tab: Tab; classId: string | null }>({
+    tab: 'classes',
+    classId: null,
+  })
 
   const headerRef = useRef<HTMLElement>(null)
 
@@ -96,12 +101,19 @@ export default function App() {
           <LanguageToggle className="mb-2 ml-auto sm:ml-0" />
 
           {/* Settings is a page like the others, so it gets a tab -- but a
-              labelled one would crowd the two that matter on a phone. */}
+              labelled one would crowd the two that matter on a phone. The gear
+              is a toggle: pressing it again returns to whatever was open. */}
           <button
-            aria-current={tab === 'settings' && !openClassId ? 'page' : undefined}
+            aria-current={tab === 'settings' ? 'page' : undefined}
             aria-label={t('app.settings')}
             title={t('app.settings')}
             onClick={() => {
+              if (tab === 'settings') {
+                setTab(beforeSettings.tab)
+                setOpenClassId(beforeSettings.classId)
+                return
+              }
+              setBeforeSettings({ tab, classId: openClassId })
               setTab('settings')
               setOpenClassId(null)
             }}

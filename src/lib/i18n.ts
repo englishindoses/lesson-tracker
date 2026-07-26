@@ -427,12 +427,25 @@ const S = {
   'edges.clean': ['Straight', 'Retas'],
   'edges.clean.hint': ['Plain boxes', 'Caixas simples'],
 
-  'doodles.plants': ['Plants', 'Plantas'],
-  'doodles.plants.hint': ['Ferns, monstera, daisies, cactus', 'Samambaia, costela-de-adão, margaridas, cacto'],
-  'doodles.marks': ['Pen marks', 'Rabiscos de caneta'],
-  'doodles.marks.hint': ['Stars, arrows, banner, paperclip', 'Estrelas, setas, faixa, clipe'],
-  'doodles.all': ['Everything', 'Tudo'],
-  'doodles.all.hint': ['Both sets, a full margin', 'Os dois conjuntos, margem cheia'],
+  'doodles.minimalist.hint': ['A sprig and a flourish, barely there', 'Um raminho e um floreio, quase nada'],
+  'doodles.cozy.hint': [
+    'Coffee ring, heart, banner, daisy',
+    'Marca de xícara, coração, faixa, margarida',
+  ],
+  'doodles.whimsical.hint': [
+    'Stars, spirals, arrows, a speech bubble',
+    'Estrelas, espirais, setas, um balão de fala',
+  ],
+  'doodles.botanical.hint': [
+    'Ferns, monstera, daisies, cactus',
+    'Samambaia, costela-de-adão, margaridas, cacto',
+  ],
+  'doodles.seaside.hint': ['Shells, waves, starfish, palm', 'Conchas, ondas, estrela-do-mar, palmeira'],
+  'doodles.berry.hint': ['Cherries, berries, blossom, vine', 'Cerejas, frutinhas, flor, trepadeira'],
+  'doodles.typewriter.hint': [
+    'Asterisks, paperclip, note card, coffee ring',
+    'Asteriscos, clipe, ficha, marca de xícara',
+  ],
   'doodles.none': ['None', 'Nenhum'],
   'doodles.none.hint': ['Clean margins', 'Margens limpas'],
 

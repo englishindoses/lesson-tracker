@@ -8,10 +8,10 @@ import type { DoodleSet } from '../lib/theme'
  * light and dark. Images would need one variant per palette and would still be
  * wrong the moment a colour changed.
  *
- * Two sets — plants and pen marks — chosen in Settings. Wide screens only by
- * default, since a phone has no margins to spare; the few marked `phone` sit
- * far enough into the corners to be shown anyway if she asks for them. Never
- * interactive.
+ * One set per preset — botanical, seaside, berry and so on — chosen in
+ * Settings. Wide screens only by default, since a phone has no margins to
+ * spare; the slots marked `phone` sit far enough into the corners to be shown
+ * anyway if she asks for them. Never interactive.
  */
 
 const stroke = {
@@ -218,9 +218,182 @@ function DottedFlourish() {
   )
 }
 
-type Placement = {
-  node: React.ReactElement
-  kind: 'plant' | 'mark'
+function Heart() {
+  return (
+    <svg viewBox="0 0 60 56" className="h-14 w-14" aria-hidden>
+      <g {...stroke}>
+        <path d="M30 50 C 6 34, 4 18, 14 10 C 22 4, 29 9, 30 16 C 31 9, 38 4, 46 10 C 56 18, 54 34, 30 50 Z" />
+      </g>
+    </svg>
+  )
+}
+
+/* ------------------------------------------------------------------ seaside */
+
+function Shell() {
+  return (
+    <svg viewBox="0 0 70 62" className="h-16 w-20" aria-hidden>
+      <g {...stroke}>
+        <path d="M35 56 C 10 50, 4 26, 14 12 C 26 2, 44 2, 56 12 C 66 26, 60 50, 35 56 Z" />
+        <path d="M35 56 L14 15" />
+        <path d="M35 56 L24 8" />
+        <path d="M35 56 L35 5" />
+        <path d="M35 56 L46 8" />
+        <path d="M35 56 L56 15" />
+      </g>
+    </svg>
+  )
+}
+
+function Waves() {
+  return (
+    <svg viewBox="0 0 120 52" className="h-12 w-32" aria-hidden>
+      <g {...stroke}>
+        <path d="M4 14 C 20 2, 32 26, 48 14 C 62 4, 74 26, 90 14 C 100 7, 110 12, 116 10" />
+        <path d="M4 30 C 20 18, 32 42, 48 30 C 62 20, 74 42, 90 30 C 100 23, 110 28, 116 26" />
+        <path d="M18 46 C 32 38, 44 54, 58 46" />
+      </g>
+    </svg>
+  )
+}
+
+function PalmLeaf() {
+  return (
+    <svg viewBox="0 0 80 92" className="h-24 w-20" aria-hidden>
+      <g {...stroke}>
+        <path d="M40 88 C 40 62, 40 32, 43 6" />
+        <path d="M40 74 C 26 72, 18 62, 17 52 C 30 54, 39 64, 40 74 Z" />
+        <path d="M41 74 C 55 71, 63 61, 63 51 C 50 54, 42 64, 41 74 Z" />
+        <path d="M41 58 C 28 55, 21 45, 21 36 C 33 39, 41 48, 41 58 Z" />
+        <path d="M42 58 C 54 54, 60 45, 60 36 C 48 39, 42 48, 42 58 Z" />
+        <path d="M42 40 C 32 37, 27 29, 27 21 C 37 24, 42 32, 42 40 Z" />
+        <path d="M43 40 C 52 36, 56 28, 55 21 C 46 24, 42 32, 43 40 Z" />
+      </g>
+    </svg>
+  )
+}
+
+function Starfish() {
+  return (
+    <svg viewBox="0 0 70 70" className="h-[4.5rem] w-[4.5rem]" aria-hidden>
+      <g {...stroke}>
+        <path d="M35 5 L45 26 L67 29 L51 44 L55 66 L35 55 L15 66 L19 44 L3 29 L25 26 Z" />
+        <circle cx="35" cy="34" r="2" />
+        <circle cx="29" cy="42" r="1.6" />
+        <circle cx="41" cy="42" r="1.6" />
+      </g>
+    </svg>
+  )
+}
+
+/* -------------------------------------------------------------------- berry */
+
+function Cherries() {
+  return (
+    <svg viewBox="0 0 62 82" className="h-20 w-16" aria-hidden>
+      <g {...stroke}>
+        <path d="M18 52 C 20 36, 25 22, 31 10" />
+        <path d="M43 58 C 40 40, 36 24, 31 10" />
+        <circle cx="18" cy="62" r="10" />
+        <circle cx="43" cy="68" r="10" />
+        <path d="M31 12 C 41 5, 52 8, 55 15 C 47 22, 36 20, 31 12 Z" />
+      </g>
+    </svg>
+  )
+}
+
+function Blossom() {
+  return (
+    <svg viewBox="0 0 64 64" className="h-16 w-16" aria-hidden>
+      <g {...stroke}>
+        <circle cx="32" cy="32" r="5" />
+        <ellipse cx="32" cy="16" rx="7" ry="10" />
+        <ellipse cx="32" cy="16" rx="7" ry="10" transform="rotate(72 32 32)" />
+        <ellipse cx="32" cy="16" rx="7" ry="10" transform="rotate(144 32 32)" />
+        <ellipse cx="32" cy="16" rx="7" ry="10" transform="rotate(216 32 32)" />
+        <ellipse cx="32" cy="16" rx="7" ry="10" transform="rotate(288 32 32)" />
+      </g>
+    </svg>
+  )
+}
+
+/* ---------------------------------------------------------------- whimsical */
+
+function StarBurst() {
+  return (
+    <svg viewBox="0 0 64 64" className="h-16 w-16" aria-hidden>
+      <g {...stroke}>
+        <circle cx="32" cy="32" r="7" />
+        <path d="M32 4 L32 16" />
+        <path d="M32 48 L32 60" />
+        <path d="M4 32 L16 32" />
+        <path d="M48 32 L60 32" />
+        <path d="M12 12 L21 21" />
+        <path d="M43 43 L52 52" />
+        <path d="M52 12 L43 21" />
+        <path d="M21 43 L12 52" />
+      </g>
+    </svg>
+  )
+}
+
+function Spiral() {
+  return (
+    <svg viewBox="0 0 64 64" className="h-16 w-16" aria-hidden>
+      <g {...stroke}>
+        <path d="M34 32 C 34 27, 27 27, 27 33 C 27 41, 37 42, 41 35 C 46 26, 36 15, 25 18 C 11 22, 8 40, 19 51 C 30 62, 52 58, 58 43" />
+      </g>
+    </svg>
+  )
+}
+
+function SpeechBubble() {
+  return (
+    <svg viewBox="0 0 92 62" className="h-14 w-24" aria-hidden>
+      <g {...stroke}>
+        <path d="M14 6 L78 6 C 84 6, 88 10, 88 16 L88 38 C 88 44, 84 48, 78 48 L32 48 L16 60 L20 48 L14 48 C 8 48, 4 44, 4 38 L4 16 C 4 10, 8 6, 14 6 Z" />
+        <circle cx="30" cy="27" r="2" />
+        <circle cx="46" cy="27" r="2" />
+        <circle cx="62" cy="27" r="2" />
+      </g>
+    </svg>
+  )
+}
+
+/* --------------------------------------------------------------- typewriter */
+
+function Asterisks() {
+  return (
+    <svg viewBox="0 0 54 72" className="h-[4.5rem] w-14" aria-hidden>
+      <g {...stroke}>
+        <path d="M16 6 L16 26" />
+        <path d="M7 11 L25 21" />
+        <path d="M25 11 L7 21" />
+        <path d="M38 40 L38 58" />
+        <path d="M30 44 L46 54" />
+        <path d="M46 44 L30 54" />
+      </g>
+    </svg>
+  )
+}
+
+function NoteCard() {
+  return (
+    <svg viewBox="0 0 92 66" className="h-16 w-24" aria-hidden>
+      <g {...stroke}>
+        <path d="M6 8 L74 8 L86 22 L86 58 L6 58 Z" />
+        <path d="M74 8 L74 22 L86 22" />
+        <path d="M16 32 L70 32" strokeDasharray="3 5" />
+        <path d="M16 42 L64 42" strokeDasharray="3 5" />
+        <path d="M16 50 L48 50" strokeDasharray="3 5" />
+      </g>
+    </svg>
+  )
+}
+
+/* ========================================================================== */
+
+type Slot = {
   className: string
   rotate: number
   opacity: number
@@ -228,74 +401,87 @@ type Placement = {
   phone?: boolean
 }
 
-/** Each doodle pinned to a margin, well away from the content column. */
-const PLACED: Placement[] = [
-  { node: <Fern />, kind: 'plant', className: 'left-2 top-4', rotate: -5, opacity: 0.35 },
-  { node: <Sparkles />, kind: 'mark', className: 'left-4 top-36', rotate: -8, opacity: 0.5 },
+/**
+ * Where doodles go, in the order a set fills them. The corner slots that a
+ * phone can take come early, so even a sparse set still has one there.
+ */
+const SLOTS: Slot[] = [
+  { className: 'left-2 top-4', rotate: -5, opacity: 0.35 },
   {
-    node: <MonsteraLeaf />,
-    kind: 'plant',
-    className: 'left-3 top-[38%]',
-    rotate: 8,
-    opacity: 0.32,
-  },
-  { node: <Sprig />, kind: 'plant', className: 'left-5 top-[56%]', rotate: 6, opacity: 0.4 },
-  { node: <Daisy />, kind: 'plant', className: 'left-2 top-[72%]', rotate: -6, opacity: 0.38 },
-  {
-    node: <DottedFlourish />,
-    kind: 'mark',
-    className: 'left-2 bottom-28',
-    rotate: -4,
-    opacity: 0.45,
-  },
-  {
-    node: <Banner />,
-    kind: 'mark',
-    className: 'left-2 bottom-4 sm:left-6 sm:bottom-8',
-    rotate: -3,
-    opacity: 0.35,
-    phone: true,
-  },
-  { node: <LeafVine />, kind: 'plant', className: 'right-2 top-2', rotate: 4, opacity: 0.34 },
-  { node: <CurlyArrow />, kind: 'mark', className: 'right-5 top-[30%]', rotate: 10, opacity: 0.4 },
-  {
-    node: <PottedPlant />,
-    kind: 'plant',
-    className: 'right-3 top-[45%]',
-    rotate: -4,
-    opacity: 0.35,
-  },
-  { node: <Paperclip />, kind: 'mark', className: 'right-6 top-[62%]', rotate: -14, opacity: 0.45 },
-  { node: <Berries />, kind: 'plant', className: 'right-2 top-[76%]', rotate: 7, opacity: 0.36 },
-  {
-    node: <CoffeeRing />,
-    kind: 'mark',
-    className: 'right-2 top-24 sm:right-8 sm:top-auto sm:bottom-32',
-    rotate: 0,
-    opacity: 0.22,
-    phone: true,
-  },
-  {
-    node: <Cactus />,
-    kind: 'plant',
     className: 'right-2 bottom-3 sm:right-3 sm:bottom-6',
     rotate: -3,
     opacity: 0.35,
     phone: true,
   },
   {
-    node: <Fern />,
-    kind: 'plant',
-    className: 'left-1 bottom-24 sm:hidden',
-    rotate: 5,
-    opacity: 0.3,
+    className: 'left-2 bottom-4 sm:left-6 sm:bottom-8',
+    rotate: -3,
+    opacity: 0.35,
     phone: true,
   },
+  { className: 'right-2 top-2', rotate: 4, opacity: 0.34 },
+  { className: 'left-4 top-36', rotate: -8, opacity: 0.42 },
+  {
+    className: 'right-2 top-24 sm:right-8 sm:top-auto sm:bottom-32',
+    rotate: 0,
+    opacity: 0.24,
+    phone: true,
+  },
+  { className: 'left-3 top-[38%]', rotate: 8, opacity: 0.32 },
+  { className: 'right-3 top-[45%]', rotate: -4, opacity: 0.35 },
+  { className: 'left-5 top-[56%]', rotate: 6, opacity: 0.38 },
+  { className: 'right-6 top-[62%]', rotate: -14, opacity: 0.4 },
+  { className: 'left-2 top-[72%]', rotate: -6, opacity: 0.36 },
+  { className: 'right-2 top-[76%]', rotate: 7, opacity: 0.34 },
+  { className: 'left-2 bottom-28', rotate: -4, opacity: 0.4 },
+  { className: 'right-5 top-[30%]', rotate: 10, opacity: 0.38 },
 ]
+
+/**
+ * One set per preset, so choosing Botanical gets botanical margins. The names
+ * match `PRESETS` in theme.ts on purpose -- a set and a look are chosen
+ * separately, but they are the same vocabulary.
+ */
+const SETS: Record<Exclude<DoodleSet, 'none'>, React.ReactElement[]> = {
+  // Sparse on purpose: three marks and a lot of white paper.
+  minimalist: [<Sprig />, <DottedFlourish />, <Fern />],
+  cozy: [
+    <CoffeeRing />,
+    <Heart />,
+    <Banner />,
+    <Sparkles />,
+    <Daisy />,
+    <PottedPlant />,
+    <Paperclip />,
+    <DottedFlourish />,
+  ],
+  whimsical: [
+    <StarBurst />,
+    <Sparkles />,
+    <Banner />,
+    <Spiral />,
+    <SpeechBubble />,
+    <CurlyArrow />,
+    <DottedFlourish />,
+  ],
+  botanical: [
+    <Fern />,
+    <Cactus />,
+    <MonsteraLeaf />,
+    <LeafVine />,
+    <Sprig />,
+    <Daisy />,
+    <Berries />,
+    <PottedPlant />,
+  ],
+  seaside: [<Shell />, <Starfish />, <Waves />, <PalmLeaf />, <Shell />, <Waves />],
+  berry: [<Cherries />, <Berries />, <Blossom />, <LeafVine />, <Heart />, <Daisy />],
+  typewriter: [<Asterisks />, <Paperclip />, <NoteCard />, <CoffeeRing />, <DottedFlourish />],
+}
 
 export default function Doodles({ set, onPhone }: { set: DoodleSet; onPhone: boolean }) {
   if (set === 'none') return null
-  const shown = PLACED.filter((d) => set === 'all' || d.kind === (set === 'plants' ? 'plant' : 'mark'))
+  const drawings = SETS[set] ?? []
 
   return (
     <div
@@ -304,15 +490,21 @@ export default function Doodles({ set, onPhone }: { set: DoodleSet; onPhone: boo
         onPhone ? 'block opacity-60 xl:opacity-100' : 'hidden xl:block'
       }`}
     >
-      {shown.map((d, i) => (
-        <div
-          key={i}
-          className={`absolute ${d.className} ${onPhone && !d.phone ? 'hidden xl:block' : ''}`}
-          style={{ transform: `rotate(${d.rotate}deg)`, opacity: d.opacity }}
-        >
-          {d.node}
-        </div>
-      ))}
+      {drawings.map((node, i) => {
+        const slot = SLOTS[i % SLOTS.length]
+        return (
+          <div
+            key={i}
+            className={`absolute ${slot.className} ${
+              onPhone && !slot.phone ? 'hidden xl:block' : ''
+            }`}
+            style={{ transform: `rotate(${slot.rotate}deg)`, opacity: slot.opacity }}
+          >
+            {node}
+          </div>
+        )
+      })}
     </div>
   )
 }
+

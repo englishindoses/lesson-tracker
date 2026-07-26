@@ -76,10 +76,9 @@ function Choices<T extends string>({
             aria-checked={value === o.value}
             onClick={() => onChange(o.value)}
             title={o.hint ? t(o.hint) : undefined}
-            className={`btn text-left ${
-              value === o.value ? 'border-accent bg-accent-soft text-ink' : ''
-            }`}
+            className={`btn text-left ${value === o.value ? 'btn-selected' : ''}`}
           >
+            {value === o.value && <span aria-hidden>✓ </span>}
             {t(o.label)}
           </button>
         ))}

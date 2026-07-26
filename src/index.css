@@ -489,6 +489,17 @@ body {
 .btn:disabled {
   opacity: 0.45;
 }
+/* The chosen one in a row of choices. Its own class, not Tailwind utilities:
+   `.btn` is plain CSS living after the utilities layer, so bg-accent-soft would
+   lose to it and the selection would be invisible. */
+.btn-selected,
+.btn-selected:hover {
+  background-color: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
 .btn-primary {
   background-color: var(--accent);
   border-color: var(--accent);

@@ -26,7 +26,16 @@ export type PaletteName =
 export type FontName = 'quicksand' | 'script' | 'sketch' | 'serif' | 'typewriter' | 'system'
 export type PaperName = 'dots' | 'ruled' | 'plain'
 export type EdgeName = 'hand' | 'clean'
-export type DoodleSet = 'plants' | 'marks' | 'all' | 'none'
+/** Named after the presets: a set of doodles belongs to a look. */
+export type DoodleSet =
+  | 'minimalist'
+  | 'cozy'
+  | 'whimsical'
+  | 'botanical'
+  | 'seaside'
+  | 'berry'
+  | 'typewriter'
+  | 'none'
 export type ModeSetting = 'light' | 'dark' | 'system'
 
 export type Theme = {
@@ -73,9 +82,13 @@ export const EDGES: Option<EdgeName>[] = [
 ]
 
 export const DOODLE_SETS: Option<DoodleSet>[] = [
-  { value: 'plants', label: 'doodles.plants', hint: 'doodles.plants.hint' },
-  { value: 'marks', label: 'doodles.marks', hint: 'doodles.marks.hint' },
-  { value: 'all', label: 'doodles.all', hint: 'doodles.all.hint' },
+  { value: 'minimalist', label: 'preset.minimalist', hint: 'doodles.minimalist.hint' },
+  { value: 'cozy', label: 'preset.cozy', hint: 'doodles.cozy.hint' },
+  { value: 'whimsical', label: 'preset.whimsical', hint: 'doodles.whimsical.hint' },
+  { value: 'botanical', label: 'preset.botanical', hint: 'doodles.botanical.hint' },
+  { value: 'seaside', label: 'preset.seaside', hint: 'doodles.seaside.hint' },
+  { value: 'berry', label: 'preset.berry', hint: 'doodles.berry.hint' },
+  { value: 'typewriter', label: 'preset.typewriter', hint: 'doodles.typewriter.hint' },
   { value: 'none', label: 'doodles.none', hint: 'doodles.none.hint' },
 ]
 
@@ -89,7 +102,7 @@ export const PRESETS: { value: string; label: TKey; hint: TKey; theme: Theme }[]
       fonts: 'quicksand',
       paper: 'dots',
       edges: 'hand',
-      doodles: 'plants',
+      doodles: 'minimalist',
       doodlesOnPhone: false,
     },
   },
@@ -102,7 +115,7 @@ export const PRESETS: { value: string; label: TKey; hint: TKey; theme: Theme }[]
       fonts: 'script',
       paper: 'dots',
       edges: 'hand',
-      doodles: 'all',
+      doodles: 'cozy',
       doodlesOnPhone: false,
     },
   },
@@ -115,7 +128,7 @@ export const PRESETS: { value: string; label: TKey; hint: TKey; theme: Theme }[]
       fonts: 'sketch',
       paper: 'dots',
       edges: 'hand',
-      doodles: 'marks',
+      doodles: 'whimsical',
       doodlesOnPhone: false,
     },
   },
@@ -128,7 +141,7 @@ export const PRESETS: { value: string; label: TKey; hint: TKey; theme: Theme }[]
       fonts: 'serif',
       paper: 'ruled',
       edges: 'hand',
-      doodles: 'plants',
+      doodles: 'botanical',
       doodlesOnPhone: false,
     },
   },
@@ -141,7 +154,7 @@ export const PRESETS: { value: string; label: TKey; hint: TKey; theme: Theme }[]
       fonts: 'quicksand',
       paper: 'dots',
       edges: 'hand',
-      doodles: 'plants',
+      doodles: 'seaside',
       doodlesOnPhone: false,
     },
   },
@@ -154,7 +167,7 @@ export const PRESETS: { value: string; label: TKey; hint: TKey; theme: Theme }[]
       fonts: 'script',
       paper: 'dots',
       edges: 'hand',
-      doodles: 'all',
+      doodles: 'berry',
       doodlesOnPhone: false,
     },
   },
@@ -167,7 +180,7 @@ export const PRESETS: { value: string; label: TKey; hint: TKey; theme: Theme }[]
       fonts: 'typewriter',
       paper: 'ruled',
       edges: 'clean',
-      doodles: 'marks',
+      doodles: 'typewriter',
       doodlesOnPhone: false,
     },
   },
@@ -203,15 +216,23 @@ const OLD_STYLES: Record<string, string> = {
 const isIn = <T extends string>(list: readonly { value: T }[], v: unknown): v is T =>
   typeof v === 'string' && list.some((o) => o.value === v)
 
+/** The doodle sets were first named after their contents, not after a look. */
+const OLD_DOODLES: Record<string, DoodleSet> = {
+  plants: 'botanical',
+  marks: 'whimsical',
+  all: 'cozy',
+}
+
 /** Anything missing or unrecognised falls back, so a stale key can't break the app. */
 function clean(raw: unknown): Theme {
   const t = (raw ?? {}) as Partial<Theme>
+  const doodles = OLD_DOODLES[t.doodles as string] ?? t.doodles
   return {
     palette: isIn(PALETTES, t.palette) ? t.palette : DEFAULT_THEME.palette,
     fonts: isIn(FONTS, t.fonts) ? t.fonts : DEFAULT_THEME.fonts,
     paper: isIn(PAPERS, t.paper) ? t.paper : DEFAULT_THEME.paper,
     edges: t.edges === 'clean' || t.edges === 'hand' ? t.edges : DEFAULT_THEME.edges,
-    doodles: isIn(DOODLE_SETS, t.doodles) ? t.doodles : DEFAULT_THEME.doodles,
+    doodles: isIn(DOODLE_SETS, doodles) ? doodles : DEFAULT_THEME.doodles,
     doodlesOnPhone: t.doodlesOnPhone === true,
   }
 }
