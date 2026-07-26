@@ -402,40 +402,46 @@ type Slot = {
 }
 
 /**
- * Where doodles go, in the order a set fills them. The corner slots that a
- * phone can take come early, so even a sparse set still has one there.
+ * Where doodles go: both margins, top to bottom, alternating sides at close
+ * intervals. A set doesn't fill these in order -- it spreads itself across the
+ * whole list (see `spread` below), so even a sparse set reaches the bottom of
+ * the page instead of clumping at the top.
  */
 const SLOTS: Slot[] = [
-  { className: 'left-2 top-4', rotate: -5, opacity: 0.35 },
-  {
-    className: 'right-2 bottom-3 sm:right-3 sm:bottom-6',
-    rotate: -3,
-    opacity: 0.35,
-    phone: true,
-  },
-  {
-    className: 'left-2 bottom-4 sm:left-6 sm:bottom-8',
-    rotate: -3,
-    opacity: 0.35,
-    phone: true,
-  },
-  { className: 'right-2 top-2', rotate: 4, opacity: 0.34 },
-  { className: 'left-4 top-36', rotate: -8, opacity: 0.42 },
-  {
-    className: 'right-2 top-24 sm:right-8 sm:top-auto sm:bottom-32',
-    rotate: 0,
-    opacity: 0.24,
-    phone: true,
-  },
-  { className: 'left-3 top-[38%]', rotate: 8, opacity: 0.32 },
-  { className: 'right-3 top-[45%]', rotate: -4, opacity: 0.35 },
-  { className: 'left-5 top-[56%]', rotate: 6, opacity: 0.38 },
-  { className: 'right-6 top-[62%]', rotate: -14, opacity: 0.4 },
-  { className: 'left-2 top-[72%]', rotate: -6, opacity: 0.36 },
-  { className: 'right-2 top-[76%]', rotate: 7, opacity: 0.34 },
-  { className: 'left-2 bottom-28', rotate: -4, opacity: 0.4 },
-  { className: 'right-5 top-[30%]', rotate: 10, opacity: 0.38 },
+  { className: 'left-2 top-2', rotate: -6, opacity: 0.4 },
+  { className: 'right-2 top-3', rotate: 5, opacity: 0.38, phone: true },
+  { className: 'left-5 top-[11%]', rotate: 7, opacity: 0.34 },
+  { className: 'right-5 top-[12%]', rotate: -8, opacity: 0.36 },
+  { className: 'left-1 top-[21%]', rotate: -3, opacity: 0.38 },
+  { className: 'right-1 top-[22%]', rotate: 9, opacity: 0.34 },
+  { className: 'left-4 top-[31%]', rotate: 6, opacity: 0.36 },
+  { className: 'right-4 top-[32%]', rotate: -5, opacity: 0.38 },
+  { className: 'left-2 top-[41%]', rotate: -9, opacity: 0.34 },
+  { className: 'right-2 top-[42%]', rotate: 4, opacity: 0.36 },
+  { className: 'left-5 top-[51%]', rotate: 3, opacity: 0.38 },
+  { className: 'right-5 top-[52%]', rotate: -7, opacity: 0.34 },
+  { className: 'left-1 top-[61%]', rotate: -4, opacity: 0.36 },
+  { className: 'right-1 top-[62%]', rotate: 8, opacity: 0.38 },
+  { className: 'left-4 top-[71%]', rotate: 5, opacity: 0.34 },
+  { className: 'right-4 top-[72%]', rotate: -6, opacity: 0.36 },
+  { className: 'left-2 top-[81%]', rotate: -7, opacity: 0.38 },
+  { className: 'right-2 top-[82%]', rotate: 3, opacity: 0.34 },
+  { className: 'left-2 bottom-4 sm:left-5 sm:bottom-6', rotate: 4, opacity: 0.36, phone: true },
+  { className: 'right-2 bottom-3 sm:right-3 sm:bottom-5', rotate: -4, opacity: 0.36, phone: true },
 ]
+
+/**
+ * Spread n doodles evenly over the slots, rather than filling the first n. A
+ * set of four then runs top to bottom of the page instead of sitting in a
+ * huddle at the top.
+ */
+function spread(count: number): Slot[] {
+  if (count >= SLOTS.length)
+    return Array.from({ length: count }, (_, i) => SLOTS[i % SLOTS.length])
+  if (count === 1) return [SLOTS[0]]
+  const step = (SLOTS.length - 1) / (count - 1)
+  return Array.from({ length: count }, (_, i) => SLOTS[Math.round(i * step)])
+}
 
 /**
  * One set per preset, so choosing Botanical gets botanical margins. The names
@@ -443,8 +449,8 @@ const SLOTS: Slot[] = [
  * separately, but they are the same vocabulary.
  */
 const SETS: Record<Exclude<DoodleSet, 'none'>, React.ReactElement[]> = {
-  // Sparse on purpose: three marks and a lot of white paper.
-  minimalist: [<Sprig />, <DottedFlourish />, <Fern />],
+  // The quiet one: half a margin, and a lot of white paper left.
+  minimalist: [<Sprig />, <DottedFlourish />, <Fern />, <Sprig />, <DottedFlourish />, <Sprig />],
   cozy: [
     <CoffeeRing />,
     <Heart />,
@@ -454,6 +460,14 @@ const SETS: Record<Exclude<DoodleSet, 'none'>, React.ReactElement[]> = {
     <PottedPlant />,
     <Paperclip />,
     <DottedFlourish />,
+    <Heart />,
+    <Sparkles />,
+    <CoffeeRing />,
+    <Daisy />,
+    <Banner />,
+    <PottedPlant />,
+    <DottedFlourish />,
+    <Sparkles />,
   ],
   whimsical: [
     <StarBurst />,
@@ -463,6 +477,15 @@ const SETS: Record<Exclude<DoodleSet, 'none'>, React.ReactElement[]> = {
     <SpeechBubble />,
     <CurlyArrow />,
     <DottedFlourish />,
+    <StarBurst />,
+    <Sparkles />,
+    <Spiral />,
+    <CurlyArrow />,
+    <Banner />,
+    <SpeechBubble />,
+    <StarBurst />,
+    <DottedFlourish />,
+    <Sparkles />,
   ],
   botanical: [
     <Fern />,
@@ -473,15 +496,67 @@ const SETS: Record<Exclude<DoodleSet, 'none'>, React.ReactElement[]> = {
     <Daisy />,
     <Berries />,
     <PottedPlant />,
+    <Fern />,
+    <LeafVine />,
+    <MonsteraLeaf />,
+    <Sprig />,
+    <Daisy />,
+    <Berries />,
+    <Cactus />,
+    <Fern />,
   ],
-  seaside: [<Shell />, <Starfish />, <Waves />, <PalmLeaf />, <Shell />, <Waves />],
-  berry: [<Cherries />, <Berries />, <Blossom />, <LeafVine />, <Heart />, <Daisy />],
-  typewriter: [<Asterisks />, <Paperclip />, <NoteCard />, <CoffeeRing />, <DottedFlourish />],
+  seaside: [
+    <Shell />,
+    <Starfish />,
+    <Waves />,
+    <PalmLeaf />,
+    <Shell />,
+    <Waves />,
+    <Starfish />,
+    <PalmLeaf />,
+    <Waves />,
+    <Shell />,
+    <Starfish />,
+    <Waves />,
+    <PalmLeaf />,
+    <Shell />,
+  ],
+  berry: [
+    <Cherries />,
+    <Berries />,
+    <Blossom />,
+    <LeafVine />,
+    <Heart />,
+    <Daisy />,
+    <Cherries />,
+    <Blossom />,
+    <Berries />,
+    <LeafVine />,
+    <Blossom />,
+    <Cherries />,
+    <Daisy />,
+    <Berries />,
+  ],
+  typewriter: [
+    <Asterisks />,
+    <Paperclip />,
+    <NoteCard />,
+    <CoffeeRing />,
+    <DottedFlourish />,
+    <Asterisks />,
+    <NoteCard />,
+    <Paperclip />,
+    <DottedFlourish />,
+    <CoffeeRing />,
+    <Asterisks />,
+    <NoteCard />,
+  ],
 }
 
 export default function Doodles({ set, onPhone }: { set: DoodleSet; onPhone: boolean }) {
   if (set === 'none') return null
   const drawings = SETS[set] ?? []
+  const slots = spread(drawings.length)
 
   return (
     <div
@@ -491,7 +566,7 @@ export default function Doodles({ set, onPhone }: { set: DoodleSet; onPhone: boo
       }`}
     >
       {drawings.map((node, i) => {
-        const slot = SLOTS[i % SLOTS.length]
+        const slot = slots[i]
         return (
           <div
             key={i}
