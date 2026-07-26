@@ -24,7 +24,7 @@ const stroke = {
 
 function Sparkles() {
   return (
-    <svg viewBox="0 0 60 70" className="h-16 w-14" aria-hidden>
+    <svg viewBox="0 0 60 70" className="h-14 w-12" aria-hidden>
       <g {...stroke}>
         <path d="M20 4 L23 16 L35 19 L23 22 L20 34 L17 22 L5 19 L17 16 Z" />
         <path d="M44 30 L46 37 L53 39 L46 41 L44 48 L42 41 L35 39 L42 37 Z" />
@@ -36,7 +36,7 @@ function Sparkles() {
 
 function CurlyArrow() {
   return (
-    <svg viewBox="0 0 70 90" className="h-24 w-16" aria-hidden>
+    <svg viewBox="0 0 70 90" className="h-16 w-12" aria-hidden>
       <g {...stroke}>
         <path d="M12 6 C 40 14, 8 40, 34 52 C 52 60, 44 74, 34 82" />
         <path d="M26 74 L34 83 L44 78" />
@@ -47,7 +47,7 @@ function CurlyArrow() {
 
 function Sprig() {
   return (
-    <svg viewBox="0 0 50 90" className="h-24 w-12" aria-hidden>
+    <svg viewBox="0 0 50 90" className="h-16 w-8" aria-hidden>
       <g {...stroke}>
         <path d="M25 84 C 25 60, 24 30, 26 8" />
         <path d="M25 66 C 14 62, 10 52, 12 46 C 20 46, 25 56, 25 66 Z" />
@@ -61,7 +61,7 @@ function Sprig() {
 
 function Fern() {
   return (
-    <svg viewBox="0 0 46 100" className="h-28 w-12" aria-hidden>
+    <svg viewBox="0 0 46 100" className="h-20 w-8" aria-hidden>
       <g {...stroke}>
         <path d="M23 96 C 22 68, 22 34, 25 6" />
         <path d="M23 84 C 15 82, 11 76, 11 71" />
@@ -81,7 +81,7 @@ function Fern() {
 
 function MonsteraLeaf() {
   return (
-    <svg viewBox="0 0 74 86" className="h-24 w-20" aria-hidden>
+    <svg viewBox="0 0 74 86" className="h-16 w-12" aria-hidden>
       <g {...stroke}>
         <path d="M37 82 C 37 66, 37 54, 37 44" />
         <path d="M37 44 C 14 42, 5 26, 12 12 C 24 4, 50 4, 62 12 C 69 26, 60 42, 37 44 Z" />
@@ -96,7 +96,7 @@ function MonsteraLeaf() {
 
 function PottedPlant() {
   return (
-    <svg viewBox="0 0 64 88" className="h-24 w-16" aria-hidden>
+    <svg viewBox="0 0 64 88" className="h-16 w-12" aria-hidden>
       <g {...stroke}>
         <path d="M14 56 L50 56 L44 84 L20 84 Z" />
         <path d="M11 48 L53 48 L53 56 L11 56 Z" />
@@ -111,7 +111,7 @@ function PottedPlant() {
 
 function Daisy() {
   return (
-    <svg viewBox="0 0 48 88" className="h-24 w-12" aria-hidden>
+    <svg viewBox="0 0 48 88" className="h-16 w-8" aria-hidden>
       <g {...stroke}>
         <path d="M24 84 C 23 66, 24 52, 24 38" />
         <path d="M24 66 C 14 64, 9 56, 10 50 C 18 51, 23 59, 24 66 Z" />
@@ -132,7 +132,7 @@ function Daisy() {
 
 function Cactus() {
   return (
-    <svg viewBox="0 0 60 90" className="h-24 w-16" aria-hidden>
+    <svg viewBox="0 0 60 90" className="h-16 w-12" aria-hidden>
       <g {...stroke}>
         <path d="M23 74 C 19 66, 19 40, 21 30 C 23 20, 37 20, 39 30 C 41 40, 41 66, 37 74 Z" />
         <path d="M21 52 C 12 52, 9 46, 9 39 C 9 34, 14 34, 14 39 C 14 45, 16 48, 21 48" />
@@ -147,7 +147,7 @@ function Cactus() {
 
 function LeafVine() {
   return (
-    <svg viewBox="0 0 44 120" className="h-32 w-12" aria-hidden>
+    <svg viewBox="0 0 44 120" className="h-20 w-8" aria-hidden>
       <g {...stroke}>
         <path d="M22 4 C 34 20, 10 36, 22 52 C 34 68, 10 84, 22 100 C 27 108, 24 114, 22 116" />
         <path d="M28 14 C 36 12, 40 16, 39 21 C 33 23, 28 20, 28 14 Z" />
@@ -162,7 +162,7 @@ function LeafVine() {
 
 function Berries() {
   return (
-    <svg viewBox="0 0 54 76" className="h-20 w-14" aria-hidden>
+    <svg viewBox="0 0 54 76" className="h-16 w-12" aria-hidden>
       <g {...stroke}>
         <path d="M27 72 C 26 54, 27 34, 29 10" />
         <path d="M28 44 C 18 42, 13 34, 14 28 C 23 29, 28 37, 28 44 Z" />
@@ -190,7 +190,7 @@ function Banner() {
 
 function Paperclip() {
   return (
-    <svg viewBox="0 0 40 80" className="h-20 w-10" aria-hidden>
+    <svg viewBox="0 0 40 80" className="h-16 w-8" aria-hidden>
       <g {...stroke} strokeWidth={2}>
         <path d="M26 12 L26 58 C 26 68, 12 68, 12 58 L12 18 C 12 12, 21 12, 21 18 L21 56" />
       </g>
@@ -200,7 +200,7 @@ function Paperclip() {
 
 function CoffeeRing() {
   return (
-    <svg viewBox="0 0 80 80" className="h-20 w-20" aria-hidden>
+    <svg viewBox="0 0 80 80" className="h-16 w-16" aria-hidden>
       <g {...stroke} strokeWidth={2.4}>
         <path d="M40 8 C 58 8, 72 22, 72 40 C 72 58, 58 72, 40 72 C 22 72, 8 58, 8 40 C 8 24, 20 10, 36 8" />
       </g>
@@ -232,7 +232,7 @@ function Heart() {
 
 function Shell() {
   return (
-    <svg viewBox="0 0 70 62" className="h-16 w-20" aria-hidden>
+    <svg viewBox="0 0 70 62" className="h-14 w-16" aria-hidden>
       <g {...stroke}>
         <path d="M35 56 C 10 50, 4 26, 14 12 C 26 2, 44 2, 56 12 C 66 26, 60 50, 35 56 Z" />
         <path d="M35 56 L14 15" />
@@ -259,7 +259,7 @@ function Waves() {
 
 function PalmLeaf() {
   return (
-    <svg viewBox="0 0 80 92" className="h-24 w-20" aria-hidden>
+    <svg viewBox="0 0 80 92" className="h-16 w-12" aria-hidden>
       <g {...stroke}>
         <path d="M40 88 C 40 62, 40 32, 43 6" />
         <path d="M40 74 C 26 72, 18 62, 17 52 C 30 54, 39 64, 40 74 Z" />
@@ -275,7 +275,7 @@ function PalmLeaf() {
 
 function Starfish() {
   return (
-    <svg viewBox="0 0 70 70" className="h-[4.5rem] w-[4.5rem]" aria-hidden>
+    <svg viewBox="0 0 70 70" className="h-16 w-16" aria-hidden>
       <g {...stroke}>
         <path d="M35 5 L45 26 L67 29 L51 44 L55 66 L35 55 L15 66 L19 44 L3 29 L25 26 Z" />
         <circle cx="35" cy="34" r="2" />
@@ -290,7 +290,7 @@ function Starfish() {
 
 function Cherries() {
   return (
-    <svg viewBox="0 0 62 82" className="h-20 w-16" aria-hidden>
+    <svg viewBox="0 0 62 82" className="h-16 w-12" aria-hidden>
       <g {...stroke}>
         <path d="M18 52 C 20 36, 25 22, 31 10" />
         <path d="M43 58 C 40 40, 36 24, 31 10" />
@@ -304,7 +304,7 @@ function Cherries() {
 
 function Blossom() {
   return (
-    <svg viewBox="0 0 64 64" className="h-16 w-16" aria-hidden>
+    <svg viewBox="0 0 64 64" className="h-14 w-14" aria-hidden>
       <g {...stroke}>
         <circle cx="32" cy="32" r="5" />
         <ellipse cx="32" cy="16" rx="7" ry="10" />
@@ -321,7 +321,7 @@ function Blossom() {
 
 function StarBurst() {
   return (
-    <svg viewBox="0 0 64 64" className="h-16 w-16" aria-hidden>
+    <svg viewBox="0 0 64 64" className="h-14 w-14" aria-hidden>
       <g {...stroke}>
         <circle cx="32" cy="32" r="7" />
         <path d="M32 4 L32 16" />
@@ -339,7 +339,7 @@ function StarBurst() {
 
 function Spiral() {
   return (
-    <svg viewBox="0 0 64 64" className="h-16 w-16" aria-hidden>
+    <svg viewBox="0 0 64 64" className="h-14 w-14" aria-hidden>
       <g {...stroke}>
         <path d="M34 32 C 34 27, 27 27, 27 33 C 27 41, 37 42, 41 35 C 46 26, 36 15, 25 18 C 11 22, 8 40, 19 51 C 30 62, 52 58, 58 43" />
       </g>
@@ -364,7 +364,7 @@ function SpeechBubble() {
 
 function Asterisks() {
   return (
-    <svg viewBox="0 0 54 72" className="h-[4.5rem] w-14" aria-hidden>
+    <svg viewBox="0 0 54 72" className="h-16 w-12" aria-hidden>
       <g {...stroke}>
         <path d="M16 6 L16 26" />
         <path d="M7 11 L25 21" />
@@ -409,23 +409,15 @@ type Slot = {
  */
 const SLOTS: Slot[] = [
   { className: 'left-2 top-2', rotate: -6, opacity: 0.4 },
-  { className: 'right-2 top-3', rotate: 5, opacity: 0.38, phone: true },
-  { className: 'left-5 top-[11%]', rotate: 7, opacity: 0.34 },
-  { className: 'right-5 top-[12%]', rotate: -8, opacity: 0.36 },
-  { className: 'left-1 top-[21%]', rotate: -3, opacity: 0.38 },
-  { className: 'right-1 top-[22%]', rotate: 9, opacity: 0.34 },
-  { className: 'left-4 top-[31%]', rotate: 6, opacity: 0.36 },
-  { className: 'right-4 top-[32%]', rotate: -5, opacity: 0.38 },
-  { className: 'left-2 top-[41%]', rotate: -9, opacity: 0.34 },
-  { className: 'right-2 top-[42%]', rotate: 4, opacity: 0.36 },
-  { className: 'left-5 top-[51%]', rotate: 3, opacity: 0.38 },
-  { className: 'right-5 top-[52%]', rotate: -7, opacity: 0.34 },
-  { className: 'left-1 top-[61%]', rotate: -4, opacity: 0.36 },
-  { className: 'right-1 top-[62%]', rotate: 8, opacity: 0.38 },
-  { className: 'left-4 top-[71%]', rotate: 5, opacity: 0.34 },
-  { className: 'right-4 top-[72%]', rotate: -6, opacity: 0.36 },
-  { className: 'left-2 top-[81%]', rotate: -7, opacity: 0.38 },
-  { className: 'right-2 top-[82%]', rotate: 3, opacity: 0.34 },
+  { className: 'right-2 top-[7%]', rotate: 5, opacity: 0.38, phone: true },
+  { className: 'left-5 top-[17%]', rotate: 7, opacity: 0.34 },
+  { className: 'right-5 top-[24%]', rotate: -8, opacity: 0.36 },
+  { className: 'left-1 top-[34%]', rotate: -3, opacity: 0.38 },
+  { className: 'right-1 top-[41%]', rotate: 9, opacity: 0.34 },
+  { className: 'left-4 top-[51%]', rotate: 6, opacity: 0.36 },
+  { className: 'right-4 top-[58%]', rotate: -5, opacity: 0.38 },
+  { className: 'left-2 top-[68%]', rotate: -9, opacity: 0.34 },
+  { className: 'right-2 top-[75%]', rotate: 4, opacity: 0.36 },
   { className: 'left-2 bottom-4 sm:left-5 sm:bottom-6', rotate: 4, opacity: 0.36, phone: true },
   { className: 'right-2 bottom-3 sm:right-3 sm:bottom-5', rotate: -4, opacity: 0.36, phone: true },
 ]
@@ -436,8 +428,8 @@ const SLOTS: Slot[] = [
  * huddle at the top.
  */
 function spread(count: number): Slot[] {
-  if (count >= SLOTS.length)
-    return Array.from({ length: count }, (_, i) => SLOTS[i % SLOTS.length])
+  // Never reuse a slot: two doodles in one place is the thing this avoids.
+  if (count >= SLOTS.length) return SLOTS
   if (count === 1) return [SLOTS[0]]
   const step = (SLOTS.length - 1) / (count - 1)
   return Array.from({ length: count }, (_, i) => SLOTS[Math.round(i * step)])
@@ -449,7 +441,7 @@ function spread(count: number): Slot[] {
  * separately, but they are the same vocabulary.
  */
 const SETS: Record<Exclude<DoodleSet, 'none'>, React.ReactElement[]> = {
-  // The quiet one: half a margin, and a lot of white paper left.
+  // The quiet one: a few marks, and a lot of white paper left.
   minimalist: [<Sprig />, <DottedFlourish />, <Fern />, <Sprig />, <DottedFlourish />, <Sprig />],
   cozy: [
     <CoffeeRing />,
@@ -464,10 +456,6 @@ const SETS: Record<Exclude<DoodleSet, 'none'>, React.ReactElement[]> = {
     <Sparkles />,
     <CoffeeRing />,
     <Daisy />,
-    <Banner />,
-    <PottedPlant />,
-    <DottedFlourish />,
-    <Sparkles />,
   ],
   whimsical: [
     <StarBurst />,
@@ -481,11 +469,7 @@ const SETS: Record<Exclude<DoodleSet, 'none'>, React.ReactElement[]> = {
     <Sparkles />,
     <Spiral />,
     <CurlyArrow />,
-    <Banner />,
     <SpeechBubble />,
-    <StarBurst />,
-    <DottedFlourish />,
-    <Sparkles />,
   ],
   botanical: [
     <Fern />,
@@ -499,11 +483,7 @@ const SETS: Record<Exclude<DoodleSet, 'none'>, React.ReactElement[]> = {
     <Fern />,
     <LeafVine />,
     <MonsteraLeaf />,
-    <Sprig />,
-    <Daisy />,
     <Berries />,
-    <Cactus />,
-    <Fern />,
   ],
   seaside: [
     <Shell />,
@@ -517,9 +497,7 @@ const SETS: Record<Exclude<DoodleSet, 'none'>, React.ReactElement[]> = {
     <Waves />,
     <Shell />,
     <Starfish />,
-    <Waves />,
     <PalmLeaf />,
-    <Shell />,
   ],
   berry: [
     <Cherries />,
@@ -534,8 +512,6 @@ const SETS: Record<Exclude<DoodleSet, 'none'>, React.ReactElement[]> = {
     <LeafVine />,
     <Blossom />,
     <Cherries />,
-    <Daisy />,
-    <Berries />,
   ],
   typewriter: [
     <Asterisks />,
@@ -555,7 +531,8 @@ const SETS: Record<Exclude<DoodleSet, 'none'>, React.ReactElement[]> = {
 
 export default function Doodles({ set, onPhone }: { set: DoodleSet; onPhone: boolean }) {
   if (set === 'none') return null
-  const drawings = SETS[set] ?? []
+  // A set never draws more than there are slots for.
+  const drawings = (SETS[set] ?? []).slice(0, SLOTS.length)
   const slots = spread(drawings.length)
 
   return (
