@@ -100,7 +100,16 @@ export default function CalendarView({
 
               <div className="mt-0.5 flex flex-wrap gap-1">
                 {items.map((entry) => {
-                  const { glyph, paid, label, struck } = entryMark(entry, lines.get(entry.id))
+                  const line = lines.get(entry.id)
+                  const { glyph, paid, label, struck } = entryMark(entry, line)
+                  // Same tints as the table and the cards: a payment chip is
+                  // marked as a payment, a settled lesson chip is tinted.
+                  const tint =
+                    entry.kind === 'payment'
+                      ? 'row-payment'
+                      : line?.status === 'paid'
+                        ? 'row-paid'
+                        : ''
                   return (
                     <button
                       key={entry.id}
@@ -111,7 +120,7 @@ export default function CalendarView({
                         entry.kind === 'payment'
                           ? 'border-accent/60 text-accent'
                           : 'border-rule text-ink'
-                      } ${struck ? 'opacity-50 line-through' : ''}`}
+                      } ${tint} ${struck ? 'opacity-50 line-through' : ''}`}
                     >
                       <span>{glyph}</span>
                       {paid && <span className="text-good">✓</span>}
