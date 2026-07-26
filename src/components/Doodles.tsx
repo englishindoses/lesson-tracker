@@ -1,12 +1,17 @@
+import type { DoodleSet } from '../lib/theme'
+
 /**
  * Pen marks in the margins, the way a journal page collects them.
  *
  * SVG rather than background images: the strokes inherit the theme's ink
- * colour through currentColor, so one set works across all four styles in both
- * light and dark. Images would need eight variants and would still be wrong the
- * moment a colour changed.
+ * colour through currentColor, so one set works across every palette in both
+ * light and dark. Images would need one variant per palette and would still be
+ * wrong the moment a colour changed.
  *
- * Desktop only — a phone has no margins to spare — and never interactive.
+ * Two sets — plants and pen marks — chosen in Settings. Wide screens only by
+ * default, since a phone has no margins to spare; the few marked `phone` sit
+ * far enough into the corners to be shown anyway if she asks for them. Never
+ * interactive.
  */
 
 const stroke = {
@@ -213,34 +218,96 @@ function DottedFlourish() {
   )
 }
 
+type Placement = {
+  node: React.ReactElement
+  kind: 'plant' | 'mark'
+  className: string
+  rotate: number
+  opacity: number
+  /** Safe in a phone's corners too, rather than over the content column. */
+  phone?: boolean
+}
+
 /** Each doodle pinned to a margin, well away from the content column. */
-const PLACED = [
-  { node: <Fern />, className: 'left-2 top-4', rotate: -5, opacity: 0.35 },
-  { node: <Sparkles />, className: 'left-4 top-36', rotate: -8, opacity: 0.5 },
-  { node: <MonsteraLeaf />, className: 'left-3 top-[38%]', rotate: 8, opacity: 0.32 },
-  { node: <Sprig />, className: 'left-5 top-[56%]', rotate: 6, opacity: 0.4 },
-  { node: <Daisy />, className: 'left-2 top-[72%]', rotate: -6, opacity: 0.38 },
-  { node: <DottedFlourish />, className: 'left-2 bottom-28', rotate: -4, opacity: 0.45 },
-  { node: <Banner />, className: 'left-6 bottom-8', rotate: -3, opacity: 0.35 },
-  { node: <LeafVine />, className: 'right-2 top-2', rotate: 4, opacity: 0.34 },
-  { node: <CurlyArrow />, className: 'right-5 top-[30%]', rotate: 10, opacity: 0.4 },
-  { node: <PottedPlant />, className: 'right-3 top-[45%]', rotate: -4, opacity: 0.35 },
-  { node: <Paperclip />, className: 'right-6 top-[62%]', rotate: -14, opacity: 0.45 },
-  { node: <Berries />, className: 'right-2 top-[76%]', rotate: 7, opacity: 0.36 },
-  { node: <CoffeeRing />, className: 'right-8 bottom-32', rotate: 0, opacity: 0.22 },
-  { node: <Cactus />, className: 'right-3 bottom-6', rotate: -3, opacity: 0.35 },
+const PLACED: Placement[] = [
+  { node: <Fern />, kind: 'plant', className: 'left-2 top-4', rotate: -5, opacity: 0.35 },
+  { node: <Sparkles />, kind: 'mark', className: 'left-4 top-36', rotate: -8, opacity: 0.5 },
+  {
+    node: <MonsteraLeaf />,
+    kind: 'plant',
+    className: 'left-3 top-[38%]',
+    rotate: 8,
+    opacity: 0.32,
+  },
+  { node: <Sprig />, kind: 'plant', className: 'left-5 top-[56%]', rotate: 6, opacity: 0.4 },
+  { node: <Daisy />, kind: 'plant', className: 'left-2 top-[72%]', rotate: -6, opacity: 0.38 },
+  {
+    node: <DottedFlourish />,
+    kind: 'mark',
+    className: 'left-2 bottom-28',
+    rotate: -4,
+    opacity: 0.45,
+  },
+  {
+    node: <Banner />,
+    kind: 'mark',
+    className: 'left-2 bottom-4 sm:left-6 sm:bottom-8',
+    rotate: -3,
+    opacity: 0.35,
+    phone: true,
+  },
+  { node: <LeafVine />, kind: 'plant', className: 'right-2 top-2', rotate: 4, opacity: 0.34 },
+  { node: <CurlyArrow />, kind: 'mark', className: 'right-5 top-[30%]', rotate: 10, opacity: 0.4 },
+  {
+    node: <PottedPlant />,
+    kind: 'plant',
+    className: 'right-3 top-[45%]',
+    rotate: -4,
+    opacity: 0.35,
+  },
+  { node: <Paperclip />, kind: 'mark', className: 'right-6 top-[62%]', rotate: -14, opacity: 0.45 },
+  { node: <Berries />, kind: 'plant', className: 'right-2 top-[76%]', rotate: 7, opacity: 0.36 },
+  {
+    node: <CoffeeRing />,
+    kind: 'mark',
+    className: 'right-2 top-24 sm:right-8 sm:top-auto sm:bottom-32',
+    rotate: 0,
+    opacity: 0.22,
+    phone: true,
+  },
+  {
+    node: <Cactus />,
+    kind: 'plant',
+    className: 'right-2 bottom-3 sm:right-3 sm:bottom-6',
+    rotate: -3,
+    opacity: 0.35,
+    phone: true,
+  },
+  {
+    node: <Fern />,
+    kind: 'plant',
+    className: 'left-1 bottom-24 sm:hidden',
+    rotate: 5,
+    opacity: 0.3,
+    phone: true,
+  },
 ]
 
-export default function Doodles() {
+export default function Doodles({ set, onPhone }: { set: DoodleSet; onPhone: boolean }) {
+  if (set === 'none') return null
+  const shown = PLACED.filter((d) => set === 'all' || d.kind === (set === 'plants' ? 'plant' : 'mark'))
+
   return (
     <div
       aria-hidden
-      className="pointer-events-none fixed inset-0 z-0 hidden select-none text-ink-faint xl:block"
+      className={`pointer-events-none fixed inset-0 z-0 select-none text-ink-faint ${
+        onPhone ? 'block opacity-60 xl:opacity-100' : 'hidden xl:block'
+      }`}
     >
-      {PLACED.map((d, i) => (
+      {shown.map((d, i) => (
         <div
           key={i}
-          className={`absolute ${d.className}`}
+          className={`absolute ${d.className} ${onPhone && !d.phone ? 'hidden xl:block' : ''}`}
           style={{ transform: `rotate(${d.rotate}deg)`, opacity: d.opacity }}
         >
           {d.node}

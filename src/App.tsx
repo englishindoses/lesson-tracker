@@ -1,27 +1,22 @@
 import { useEffect, useRef, useState } from 'react'
 import { useStore } from './data/store'
 import { useTheme } from './lib/theme'
-import { exportCSV, exportJSON } from './lib/exportData'
 import AuthGate from './components/AuthGate'
 import StudentsView from './components/StudentsView'
 import ClassesView from './components/ClassesView'
 import ClassView from './components/ClassView'
-import ThemeMenu from './components/ThemeMenu'
-import Menu from './components/Menu'
+import SettingsView from './components/SettingsView'
 import Doodles from './components/Doodles'
 
-type Tab = 'classes' | 'students'
+type Tab = 'classes' | 'students' | 'settings'
 
 export default function App() {
-  const { style, mode, setStyle, setMode } = useTheme()
+  const { theme, mode, setTheme, setMode } = useTheme()
   const init = useStore((s) => s.init)
   const authReady = useStore((s) => s.authReady)
   const userId = useStore((s) => s.userId)
-  const email = useStore((s) => s.email)
   const sync = useStore((s) => s.sync)
   const pending = useStore((s) => s.pendingWrites)
-  const signOut = useStore((s) => s.signOut)
-  const snapshot = useStore((s) => s.snapshot)
 
   const [tab, setTab] = useState<Tab>('classes')
   const [openClassId, setOpenClassId] = useState<string | null>(null)
@@ -48,7 +43,7 @@ export default function App() {
 
   if (!authReady) {
     return (
-      <div className="dotgrid flex min-h-screen items-center justify-center text-ink-faint">
+      <div className="paper-bg flex min-h-screen items-center justify-center text-ink-faint">
         Opening the notebook…
       </div>
     )
@@ -67,9 +62,9 @@ export default function App() {
     sync === 'error' ? 'text-danger' : sync === 'synced' ? 'text-ink-faint' : 'text-ink-soft'
 
   return (
-    <div className="dotgrid min-h-screen">
-      {/* Margin decoration only, on wide screens. Never over the content. */}
-      {style !== 'modern' && <Doodles />}
+    <div className="paper-bg min-h-screen">
+      {/* Margin decoration. Never over the content. */}
+      <Doodles set={theme.doodles} onPhone={theme.doodlesOnPhone} />
 
       {/* Opaque, not bg-paper/95: Tailwind's opacity modifier emits invalid CSS
           for a var() colour, which leaves the bar see-through. */}
@@ -99,49 +94,22 @@ export default function App() {
             ))}
           </nav>
 
-          <span className={`ml-auto mb-2 hidden text-xs sm:inline ${syncColor}`}>
-            {syncLabel[sync]}
-          </span>
+          <span className={`ml-auto mb-2 text-xs ${syncColor}`}>{syncLabel[sync]}</span>
 
-          <div className="mb-2">
-            <ThemeMenu style={style} mode={mode} setStyle={setStyle} setMode={setMode} />
-          </div>
-
-          <Menu label="⋯" title="More" buttonClass="btn mb-2 px-2 py-1 text-xs">
-            {(close) => (
-              <>
-                <div className="truncate px-3 py-2 text-xs text-ink-faint">{email}</div>
-                <div className={`px-3 pb-2 text-xs sm:hidden ${syncColor}`}>{syncLabel[sync]}</div>
-                <button
-                  className="w-full rounded px-3 py-2 text-left hover:bg-accent-soft"
-                  onClick={() => {
-                    exportJSON(snapshot())
-                    close()
-                  }}
-                >
-                  Backup everything (JSON)
-                </button>
-                <button
-                  className="w-full rounded px-3 py-2 text-left hover:bg-accent-soft"
-                  onClick={() => {
-                    exportCSV(snapshot())
-                    close()
-                  }}
-                >
-                  Export spreadsheet (CSV)
-                </button>
-                <button
-                  className="w-full rounded px-3 py-2 text-left hover:bg-accent-soft"
-                  onClick={() => {
-                    close()
-                    void signOut()
-                  }}
-                >
-                  Sign out
-                </button>
-              </>
-            )}
-          </Menu>
+          {/* Settings is a page like the others, so it gets a tab -- but a
+              labelled one would crowd the two that matter on a phone. */}
+          <button
+            aria-current={tab === 'settings' && !openClassId ? 'page' : undefined}
+            aria-label="Settings"
+            title="Settings"
+            onClick={() => {
+              setTab('settings')
+              setOpenClassId(null)
+            }}
+            className="tab text-lg leading-none"
+          >
+            <span aria-hidden>⚙</span>
+          </button>
         </div>
       </header>
 
@@ -152,8 +120,10 @@ export default function App() {
           <ClassView classId={openClassId} onBack={() => setOpenClassId(null)} />
         ) : tab === 'classes' ? (
           <ClassesView onOpen={setOpenClassId} />
-        ) : (
+        ) : tab === 'students' ? (
           <StudentsView />
+        ) : (
+          <SettingsView theme={theme} mode={mode} setTheme={setTheme} setMode={setMode} />
         )}
       </main>
     </div>

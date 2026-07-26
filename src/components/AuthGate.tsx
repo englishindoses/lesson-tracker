@@ -77,7 +77,7 @@ export default function AuthGate() {
     mode === 'signup' ? 'Create your account' : mode === 'reset' ? 'Reset password' : 'Sign in'
 
   return (
-    <div className="dotgrid flex min-h-screen items-center justify-center p-5">
+    <div className="paper-bg flex min-h-screen items-center justify-center p-5">
       <div className="card w-full max-w-md p-6">
         <h1 className="style-hand rule-under mb-1 inline-block text-2xl">Lesson Tracker</h1>
         <p className="mb-5 text-sm text-ink-soft">Lessons, students and money, in one notebook.</p>

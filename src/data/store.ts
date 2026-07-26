@@ -73,6 +73,8 @@ interface StoreState extends Snapshot {
   pull: () => Promise<void>
   flush: () => Promise<void>
   signOut: () => Promise<void>
+  /** Resolves with an error message, or null when the password was changed. */
+  changePassword: (password: string) => Promise<string | null>
 
   upsertStudent: (row: Student) => void
   deleteStudent: (id: string) => void
@@ -216,6 +218,13 @@ export const useStore = create<StoreState>((set, get) => {
 
     async signOut() {
       await supabase?.auth.signOut()
+    },
+
+    async changePassword(password) {
+      if (!supabase) return 'No database is configured.'
+      if (!navigator.onLine) return 'You are offline — a password change needs a connection.'
+      const { error } = await supabase.auth.updateUser({ password })
+      return error ? error.message : null
     },
 
     upsertStudent(row) {

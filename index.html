@@ -1,5 +1,11 @@
 <!doctype html>
-<html lang="en" data-style="minimalist">
+<html
+  lang="en"
+  data-palette="sage"
+  data-fonts="quicksand"
+  data-paper="dots"
+  data-edges="hand"
+>
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
@@ -10,16 +16,32 @@
     <title>Lesson Tracker</title>
     <script>
       // Applied before first paint so the app never flashes the wrong theme.
+      // Deliberately dumb: it trusts what it reads and lets the app correct it
+      // a moment later, rather than repeating the validation from theme.ts.
       try {
-        var known = ['minimalist', 'cozy', 'whimsical', 'modern']
-        var stored = localStorage.getItem('lt.style')
-        var s = known.indexOf(stored) >= 0 ? stored : 'minimalist'
+        var root = document.documentElement
+        var t = JSON.parse(localStorage.getItem('lt.theme') || 'null')
+        if (!t) {
+          // Older versions stored one theme name. Map it to the four choices.
+          var old = localStorage.getItem('lt.style')
+          var map = {
+            cozy: { palette: 'peach', fonts: 'script', paper: 'dots', edges: 'hand' },
+            whimsical: { palette: 'neon', fonts: 'sketch', paper: 'dots', edges: 'hand' },
+            modern: { palette: 'slate', fonts: 'system', paper: 'plain', edges: 'clean' },
+          }
+          t = map[old]
+        }
+        if (t) {
+          if (t.palette) root.dataset.palette = t.palette
+          if (t.fonts) root.dataset.fonts = t.fonts
+          if (t.paper) root.dataset.paper = t.paper
+          if (t.edges) root.dataset.edges = t.edges
+        }
         var m = localStorage.getItem('lt.mode') || 'system'
         var dark =
           m === 'dark' ||
           (m === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
-        document.documentElement.dataset.style = s
-        document.documentElement.dataset.mode = dark ? 'dark' : 'light'
+        root.dataset.mode = dark ? 'dark' : 'light'
       } catch (e) {}
     </script>
   </head>
