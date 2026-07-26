@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from 'react'
+import { useT } from '../lib/i18n'
 
 interface Props {
   title: string
@@ -9,6 +10,8 @@ interface Props {
 }
 
 export default function Modal({ title, onClose, children, footer, wide }: Props) {
+  const { t } = useT()
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
@@ -41,7 +44,7 @@ export default function Modal({ title, onClose, children, footer, wide }: Props)
           <button
             className="px-2 text-xl leading-none text-ink-soft hover:text-ink"
             onClick={onClose}
-            aria-label="Close"
+            aria-label={t('common.close')}
           >
             ×
           </button>

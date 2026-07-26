@@ -1,6 +1,6 @@
 import type { Class, ClassStudent, Entry, Student } from './types'
 import { formatDate, money } from './format'
-import { PRESENCE_META } from './types'
+import { getLang, presenceKey, translate, type TKey } from './i18n'
 
 interface Snapshot {
   students: Student[]
@@ -51,10 +51,14 @@ export function exportCSV(snap: Snapshot) {
     studentsByClass.set(cs.class_id, list)
   }
 
-  const header = [
-    'Class', 'Students', 'Type', 'Row', 'Date', 'Duration (min)',
-    'Presence', 'Charged', 'Amount', 'Paid', 'Date paid',
-    'Lesson notes', 'Extra notes',
+  // The spreadsheet speaks whichever language the app is currently in.
+  const lang = getLang()
+  const say = (key: TKey) => translate(lang, key)
+
+  const header: TKey[] = [
+    'csv.class', 'csv.students', 'csv.type', 'csv.row', 'classView.colDate', 'csv.duration',
+    'entry.presence', 'csv.charged', 'csv.amount', 'entry.paid', 'csv.datePaid',
+    'entry.lessonNotes', 'classView.extraNotes',
   ]
 
   const rows = snap.entries
@@ -70,13 +74,13 @@ export function exportCSV(snap: Snapshot) {
         cls?.name ?? '',
         (studentsByClass.get(e.class_id) ?? []).join(', '),
         cls?.lesson_type ?? '',
-        e.kind === 'lesson' ? 'Lesson' : 'Payment',
+        say(e.kind === 'lesson' ? 'classView.lesson' : 'classView.payment'),
         formatDate(e.entry_date ?? e.due_date),
         e.kind === 'lesson' ? e.duration_min ?? '' : '',
-        e.presence ? PRESENCE_META[e.presence].label : '',
-        e.kind === 'lesson' ? (e.not_charged ? 'No' : 'Yes') : '',
+        e.presence ? say(presenceKey(e.presence)) : '',
+        e.kind === 'lesson' ? say(e.not_charged ? 'csv.no' : 'csv.yes') : '',
         e.amount != null ? money(e.amount) : '',
-        e.kind === 'payment' ? (e.paid ? 'Yes' : 'No') : '',
+        e.kind === 'payment' ? say(e.paid ? 'csv.yes' : 'csv.no') : '',
         formatDate(e.paid_date),
         e.lesson_notes ?? '',
         e.extra_notes ?? '',
@@ -86,6 +90,6 @@ export function exportCSV(snap: Snapshot) {
   download(
     `lesson-tracker-${stamp()}.csv`,
     'text/csv;charset=utf-8',
-    [header.map(csvCell).join(','), ...rows.map((r) => r.join(','))].join('\r\n'),
+    [header.map((k) => csvCell(say(k))).join(','), ...rows.map((r) => r.join(','))].join('\r\n'),
   )
 }

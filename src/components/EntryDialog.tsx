@@ -1,5 +1,6 @@
 import type { Entry } from '../lib/types'
 import { formatDate } from '../lib/format'
+import { useT } from '../lib/i18n'
 import Modal from './Modal'
 import {
   AmountInput,
@@ -31,6 +32,7 @@ export default function EntryDialog({
   /** Only offered while the row is still blank, to avoid orphaning data. */
   onSwitchKind: (kind: Entry['kind']) => void
 }) {
+  const { t } = useT()
   const { entry, onPatch } = props
   const isLesson = entry.kind === 'lesson'
   const date = entry.entry_date ?? entry.due_date
@@ -40,13 +42,13 @@ export default function EntryDialog({
 
   return (
     <Modal
-      title={date ? formatDate(date) : isLesson ? 'Lesson' : 'Payment'}
+      title={date ? formatDate(date) : isLesson ? t('classView.lesson') : t('classView.payment')}
       onClose={onClose}
       footer={
         <>
-          <DeleteButton onDelete={onDelete} label="Delete" />
+          <DeleteButton onDelete={onDelete} label={t('common.delete')} />
           <button className="btn btn-primary ml-auto" onClick={onClose}>
-            Done
+            {t('common.done')}
           </button>
         </>
       }
@@ -56,8 +58,8 @@ export default function EntryDialog({
           <div className="flex gap-2">
             {(
               [
-                ['lesson', 'Lesson'],
-                ['payment', 'Payment'],
+                ['lesson', t('classView.lesson')],
+                ['payment', t('classView.payment')],
               ] as [Entry['kind'], string][]
             ).map(([kind, label]) => (
               <button
@@ -72,19 +74,21 @@ export default function EntryDialog({
         )}
 
         <label className="block text-sm">
-          <span className="mb-1 block text-ink-soft">{isLesson ? 'Date' : 'Due date'}</span>
+          <span className="mb-1 block text-ink-soft">
+            {isLesson ? t('entry.date') : t('entry.dueDate')}
+          </span>
           <DateInput {...props} />
         </label>
 
         {isLesson && (
           <>
             <label className="block text-sm">
-              <span className="mb-1 block text-ink-soft">Presence</span>
+              <span className="mb-1 block text-ink-soft">{t('entry.presence')}</span>
               <PresenceSelect {...props} />
             </label>
 
             <label className="block text-sm">
-              <span className="mb-1 block text-ink-soft">Length (minutes)</span>
+              <span className="mb-1 block text-ink-soft">{t('entry.lengthLabel')}</span>
               <DurationInput {...props} />
             </label>
           </>
@@ -92,30 +96,32 @@ export default function EntryDialog({
 
         <label className="block text-sm">
           <span className="mb-1 block text-ink-soft">
-            Amount (R$){isLesson ? ' — blank uses the class price' : ''}
+            {isLesson ? t('entry.amountBlankHint') : t('entry.amountLabel')}
           </span>
           <AmountInput {...props} />
         </label>
 
         <div className="text-sm">
-          <span className="mb-1 block text-ink-soft">Paid</span>
+          <span className="mb-1 block text-ink-soft">{t('entry.paid')}</span>
           <div className="flex items-center gap-3">
             <PaidControl {...props} />
           </div>
         </div>
 
         <label className="block text-sm">
-          <span className="mb-1 block text-ink-soft">{isLesson ? 'Lesson notes' : 'Note'}</span>
+          <span className="mb-1 block text-ink-soft">
+            {isLesson ? t('entry.lessonNotes') : t('entry.note')}
+          </span>
           <NotesInput {...props} />
         </label>
 
         {isLesson && (
           <>
             <label className="block text-sm">
-              <span className="mb-1 block text-ink-soft">Extra notes</span>
+              <span className="mb-1 block text-ink-soft">{t('classView.extraNotes')}</span>
               <input
                 className="field"
-                placeholder="Homework set, materials…"
+                placeholder={t('entry.extraNotesHint')}
                 value={entry.extra_notes ?? ''}
                 onChange={(e) => onPatch({ extra_notes: e.target.value || null })}
               />
@@ -123,7 +129,7 @@ export default function EntryDialog({
 
             <label className="flex items-center gap-2 text-sm text-ink-soft">
               <StrikeBox {...props} />
-              Don't charge for this lesson
+              {t('entry.dontCharge')}
             </label>
           </>
         )}

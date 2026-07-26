@@ -6,12 +6,14 @@ import {
   addDays,
   addMonths,
   duration,
+  formatDate,
   formatMonth,
   money,
   moneySigned,
   monthKey,
   todayISO,
 } from '../lib/format'
+import { presenceKey, useT } from '../lib/i18n'
 import ClassEditor from './ClassEditor'
 import Modal from './Modal'
 import NumberField from './NumberField'
@@ -40,6 +42,7 @@ export default function ClassView({
   classId: string
   onBack: () => void
 }) {
+  const { t } = useT()
   const userId = useStore((s) => s.userId)!
   const cls = useStore((s) => s.classes.find((c) => c.id === classId))
   const students = useStore((s) => s.students)
@@ -311,31 +314,33 @@ export default function ClassView({
   const openEntry = openEntryId ? classEntries.find((e) => e.id === openEntryId) : undefined
 
   const emptyMessage =
-    classEntries.length === 0
-      ? 'Empty page. Add your first lesson.'
-      : 'Nothing matches these filters.'
+    classEntries.length === 0 ? t('classView.empty') : t('classView.noMatches')
 
   return (
     <div className="pb-28 sm:pb-24">
       {/* ------------------------------------------------------------ header */}
       <div className="mb-3 flex flex-wrap items-start gap-2">
         <button className="btn no-print" onClick={onBack}>
-          ← Back
+          {t('common.back')}
         </button>
         <div className="order-last w-full sm:order-none sm:mr-auto sm:w-auto">
           <h1 className="style-hand rule-under text-xl sm:text-2xl">{cls.name}</h1>
           <div className="mt-1 text-xs text-ink-soft">
-            {names.length ? names.join(', ') : 'No students yet'}
+            {names.length ? names.join(', ') : t('classes.noStudents')}
             {' · '}
             {cls.lesson_type ? `${cls.lesson_type} · ` : ''}
             {cls.default_duration_min} min ·{' '}
             {cls.pricing_mode === 'per_lesson'
-              ? `${cls.price_per_lesson != null ? money(cls.price_per_lesson) : '—'} per lesson`
-              : `${cls.monthly_price != null ? money(cls.monthly_price) : '—'} per month`}
+              ? t('classes.perLessonLong', {
+                  price: cls.price_per_lesson != null ? money(cls.price_per_lesson) : '—',
+                })
+              : t('classes.perMonthLong', {
+                  price: cls.monthly_price != null ? money(cls.monthly_price) : '—',
+                })}
           </div>
         </div>
         <button className="btn no-print ml-auto sm:ml-0" onClick={() => setEditingClass(true)}>
-          Edit class
+          {t('classView.editClass')}
         </button>
       </div>
 
@@ -350,8 +355,8 @@ export default function ClassView({
         <div className="flex overflow-hidden rounded border border-ink-faint">
           {(
             [
-              ['list', 'List'],
-              ['calendar', 'Calendar'],
+              ['list', t('classView.list')],
+              ['calendar', t('classView.calendar')],
             ] as [ViewMode, string][]
           ).map(([value, label]) => (
             <button
@@ -372,7 +377,7 @@ export default function ClassView({
             <button
               className="btn px-2"
               onClick={() => setMonth(addMonths(calendarMonth, -1))}
-              aria-label="Previous month"
+              aria-label={t('classView.prevMonth')}
             >
               ‹
             </button>
@@ -380,7 +385,7 @@ export default function ClassView({
             <button
               className="btn px-2"
               onClick={() => setMonth(addMonths(calendarMonth, 1))}
-              aria-label="Next month"
+              aria-label={t('classView.nextMonth')}
             >
               ›
             </button>
@@ -390,9 +395,9 @@ export default function ClassView({
             className="field field-inline"
             value={month}
             onChange={(e) => setMonth(e.target.value)}
-            aria-label="Filter by month"
+            aria-label={t('classView.filterMonth')}
           >
-            <option value="all">All months</option>
+            <option value="all">{t('classView.allMonths')}</option>
             {months.map((m) => (
               <option key={m} value={m}>
                 {formatMonth(m)}
@@ -405,34 +410,34 @@ export default function ClassView({
           className="field field-inline"
           value={kind}
           onChange={(e) => setKind(e.target.value as KindFilter)}
-          aria-label="Filter by row type"
+          aria-label={t('classView.filterKind')}
         >
-          <option value="all">Lessons &amp; payments</option>
-          <option value="lesson">Lessons only</option>
-          <option value="payment">Payments only</option>
+          <option value="all">{t('classView.kindAll')}</option>
+          <option value="lesson">{t('classView.kindLesson')}</option>
+          <option value="payment">{t('classView.kindPayment')}</option>
         </select>
 
         <select
           className="field field-inline"
           value={paid}
           onChange={(e) => setPaid(e.target.value as PaidFilter)}
-          aria-label="Filter by paid status"
+          aria-label={t('classView.filterPaid')}
         >
-          <option value="all">Paid &amp; unpaid</option>
-          <option value="unpaid">Unpaid only</option>
-          <option value="paid">Paid only</option>
+          <option value="all">{t('classView.paidAll')}</option>
+          <option value="unpaid">{t('classView.paidUnpaid')}</option>
+          <option value="paid">{t('classView.paidPaid')}</option>
         </select>
 
         <select
           className="field field-inline"
           value={presence}
           onChange={(e) => setPresence(e.target.value as Presence | 'all')}
-          aria-label="Filter by presence"
+          aria-label={t('classView.filterPresence')}
         >
-          <option value="all">Any presence</option>
+          <option value="all">{t('classView.anyPresence')}</option>
           {PRESENCE_ORDER.map((p) => (
             <option key={p} value={p}>
-              {PRESENCE_META[p].glyph} {PRESENCE_META[p].label}
+              {PRESENCE_META[p].glyph} {t(presenceKey(p))}
             </option>
           ))}
         </select>
@@ -447,22 +452,22 @@ export default function ClassView({
               setPresence('all')
             }}
           >
-            Clear filters
+            {t('classView.clearFilters')}
           </button>
         )}
 
         <div className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto">
           <button className="btn flex-1 sm:flex-none" onClick={addPayment}>
-            + Payment
+            {t('classView.addPayment')}
           </button>
           <button className="btn btn-primary flex-1 sm:flex-none" onClick={addLesson}>
-            + Lesson
+            {t('classView.addLesson')}
           </button>
           <button
             className={`btn shrink-0 px-2 ${pinned ? 'text-accent' : 'text-ink-faint'}`}
             aria-pressed={pinned}
-            aria-label={pinned ? 'Unpin filters' : 'Pin filters to the top'}
-            title={pinned ? 'Filters stay on screen — tap to unpin' : 'Pin filters to the top'}
+            aria-label={pinned ? t('classView.unpin') : t('classView.pin')}
+            title={pinned ? t('classView.pinned') : t('classView.pin')}
             onClick={() => {
               const next = !pinned
               setPinned(next)
@@ -499,13 +504,17 @@ export default function ClassView({
             <table className="w-full border-collapse text-sm">
               <thead className="sticky-head">
                 <tr className="border-b border-rule text-left text-xs uppercase tracking-wide text-ink-faint">
-                  <th className="w-8 px-2 py-2" title="Tick to not charge for this row" />
-                  <th className="px-2 py-2 font-normal">Date</th>
-                  <th className="w-24 px-2 py-2 font-normal">Length</th>
-                  <th className="w-44 px-2 py-2 font-normal">Presence</th>
-                  <th className="w-32 px-2 py-2 text-right font-normal">Amount</th>
-                  <th className="w-28 px-2 py-2 text-center font-normal">Paid</th>
-                  <th className="px-2 py-2 font-normal">Notes</th>
+                  <th className="w-8 px-2 py-2" title={t('classView.dontChargeCol')} />
+                  <th className="px-2 py-2 font-normal">{t('classView.colDate')}</th>
+                  <th className="w-24 px-2 py-2 font-normal">{t('classView.colLength')}</th>
+                  <th className="w-44 px-2 py-2 font-normal">{t('classView.colPresence')}</th>
+                  <th className="w-32 px-2 py-2 text-right font-normal">
+                    {t('classView.colAmount')}
+                  </th>
+                  <th className="w-28 px-2 py-2 text-center font-normal">
+                    {t('classView.colPaid')}
+                  </th>
+                  <th className="px-2 py-2 font-normal">{t('classView.colNotes')}</th>
                   <th className="w-20 px-2 py-2" />
                 </tr>
               </thead>
@@ -556,22 +565,37 @@ export default function ClassView({
               view — what a student owes isn't a per-month question. */}
           <div className="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-1">
             <span className="flex flex-wrap items-baseline gap-x-5 gap-y-1">
-              <Figure label="Credit" value={money(ledger.credit)} className="text-good" />
-              <Figure label="Unpaid" value={money(ledger.unpaid)} className="text-danger" />
-              <Figure label="Owed" value={moneySigned(ledger.owed)} className="text-ink" big />
+              <Figure
+                label={t('classView.figureCredit')}
+                value={money(ledger.credit)}
+                className="text-good"
+              />
+              <Figure
+                label={t('classView.figureUnpaid')}
+                value={money(ledger.unpaid)}
+                className="text-danger"
+              />
+              <Figure
+                label={t('classView.figureOwed')}
+                value={moneySigned(ledger.owed)}
+                className="text-ink"
+                big
+              />
             </span>
 
             <span className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-ink-soft">
               <span className="hidden sm:inline">
-                {filtersActive || view === 'calendar' ? 'Showing:' : 'All:'}
+                {filtersActive || view === 'calendar'
+                  ? t('classView.showing')
+                  : t('classView.allRows')}
               </span>
-              <span>{totals.lessonCount} lessons</span>
-              <span>Taught {duration(totals.taughtMinutes)}</span>
+              <span>{t('classes.lessonCount', { n: totals.lessonCount })}</span>
+              <span>{t('classView.taught', { time: duration(totals.taughtMinutes) })}</span>
               <span className="hidden lg:inline">
-                Scheduled {duration(totals.scheduledMinutes)}
+                {t('classView.scheduled', { time: duration(totals.scheduledMinutes) })}
               </span>
-              <span>Charged {money(totals.charged)}</span>
-              <span>Received {money(totals.received)}</span>
+              <span>{t('classView.charged', { amount: money(totals.charged) })}</span>
+              <span>{t('classView.received', { amount: money(totals.received) })}</span>
             </span>
           </div>
         </div>
@@ -634,6 +658,7 @@ function TableRow(
     onDelete: () => void
   },
 ) {
+  const { t } = useT()
   const { entry, line, onPatch, expanded, onToggleExpanded, onRepeat, onDelete } = props
   const isLesson = entry.kind === 'lesson'
   const struck = isLesson && entry.not_charged
@@ -654,7 +679,7 @@ function TableRow(
 
         <td className={`px-2 py-1.5 ${cell}`}>
           <DateInput {...props} />
-          {!isLesson && <div className="mt-0.5 text-xs text-ink-faint">due</div>}
+          {!isLesson && <div className="mt-0.5 text-xs text-ink-faint">{t('classView.due')}</div>}
         </td>
 
         <td className={`px-2 py-1.5 ${cell}`}>
@@ -669,7 +694,9 @@ function TableRow(
           {isLesson ? (
             <PresenceSelect {...props} />
           ) : (
-            <span className="text-xs uppercase tracking-wide text-ink-soft">Payment</span>
+            <span className="text-xs uppercase tracking-wide text-ink-soft">
+              {t('classView.payment')}
+            </span>
           )}
         </td>
 
@@ -692,16 +719,16 @@ function TableRow(
                 <button
                   className="px-1 text-ink-faint hover:text-ink"
                   onClick={onToggleExpanded}
-                  title="Extra notes"
-                  aria-label="Extra notes"
+                  title={t('classView.extraNotes')}
+                  aria-label={t('classView.extraNotes')}
                 >
                   {expanded ? '▾' : '▸'}
                 </button>
                 <button
                   className="px-1 text-ink-faint hover:text-ink"
                   onClick={onRepeat}
-                  title="Repeat weekly"
-                  aria-label="Repeat weekly"
+                  title={t('classView.repeatWeekly')}
+                  aria-label={t('classView.repeatWeekly')}
                 >
                   ⟳
                 </button>
@@ -718,8 +745,8 @@ function TableRow(
           <td colSpan={7} className="px-2 pb-2">
             <input
               className="field"
-              placeholder="Extra notes — homework set, materials, anything else"
-              aria-label="Extra notes"
+              placeholder={t('classView.extraNotesHint')}
+              aria-label={t('classView.extraNotes')}
               value={entry.extra_notes ?? ''}
               onChange={(e) => onPatch({ extra_notes: e.target.value || null })}
             />
@@ -733,6 +760,7 @@ function TableRow(
 /* ----------------------------------------------------- narrow screens: cards */
 
 function EntryCard(props: RowProps & { onRepeat: () => void; onDelete: () => void }) {
+  const { t } = useT()
   const { entry, line, onPatch, onRepeat, onDelete } = props
   const [showExtra, setShowExtra] = useState(Boolean(entry.extra_notes))
   const isLesson = entry.kind === 'lesson'
@@ -750,7 +778,9 @@ function EntryCard(props: RowProps & { onRepeat: () => void; onDelete: () => voi
         {isLesson ? (
           <StrikeBox {...props} />
         ) : (
-          <span className="text-xs uppercase tracking-wide text-ink-soft">Payment</span>
+          <span className="text-xs uppercase tracking-wide text-ink-soft">
+            {t('classView.payment')}
+          </span>
         )}
         <div className="min-w-0 flex-1">
           <DateInput {...props} />
@@ -759,8 +789,8 @@ function EntryCard(props: RowProps & { onRepeat: () => void; onDelete: () => voi
           <button
             className="px-1 text-ink-faint"
             onClick={onRepeat}
-            title="Repeat weekly"
-            aria-label="Repeat weekly"
+            title={t('classView.repeatWeekly')}
+            aria-label={t('classView.repeatWeekly')}
           >
             ⟳
           </button>
@@ -771,25 +801,25 @@ function EntryCard(props: RowProps & { onRepeat: () => void; onDelete: () => voi
       <div className="mt-2 grid grid-cols-2 gap-2">
         {isLesson && (
           <label className="col-span-2 block text-xs text-ink-soft">
-            Presence
+            {t('entry.presence')}
             <PresenceSelect {...props} />
           </label>
         )}
 
         {isLesson && (
           <label className="block text-xs text-ink-soft">
-            Minutes
+            {t('classView.minutes')}
             <DurationInput {...props} />
           </label>
         )}
 
         <label className={`block text-xs text-ink-soft ${isLesson ? '' : 'col-span-1'}`}>
-          Amount (R$)
+          {t('classView.amountBRL')}
           <AmountInput {...props} />
         </label>
 
         <div className={`text-xs text-ink-soft ${isLesson ? 'col-span-2' : 'col-span-1'}`}>
-          <span className="mb-1 block">Paid</span>
+          <span className="mb-1 block">{t('entry.paid')}</span>
           <div className="flex items-center gap-2">
             <PaidControl {...props} />
           </div>
@@ -804,8 +834,8 @@ function EntryCard(props: RowProps & { onRepeat: () => void; onDelete: () => voi
         (showExtra ? (
           <input
             className="field mt-2"
-            placeholder="Extra notes — homework, materials…"
-            aria-label="Extra notes"
+            placeholder={t('classView.extraNotesHintShort')}
+            aria-label={t('classView.extraNotes')}
             value={entry.extra_notes ?? ''}
             onChange={(e) => onPatch({ extra_notes: e.target.value || null })}
           />
@@ -814,7 +844,7 @@ function EntryCard(props: RowProps & { onRepeat: () => void; onDelete: () => voi
             className="mt-1 text-xs text-ink-faint underline"
             onClick={() => setShowExtra(true)}
           >
-            + extra notes
+            {t('classView.addExtraNotes')}
           </button>
         ))}
     </div>
@@ -832,35 +862,35 @@ function RepeatDialog({
   onClose: () => void
   onConfirm: (times: number) => void
 }) {
+  const { t } = useT()
   // Nullable so the box can be cleared and retyped without snapping back.
   const [times, setTimes] = useState<number | null>(4)
   const count = Math.min(52, Math.max(1, times ?? 1))
 
   return (
     <Modal
-      title="Repeat weekly"
+      title={t('repeat.title')}
       onClose={onClose}
       footer={
         <>
           <button className="btn" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </button>
           <button
             className="btn btn-primary"
             disabled={times == null}
             onClick={() => onConfirm(count)}
           >
-            Add {count} {count === 1 ? 'lesson' : 'lessons'}
+            {count === 1 ? t('repeat.add', { n: count }) : t('repeat.addPlural', { n: count })}
           </button>
         </>
       }
     >
       <p className="mb-3 text-sm text-ink-soft">
-        Copies this lesson forward, one week apart, starting the week after {entry.entry_date}.
-        Notes and presence start fresh on each copy.
+        {t('repeat.explain', { date: formatDate(entry.entry_date) })}
       </p>
       <label className="block text-sm">
-        <span className="mb-1 block text-ink-soft">How many?</span>
+        <span className="mb-1 block text-ink-soft">{t('repeat.howMany')}</span>
         <NumberField
           min={1}
           max={52}

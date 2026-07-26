@@ -1,5 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { supabase, isConfigured } from '../lib/supabase'
+import { useT } from '../lib/i18n'
+import LanguageToggle from './LanguageToggle'
 
 type Mode = 'signin' | 'signup' | 'reset'
 
@@ -11,6 +13,7 @@ type Mode = 'signin' | 'signup' | 'reset'
  * the PWA from. A password works in whichever browser you're already in.
  */
 export default function AuthGate() {
+  const { t } = useT()
   const [mode, setMode] = useState<Mode>('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -31,9 +34,7 @@ export default function AuthGate() {
           redirectTo: window.location.origin + window.location.pathname,
         })
         if (error) throw error
-        setNotice(
-          'Password reset email sent. Open the link in a real browser, not inside your email app.',
-        )
+        setNotice(t('auth.resetSent'))
         return
       }
 
@@ -46,13 +47,7 @@ export default function AuthGate() {
         if (error) throw error
         // With email confirmation switched off, signUp returns a session and
         // the app just opens. With it on, it doesn't, and we have to explain.
-        if (!data.session) {
-          setNotice(
-            'Account created. Supabase wants you to confirm your address first — check your email, ' +
-              'or turn off Authentication → Sign In / Providers → Email → "Confirm email" in your ' +
-              'Supabase dashboard and sign in straight away.',
-          )
-        }
+        if (!data.session) setNotice(t('auth.confirmNotice'))
         return
       }
 
@@ -63,45 +58,37 @@ export default function AuthGate() {
       if (error) throw error
     } catch (e) {
       const message = (e as Error).message
-      setError(
-        message === 'Invalid login credentials'
-          ? "That email and password don't match. If you haven't made an account yet, choose Create account."
-          : message,
-      )
+      setError(message === 'Invalid login credentials' ? t('auth.badCredentials') : message)
     } finally {
       setBusy(false)
     }
   }
 
   const title =
-    mode === 'signup' ? 'Create your account' : mode === 'reset' ? 'Reset password' : 'Sign in'
+    mode === 'signup'
+      ? t('auth.createTitle')
+      : mode === 'reset'
+        ? t('auth.resetTitle')
+        : t('auth.signIn')
 
   return (
-    <div className="paper-bg flex min-h-screen items-center justify-center p-5">
+    <div className="paper-bg relative flex min-h-screen items-center justify-center p-5">
+      {/* Top corner, same place as inside the app. */}
+      <LanguageToggle className="absolute right-4 top-4" />
+
       <div className="card w-full max-w-md p-6">
-        <h1 className="style-hand rule-under mb-1 inline-block text-2xl">Lesson Tracker</h1>
-        <p className="mb-5 text-sm text-ink-soft">Lessons, students and money, in one notebook.</p>
+        <h1 className="style-hand rule-under mb-1 inline-block text-2xl">{t('app.title')}</h1>
+        <p className="mb-5 text-sm text-ink-soft">{t('auth.tagline')}</p>
 
         {!isConfigured ? (
           <div className="space-y-3 text-sm">
-            <p className="font-semibold">One-time setup needed</p>
-            <p className="text-ink-soft">
-              The app can't reach a database yet. Create your free Supabase project, then:
-            </p>
+            <p className="font-semibold">{t('auth.setupTitle')}</p>
+            <p className="text-ink-soft">{t('auth.setupIntro')}</p>
             <ol className="list-decimal space-y-1 pl-5 text-ink-soft">
-              <li>
-                Open <span className="font-mono">supabase/schema.sql</span> from this project,
-                paste it into the Supabase <em>SQL Editor</em> and run it.
-              </li>
-              <li>
-                In Supabase go to <em>Project Settings → API</em> and copy the{' '}
-                <em>Project URL</em> and the <em>publishable</em> key.
-              </li>
-              <li>
-                Copy <span className="font-mono">.env.example</span> to{' '}
-                <span className="font-mono">.env</span> and paste both values in.
-              </li>
-              <li>Restart the dev server.</li>
+              <li>{t('auth.setup1')}</li>
+              <li>{t('auth.setup2')}</li>
+              <li>{t('auth.setup3')}</li>
+              <li>{t('auth.setup4')}</li>
             </ol>
           </div>
         ) : (
@@ -109,7 +96,7 @@ export default function AuthGate() {
             <p className="text-sm font-semibold">{title}</p>
 
             <label className="block text-sm">
-              <span className="mb-1 block text-ink-soft">Email address</span>
+              <span className="mb-1 block text-ink-soft">{t('auth.email')}</span>
               <input
                 className="field"
                 type="email"
@@ -123,7 +110,7 @@ export default function AuthGate() {
 
             {mode !== 'reset' && (
               <label className="block text-sm">
-                <span className="mb-1 block text-ink-soft">Password</span>
+                <span className="mb-1 block text-ink-soft">{t('auth.password')}</span>
                 <input
                   className="field"
                   type="password"
@@ -132,7 +119,7 @@ export default function AuthGate() {
                   autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder={mode === 'signup' ? 'At least 8 characters' : ''}
+                  placeholder={mode === 'signup' ? t('auth.atLeast8') : ''}
                 />
               </label>
             )}
@@ -142,12 +129,12 @@ export default function AuthGate() {
               disabled={busy || !email.trim() || (mode !== 'reset' && password.length < 8)}
             >
               {busy
-                ? 'Working…'
+                ? t('auth.working')
                 : mode === 'signup'
-                  ? 'Create account'
+                  ? t('auth.createAccount')
                   : mode === 'reset'
-                    ? 'Send reset email'
-                    : 'Sign in'}
+                    ? t('auth.sendReset')
+                    : t('auth.signIn')}
             </button>
 
             {error && <p className="text-sm text-danger">{error}</p>}
@@ -157,15 +144,15 @@ export default function AuthGate() {
               {mode === 'signin' ? (
                 <>
                   <button type="button" className="underline" onClick={() => setMode('signup')}>
-                    Create account
+                    {t('auth.createAccount')}
                   </button>
                   <button type="button" className="underline" onClick={() => setMode('reset')}>
-                    Forgot password?
+                    {t('auth.forgot')}
                   </button>
                 </>
               ) : (
                 <button type="button" className="underline" onClick={() => setMode('signin')}>
-                  ← Back to sign in
+                  {t('auth.backToSignIn')}
                 </button>
               )}
             </div>

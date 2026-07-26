@@ -1,11 +1,29 @@
 // Locale settings: Brazilian real, and dates written with the weekday first
-// (e.g. "Sat 25/07/2026").
+// (e.g. "Sat 25/07/2026"). The numbers are identical in both languages -- only
+// the weekday and month names change, so they are the only thing keyed by it.
 
-const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-const MONTHS = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
-]
+import { getLang } from './i18n'
+
+const WEEKDAYS = {
+  en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+  pt: ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'],
+}
+
+const MONTHS = {
+  en: [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December',
+  ],
+  pt: [
+    'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+    'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro',
+  ],
+}
+
+const INITIALS = {
+  en: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+  pt: ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'],
+}
 
 const brl = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
@@ -33,7 +51,7 @@ export function parseISODate(iso: string): { y: number; m: number; d: number } {
 
 function weekdayOf(iso: string): string {
   const { y, m, d } = parseISODate(iso)
-  return WEEKDAYS[new Date(Date.UTC(y, m - 1, d)).getUTCDay()]
+  return WEEKDAYS[getLang()][new Date(Date.UTC(y, m - 1, d)).getUTCDay()]
 }
 
 const pad = (n: number) => String(n).padStart(2, '0')
@@ -52,10 +70,12 @@ export function formatDateShort(iso: string | null): string {
   return `${weekdayOf(iso)} ${pad(d)}/${pad(m)}`
 }
 
-/** "July 2026" */
+/** "July 2026", or "julho de 2026" */
 export function formatMonth(ym: string): string {
   const [y, m] = ym.split('-').map(Number)
-  return `${MONTHS[m - 1]} ${y}`
+  const lang = getLang()
+  const name = MONTHS[lang][m - 1]
+  return lang === 'pt' ? `${name} de ${y}` : `${name} ${y}`
 }
 
 /** "2026-07" -- the month bucket a date belongs to. */
@@ -86,8 +106,13 @@ export function dateInMonth(ym: string, day: number): string {
   return `${ym}-${pad(day)}`
 }
 
-export const WEEKDAY_INITIALS = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
-export const WEEKDAY_NAMES = WEEKDAYS
+/** Calendar column headings. Functions, not constants: the language can change. */
+export function weekdayInitials(): string[] {
+  return INITIALS[getLang()]
+}
+export function weekdayNames(): string[] {
+  return WEEKDAYS[getLang()]
+}
 
 export function todayISO(): string {
   const now = new Date()

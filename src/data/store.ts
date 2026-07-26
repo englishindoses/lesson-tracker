@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { supabase, isConfigured } from '../lib/supabase'
 import type { Class, ClassStudent, Entry, Student } from '../lib/types'
+import { getLang, translate } from '../lib/i18n'
 
 /**
  * Offline-first data layer.
@@ -221,8 +222,8 @@ export const useStore = create<StoreState>((set, get) => {
     },
 
     async changePassword(password) {
-      if (!supabase) return 'No database is configured.'
-      if (!navigator.onLine) return 'You are offline — a password change needs a connection.'
+      if (!supabase) return translate(getLang(), 'settings.noDatabase')
+      if (!navigator.onLine) return translate(getLang(), 'settings.offlinePassword')
       const { error } = await supabase.auth.updateUser({ password })
       return error ? error.message : null
     },

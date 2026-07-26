@@ -4,18 +4,23 @@ import { exportCSV, exportJSON } from '../lib/exportData'
 import { setStaysLoggedIn, staysLoggedIn } from '../lib/supabase'
 import {
   DOODLE_SETS,
+  EDGES,
   FONTS,
   PALETTES,
   PAPERS,
   PRESETS,
   matchingPreset,
   type DoodleSet,
+  type EdgeName,
   type FontName,
   type ModeSetting,
   type PaletteName,
   type PaperName,
   type Theme,
 } from '../lib/theme'
+import { useT, type TKey } from '../lib/i18n'
+import { useSyncLabel } from '../lib/syncLabel'
+import LanguageToggle from './LanguageToggle'
 
 /**
  * Everything that isn't lesson data: how the app looks, the account, and the
@@ -23,10 +28,10 @@ import {
  * presets as a starting point rather than the only way in.
  */
 
-const MODES: { value: ModeSetting; label: string }[] = [
-  { value: 'light', label: 'Light' },
-  { value: 'dark', label: 'Dark' },
-  { value: 'system', label: 'Match device' },
+const MODES: { value: ModeSetting; label: TKey }[] = [
+  { value: 'light', label: 'mode.light' },
+  { value: 'dark', label: 'mode.dark' },
+  { value: 'system', label: 'mode.system' },
 ]
 
 function Section({
@@ -55,10 +60,11 @@ function Choices<T extends string>({
   onChange,
 }: {
   label: string
-  options: { value: T; label: string; hint?: string }[]
+  options: { value: T; label: TKey; hint?: TKey }[]
   value: T
   onChange: (v: T) => void
 }) {
+  const { t } = useT()
   return (
     <div role="radiogroup" aria-label={label} className="mb-4">
       <div className="style-accent mb-1.5 text-sm text-ink-soft">{label}</div>
@@ -69,12 +75,12 @@ function Choices<T extends string>({
             role="radio"
             aria-checked={value === o.value}
             onClick={() => onChange(o.value)}
-            title={o.hint}
+            title={o.hint ? t(o.hint) : undefined}
             className={`btn text-left ${
               value === o.value ? 'border-accent bg-accent-soft text-ink' : ''
             }`}
           >
-            {o.label}
+            {t(o.label)}
           </button>
         ))}
       </div>
@@ -121,6 +127,8 @@ export default function SettingsView({
   setTheme: (patch: Partial<Theme>) => void
   setMode: (m: ModeSetting) => void
 }) {
+  const { t } = useT()
+  const syncLabel = useSyncLabel()
   const email = useStore((s) => s.email)
   const signOut = useStore((s) => s.signOut)
   const changePassword = useStore((s) => s.changePassword)
@@ -137,17 +145,17 @@ export default function SettingsView({
   async function submitPassword(e: React.FormEvent) {
     e.preventDefault()
     if (password.length < 8) {
-      setNote({ ok: false, text: 'Use at least 8 characters.' })
+      setNote({ ok: false, text: t('settings.tooShort') })
       return
     }
     if (password !== confirm) {
-      setNote({ ok: false, text: 'The two passwords do not match.' })
+      setNote({ ok: false, text: t('settings.noMatch') })
       return
     }
     setBusy(true)
     const error = await changePassword(password)
     setBusy(false)
-    setNote(error ? { ok: false, text: error } : { ok: true, text: 'Password changed.' })
+    setNote(error ? { ok: false, text: error } : { ok: true, text: t('settings.changed') })
     if (!error) {
       setPassword('')
       setConfirm('')
@@ -156,14 +164,15 @@ export default function SettingsView({
 
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="style-hand rule-under mb-4 text-2xl">Settings</h1>
+      <h1 className="style-hand rule-under mb-4 text-2xl">{t('app.settings')}</h1>
 
-      <Section
-        title="Look"
-        hint="Start from a preset, then change any part of it — nothing here is locked together."
-      >
+      <Section title={t('settings.language')} hint={t('settings.languageHint')}>
+        <LanguageToggle className="text-sm" />
+      </Section>
+
+      <Section title={t('settings.look')} hint={t('settings.lookHint')}>
         <Choices
-          label="Presets"
+          label={t('settings.presets')}
           options={PRESETS.map((p) => ({ value: p.value, label: p.label, hint: p.hint }))}
           value={preset ?? ''}
           onChange={(v) => {
@@ -174,63 +183,62 @@ export default function SettingsView({
         />
         <p className="-mt-2 mb-4 text-sm text-ink-faint">
           {preset
-            ? PRESETS.find((p) => p.value === preset)?.hint
-            : 'Your own mix — no preset ticked.'}
+            ? t(PRESETS.find((p) => p.value === preset)!.hint)
+            : t('settings.ownMix')}
         </p>
 
         <Choices<ModeSetting>
-          label="Light or dark"
+          label={t('settings.mode')}
           options={MODES}
           value={mode}
           onChange={setMode}
         />
         <Choices<PaletteName>
-          label="Colours"
+          label={t('settings.colours')}
           options={PALETTES}
           value={theme.palette}
           onChange={(v) => setTheme({ palette: v })}
         />
         <Choices<FontName>
-          label="Lettering"
+          label={t('settings.lettering')}
           options={FONTS}
           value={theme.fonts}
           onChange={(v) => setTheme({ fonts: v })}
         />
         <Choices<PaperName>
-          label="Paper"
+          label={t('settings.paper')}
           options={PAPERS}
           value={theme.paper}
           onChange={(v) => setTheme({ paper: v })}
         />
-        <Choices
-          label="Edges"
-          options={[
-            { value: 'hand', label: 'Hand-drawn', hint: 'Wobbly borders, ruled inputs' },
-            { value: 'clean', label: 'Straight', hint: 'Plain boxes' },
-          ]}
+        <Choices<EdgeName>
+          label={t('settings.edges')}
+          options={EDGES}
           value={theme.edges}
           onChange={(v) => setTheme({ edges: v })}
         />
         <Choices<DoodleSet>
-          label="Margin doodles"
+          label={t('settings.doodles')}
           options={DOODLE_SETS}
           value={theme.doodles}
           onChange={(v) => setTheme({ doodles: v })}
         />
         {theme.doodles !== 'none' && (
           <Toggle
-            label="Doodles on the phone too"
-            hint="A phone has no margins, so only the corner ones are drawn."
+            label={t('settings.doodlesOnPhone')}
+            hint={t('settings.doodlesOnPhoneHint')}
             checked={theme.doodlesOnPhone}
             onChange={(v) => setTheme({ doodlesOnPhone: v })}
           />
         )}
       </Section>
 
-      <Section title="Account" hint={email ?? undefined}>
+      <Section title={t('settings.account')} hint={email ?? undefined}>
+        <p className={`mb-3 text-sm ${syncLabel.className}`}>{syncLabel.text}</p>
+
         <Toggle
-          label="Stay signed in"
-          hint="Off means signing in again each time the browser is closed."
+          label={t('settings.stayIn')}
+          hint={t('settings.stayInHint')}
           checked={stay}
           onChange={(v) => {
             setStay(v)
@@ -239,12 +247,14 @@ export default function SettingsView({
         />
 
         <form onSubmit={submitPassword} className="mt-4 max-w-sm">
-          <div className="style-accent mb-1.5 text-sm text-ink-soft">Change password</div>
+          <div className="style-accent mb-1.5 text-sm text-ink-soft">
+            {t('settings.changePassword')}
+          </div>
           <input
             className="field mb-2"
             type="password"
             autoComplete="new-password"
-            placeholder="New password"
+            placeholder={t('settings.newPassword')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -252,12 +262,12 @@ export default function SettingsView({
             className="field mb-2"
             type="password"
             autoComplete="new-password"
-            placeholder="Repeat it"
+            placeholder={t('settings.repeatPassword')}
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
           />
           <button className="btn btn-primary" disabled={busy || !password}>
-            {busy ? 'Saving…' : 'Change password'}
+            {busy ? t('settings.saving') : t('settings.changePassword')}
           </button>
           {note && (
             <p className={`mt-2 text-sm ${note.ok ? 'text-good' : 'text-danger'}`}>{note.text}</p>
@@ -265,17 +275,17 @@ export default function SettingsView({
         </form>
 
         <button className="btn mt-5" onClick={() => void signOut()}>
-          Sign out
+          {t('auth.signOut')}
         </button>
       </Section>
 
-      <Section title="Your data" hint="Everything, straight off this device.">
+      <Section title={t('settings.data')} hint={t('settings.dataHint')}>
         <div className="flex flex-wrap gap-2">
           <button className="btn" onClick={() => exportJSON(snapshot())}>
-            Backup everything (JSON)
+            {t('settings.backup')}
           </button>
           <button className="btn" onClick={() => exportCSV(snapshot())}>
-            Export spreadsheet (CSV)
+            {t('settings.exportCSV')}
           </button>
         </div>
       </Section>

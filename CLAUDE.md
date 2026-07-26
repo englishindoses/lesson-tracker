@@ -109,7 +109,38 @@ become a 6. Use `NumberField`, which keeps the typed text as its own state.
 forced to day-first. `DateField` formats the text itself: `Sat 25/07/2026` when
 idle, plain `25/07/2026` while focused.
 
-**Locale is fixed:** Brazilian real, `Sat 25/07/2026` dates, weeks start Sunday.
+**Numbers and dates are Brazilian in both languages:** real, `Sat 25/07/2026`
+(`sáb 25/07/2026`), weeks start Sunday. Only the weekday and month names change
+with the language.
+
+---
+
+## Two languages
+
+English and Brazilian Portuguese, toggled EN | PT in the top corner — on the
+sign-in page too. Everything is in `src/lib/i18n.ts`: one entry per string,
+English first, Portuguese second. Adding a string means adding it there and
+using `const { t } = useT()`; TypeScript rejects a key that doesn't exist.
+
+- The setting lives outside zustand (module state + `useSyncExternalStore`),
+  because the sign-in page renders before the store has anything in it.
+- Outside a component, use `translate(getLang(), key)` — that is how the CSV
+  export and the store's error strings do it.
+- Weekday and month names are in `format.ts`, keyed off `getLang()`.
+- `PRESENCE_META` holds only the glyph and the money rule; the wording is under
+  `presence.*` in i18n.
+
+---
+
+## Settings
+
+One page, opened by the ⚙ tab in the header. It holds the look, the language,
+the account (password, stay signed in, sign out) and the exports. There is no
+theme menu or ⋯ menu any more.
+
+**Stay signed in** works by moving the Supabase session between `localStorage`
+and `sessionStorage` (`src/lib/supabase.ts`), so switching it off takes effect
+immediately rather than at the next sign-in.
 
 ---
 
@@ -118,21 +149,33 @@ idle, plain `25/07/2026` while focused.
 - Laptop (1024px+): the full table. Below that: stacked cards. Same field
   components in both, so they can't drift apart — see `EntryFields.tsx`.
 - Calendar view shares those components too, via `EntryDialog`.
-- Four styles and light/dark, all driven by CSS variables in `index.css`.
-  Components never hardcode a colour or a font.
-  - **Minimalist** — Quicksand + Inter, muted sage/terracotta/ochre
-  - **Cozy** — Sacramento + Amatic SC + Caveat, soft pastels
-  - **Whimsical** — Amatic SC + Indie Flower + Patrick Hand, neon
-  - **Modern** — system sans, plain, not a journal
+- The look is **four independent choices**, not one theme name — all CSS
+  variables in `index.css`, all set as data attributes on `<html>`:
+  - `data-palette` — sage, peach, neon, ocean, plum, forest, mono, slate
+  - `data-fonts` — quicksand, script, sketch, serif, typewriter, system
+  - `data-paper` — dots, ruled, plain (drawn by `.paper-bg`)
+  - `data-edges` — hand (wobbly borders, ruled inputs) or clean (plain boxes)
 
-  The three journal themes share rules via `html:not([data-style='modern'])`.
-  Each supplies `--font-hand`, `--font-accent`, `--font-body`, and a
-  `--heading-scale` / `--body-scale` correction, because a condensed script sets
-  far smaller than a sans at the same nominal size.
+  Plus `data-mode` for light/dark, and the doodle set, which is React rather
+  than CSS. `PRESETS` in `theme.ts` sets all of them at once; the option lists
+  there carry i18n keys, not English words.
+
+  Every shape rule keys off `data-edges`, never off a theme name, so any palette
+  can be worn either way. Each font set supplies `--font-hand`, `--font-accent`,
+  `--font-body`, and a `--heading-scale` / `--body-scale` correction, because a
+  condensed script sets far smaller than a sans at the same nominal size.
+
+  `index.html` re-applies all four attributes before first paint, and migrates
+  the old single `lt.style` key; keep it in step with `theme.ts`.
 
   Highlighter colours are used as backgrounds (`--good-soft`, `--danger-soft`,
   `--accent-soft`); `--good`, `--danger` and `--accent` are darkened versions of
   the same hues, since pastels and neons are unreadable as text.
+
+- Margin doodles live in `Doodles.tsx`: stroke-only SVG using `currentColor`, so
+  one set works for every palette and both modes. Two sets, plants and pen
+  marks, chosen in Settings. Wide screens only unless she turns on the phone
+  option, which shows just the few marked `phone` — the corner ones.
 
 - Fonts are **self-hosted** in `src/fonts/`, not linked from Google, so the app
   keeps its typography offline. Regenerate with `node scripts/fetch-fonts.mjs`;

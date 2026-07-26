@@ -1,22 +1,25 @@
 import { useEffect, useRef, useState } from 'react'
 import { useStore } from './data/store'
 import { useTheme } from './lib/theme'
+import { useT } from './lib/i18n'
+import { useSyncLabel } from './lib/syncLabel'
 import AuthGate from './components/AuthGate'
 import StudentsView from './components/StudentsView'
 import ClassesView from './components/ClassesView'
 import ClassView from './components/ClassView'
 import SettingsView from './components/SettingsView'
 import Doodles from './components/Doodles'
+import LanguageToggle from './components/LanguageToggle'
 
 type Tab = 'classes' | 'students' | 'settings'
 
 export default function App() {
   const { theme, mode, setTheme, setMode } = useTheme()
+  const { t } = useT()
   const init = useStore((s) => s.init)
   const authReady = useStore((s) => s.authReady)
   const userId = useStore((s) => s.userId)
-  const sync = useStore((s) => s.sync)
-  const pending = useStore((s) => s.pendingWrites)
+  const syncLabel = useSyncLabel()
 
   const [tab, setTab] = useState<Tab>('classes')
   const [openClassId, setOpenClassId] = useState<string | null>(null)
@@ -44,22 +47,12 @@ export default function App() {
   if (!authReady) {
     return (
       <div className="paper-bg flex min-h-screen items-center justify-center text-ink-faint">
-        Opening the notebook…
+        {t('app.opening')}
       </div>
     )
   }
 
   if (!userId) return <AuthGate />
-
-  const syncLabel: Record<typeof sync, string> = {
-    offline: pending ? `Offline · ${pending} to send` : 'Offline',
-    syncing: 'Syncing…',
-    synced: 'Saved',
-    error: pending ? `Not sent · ${pending}` : 'Sync problem',
-    unconfigured: 'No database',
-  }
-  const syncColor =
-    sync === 'error' ? 'text-danger' : sync === 'synced' ? 'text-ink-faint' : 'text-ink-soft'
 
   return (
     <div className="paper-bg min-h-screen">
@@ -76,8 +69,8 @@ export default function App() {
           <nav className="flex items-end gap-1">
             {(
               [
-                ['classes', 'Lesson Tracker'],
-                ['students', 'Students'],
+                ['classes', t('app.title')],
+                ['students', t('app.students')],
               ] as [Tab, string][]
             ).map(([value, label]) => (
               <button
@@ -94,14 +87,20 @@ export default function App() {
             ))}
           </nav>
 
-          <span className={`ml-auto mb-2 text-xs ${syncColor}`}>{syncLabel[sync]}</span>
+          {/* Hidden on a phone, where the header has no room -- Settings shows
+              the same line instead. */}
+          <span className={`ml-auto mb-2 hidden text-xs sm:inline ${syncLabel.className}`}>
+            {syncLabel.text}
+          </span>
+
+          <LanguageToggle className="mb-2 ml-auto sm:ml-0" />
 
           {/* Settings is a page like the others, so it gets a tab -- but a
               labelled one would crowd the two that matter on a phone. */}
           <button
             aria-current={tab === 'settings' && !openClassId ? 'page' : undefined}
-            aria-label="Settings"
-            title="Settings"
+            aria-label={t('app.settings')}
+            title={t('app.settings')}
             onClick={() => {
               setTab('settings')
               setOpenClassId(null)

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { PRESENCE_META, PRESENCE_ORDER, type Entry, type Presence } from '../lib/types'
 import type { Line } from '../lib/ledger'
 import { todayISO } from '../lib/format'
+import { presenceKey, translate, useT, type Lang } from '../lib/i18n'
 import NumberField from './NumberField'
 import DateField from './DateField'
 
@@ -18,6 +19,7 @@ export interface RowProps {
 }
 
 export function StrikeBox({ entry, onPatch }: RowProps) {
+  const { t } = useT()
   if (entry.kind !== 'lesson') return null
   return (
     <input
@@ -25,17 +27,18 @@ export function StrikeBox({ entry, onPatch }: RowProps) {
       className="opacity-40 hover:opacity-100"
       checked={entry.not_charged}
       onChange={(e) => onPatch({ not_charged: e.target.checked })}
-      title="Don't charge for this lesson"
-      aria-label="Don't charge for this lesson"
+      title={t('entry.dontCharge')}
+      aria-label={t('entry.dontCharge')}
     />
   )
 }
 
 export function DateInput({ entry, onPatch }: RowProps) {
+  const { t } = useT()
   const isLesson = entry.kind === 'lesson'
   return (
     <DateField
-      aria-label={isLesson ? 'Lesson date' : 'Due date'}
+      aria-label={isLesson ? t('entry.lessonDate') : t('entry.dueDate')}
       value={(isLesson ? entry.entry_date : entry.due_date) ?? null}
       onChange={(iso) => onPatch(isLesson ? { entry_date: iso } : { due_date: iso })}
     />
@@ -43,12 +46,13 @@ export function DateInput({ entry, onPatch }: RowProps) {
 }
 
 export function DurationInput({ entry, onPatch }: RowProps) {
+  const { t } = useT()
   return (
     <NumberField
       min={0}
       step={15}
       className="field tabular"
-      aria-label="Lesson length in minutes"
+      aria-label={t('entry.lengthMinutes')}
       value={entry.duration_min}
       onChange={(v) => onPatch({ duration_min: v })}
     />
@@ -56,10 +60,11 @@ export function DurationInput({ entry, onPatch }: RowProps) {
 }
 
 export function PresenceSelect({ entry, onPatch }: RowProps) {
+  const { t } = useT()
   return (
     <select
       className="field"
-      aria-label="Presence"
+      aria-label={t('entry.presence')}
       value={entry.presence ?? ''}
       onChange={(e) => {
         const next = (e.target.value || null) as Presence | null
@@ -74,7 +79,7 @@ export function PresenceSelect({ entry, onPatch }: RowProps) {
       <option value="">—</option>
       {PRESENCE_ORDER.map((p) => (
         <option key={p} value={p}>
-          {PRESENCE_META[p].glyph} {PRESENCE_META[p].label}
+          {PRESENCE_META[p].glyph} {t(presenceKey(p))}
         </option>
       ))}
     </select>
@@ -82,15 +87,16 @@ export function PresenceSelect({ entry, onPatch }: RowProps) {
 }
 
 export function AmountInput({ entry, line, monthlyClass, onPatch }: RowProps) {
+  const { t } = useT()
   const isLesson = entry.kind === 'lesson'
   return (
     <NumberField
       min={0}
       step="0.01"
       className="field tabular text-right"
-      aria-label={isLesson ? 'Price for this lesson' : 'Payment amount'}
+      aria-label={isLesson ? t('entry.priceForLesson') : t('entry.paymentAmount')}
       placeholder={isLesson ? (monthlyClass ? '—' : line ? line.charge.toFixed(2) : '') : ''}
-      title={isLesson ? 'Leave blank to use the class price' : undefined}
+      title={isLesson ? t('entry.blankUsesClassPrice') : undefined}
       value={entry.amount}
       onChange={(v) => onPatch({ amount: v })}
     />
@@ -98,6 +104,7 @@ export function AmountInput({ entry, line, monthlyClass, onPatch }: RowProps) {
 }
 
 export function PaidControl({ entry, line, onPatch, onPayOff }: RowProps) {
+  const { t } = useT()
   if (entry.kind === 'payment') {
     return (
       <div className="flex flex-col items-center gap-0.5">
@@ -110,12 +117,12 @@ export function PaidControl({ entry, line, onPatch, onPayOff }: RowProps) {
               paid_date: e.target.checked ? entry.paid_date ?? todayISO() : null,
             })
           }
-          aria-label="Payment received"
+          aria-label={t('entry.paymentReceived')}
         />
         {entry.paid && (
           <DateField
             className="field tabular text-xs"
-            aria-label="Date paid"
+            aria-label={t('entry.datePaid')}
             value={entry.paid_date}
             onChange={(iso) => onPatch({ paid_date: iso })}
           />
@@ -128,14 +135,14 @@ export function PaidControl({ entry, line, onPatch, onPayOff }: RowProps) {
 
   if (status === 'free')
     return (
-      <span className="text-xs text-ink-faint" title="Nothing to pay">
+      <span className="text-xs text-ink-faint" title={t('entry.nothingToPay')}>
         —
       </span>
     )
 
   if (status === 'paid')
     return (
-      <span className="text-good" title="Covered by a payment">
+      <span className="text-good" title={t('entry.coveredByPayment')}>
         ✓
       </span>
     )
@@ -144,8 +151,8 @@ export function PaidControl({ entry, line, onPatch, onPayOff }: RowProps) {
     <button
       className="text-ink-faint hover:text-ink"
       onClick={onPayOff}
-      title="Mark paid — adds a payment row for this amount, dated today"
-      aria-label="Mark paid"
+      title={t('entry.markPaidHint')}
+      aria-label={t('entry.markPaid')}
     >
       ☐
     </button>
@@ -153,12 +160,13 @@ export function PaidControl({ entry, line, onPatch, onPayOff }: RowProps) {
 }
 
 export function NotesInput({ entry, onPatch }: RowProps) {
+  const { t } = useT()
   const isLesson = entry.kind === 'lesson'
   return (
     <input
       className="field"
-      aria-label={isLesson ? 'Lesson notes' : 'Note'}
-      placeholder={isLesson ? 'Lesson notes…' : 'Note…'}
+      aria-label={isLesson ? t('entry.lessonNotes') : t('entry.note')}
+      placeholder={isLesson ? t('entry.lessonNotesHint') : t('entry.noteHint')}
       value={(isLesson ? entry.lesson_notes : entry.extra_notes) ?? ''}
       onChange={(e) =>
         onPatch(
@@ -172,31 +180,35 @@ export function NotesInput({ entry, onPatch }: RowProps) {
 }
 
 export function DeleteButton({ onDelete, label }: { onDelete: () => void; label?: string }) {
+  const { t } = useT()
   const [confirm, setConfirm] = useState(false)
   return (
     <button
       className={`px-1 ${confirm ? 'text-danger' : 'text-ink-faint hover:text-danger'}`}
       onClick={() => (confirm ? onDelete() : setConfirm(true))}
       onBlur={() => setConfirm(false)}
-      title={confirm ? 'Tap again to delete' : 'Delete row'}
-      aria-label={confirm ? 'Confirm delete' : label ?? 'Delete row'}
+      title={confirm ? t('common.tapAgain') : t('common.deleteRow')}
+      aria-label={confirm ? t('common.confirmDelete') : label ?? t('common.deleteRow')}
     >
-      {confirm ? (label ? '✓ really delete' : '✓×') : label ?? '×'}
+      {confirm ? (label ? t('common.reallyDelete') : '✓×') : label ?? '×'}
     </button>
   )
 }
 
 /** The mark a row gets in a calendar square: presence, plus a tick when paid. */
-export function entryMark(entry: Entry, line: Line | undefined) {
+export function entryMark(entry: Entry, line: Line | undefined, lang: Lang) {
+  const say = (key: Parameters<typeof translate>[1], vars?: Record<string, string | number>) =>
+    translate(lang, key, vars)
   const paid =
     entry.kind === 'payment' ? entry.paid : line?.status === 'paid' || line?.status === 'free'
   const glyph =
     entry.kind === 'payment' ? 'R$' : entry.presence ? PRESENCE_META[entry.presence].glyph : '·'
+  const presence = entry.presence ? say(presenceKey(entry.presence)) : say('classView.lesson')
   const label =
     entry.kind === 'payment'
-      ? `Payment${entry.paid ? ' — received' : ' — due'}`
-      : `${entry.presence ? PRESENCE_META[entry.presence].label : 'Lesson'}${
-          line?.status === 'paid' ? ' — paid' : ''
-        }`
+      ? say(entry.paid ? 'entry.markPaymentReceived' : 'entry.markPaymentDue')
+      : line?.status === 'paid'
+        ? say('entry.markLessonPaid', { presence })
+        : presence
   return { glyph, paid, label, struck: entry.kind === 'lesson' && entry.not_charged }
 }

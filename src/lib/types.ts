@@ -71,32 +71,18 @@ export interface Entry {
   updated_at: string
 }
 
-/** How each presence value is rendered and whether it bills by default. */
-export const PRESENCE_META: Record<
-  Presence,
-  { label: string; short: string; glyph: string; chargeable: boolean }
-> = {
-  present: { label: 'Present', short: 'Present', glyph: '×', chargeable: true },
-  no_show: { label: 'No-show', short: 'No-show', glyph: '⊘', chargeable: true },
-  cancellation: {
-    label: 'Cancellation',
-    short: 'Cancelled',
-    glyph: '○',
-    chargeable: false,
-  },
-  late_cancellation: {
-    label: 'Late cancellation',
-    short: 'Late canc.',
-    glyph: '◑',
-    chargeable: true,
-  },
-  teacher_cancellation: {
-    label: 'Teacher cancellation',
-    short: 'My cancel',
-    glyph: '—',
-    chargeable: false,
-  },
-  reschedule: { label: 'Rescheduled', short: 'Moved', glyph: '›', chargeable: false },
+/**
+ * How each presence value is drawn and whether it bills by default. The wording
+ * lives in i18n.ts under presence.* -- only the glyph and the money rule are
+ * properties of the data.
+ */
+export const PRESENCE_META: Record<Presence, { glyph: string; chargeable: boolean }> = {
+  present: { glyph: '×', chargeable: true },
+  no_show: { glyph: '⊘', chargeable: true },
+  cancellation: { glyph: '○', chargeable: false },
+  late_cancellation: { glyph: '◑', chargeable: true },
+  teacher_cancellation: { glyph: '—', chargeable: false },
+  reschedule: { glyph: '›', chargeable: false },
 }
 
 export const PRESENCE_ORDER: Presence[] = [
@@ -106,15 +92,4 @@ export const PRESENCE_ORDER: Presence[] = [
   'cancellation',
   'teacher_cancellation',
   'reschedule',
-]
-
-export const LESSON_TYPES = [
-  'Conversation',
-  'Business',
-  'Exam prep',
-  'General English',
-  'Grammar',
-  'Kids',
-  'Writing',
-  'Other',
 ]

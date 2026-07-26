@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { newId, nowISO, useStore } from '../data/store'
 import { type Student } from '../lib/types'
+import { useT } from '../lib/i18n'
 import Modal from './Modal'
 
 function blankStudent(userId: string): Student {
@@ -19,6 +20,7 @@ function blankStudent(userId: string): Student {
 }
 
 export default function StudentsView() {
+  const { t } = useT()
   const userId = useStore((s) => s.userId)!
   const students = useStore((s) => s.students)
   const classes = useStore((s) => s.classes)
@@ -51,24 +53,24 @@ export default function StudentsView() {
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <h1 className="style-hand rule-under mr-auto text-2xl">Students</h1>
+        <h1 className="style-hand rule-under mr-auto text-2xl">{t('students.title')}</h1>
         <input
           className="field max-w-[10rem]"
-          placeholder="Search…"
+          placeholder={t('common.search')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
         <button className="btn" onClick={() => setShowArchived((v) => !v)}>
-          {showArchived ? 'Show active' : 'Show archived'}
+          {showArchived ? t('common.showActive') : t('common.showArchived')}
         </button>
         <button className="btn btn-primary" onClick={() => setEditing(blankStudent(userId))}>
-          + Student
+          {t('students.add')}
         </button>
       </div>
 
       {visible.length === 0 ? (
         <p className="py-10 text-center text-sm text-ink-faint">
-          {showArchived ? 'Nobody archived.' : 'No students yet — add your first one.'}
+          {showArchived ? t('students.noneArchived') : t('students.none')}
         </p>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
@@ -88,7 +90,7 @@ export default function StudentsView() {
                   <p className="mt-2 line-clamp-2 text-sm text-ink-soft">{s.needs}</p>
                 )}
                 <div className="mt-2 text-xs text-ink-faint">
-                  {inClasses.length ? inClasses.join(' · ') : 'Not in a class yet'}
+                  {inClasses.length ? inClasses.join(' · ') : t('students.notInClass')}
                 </div>
               </button>
             )
@@ -129,6 +131,7 @@ function StudentEditor({
   onDelete: () => void
   existing: boolean
 }) {
+  const { t } = useT()
   const [draft, setDraft] = useState<Student>(student)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const set = <K extends keyof Student>(k: K, v: Student[K]) =>
@@ -136,7 +139,7 @@ function StudentEditor({
 
   return (
     <Modal
-      title={existing ? draft.name || 'Student' : 'New student'}
+      title={existing ? draft.name || t('students.one') : t('students.new')}
       onClose={onClose}
       footer={
         <>
@@ -144,16 +147,16 @@ function StudentEditor({
             (confirmDelete ? (
               <>
                 <span className="mr-auto text-sm text-danger">
-                  Delete permanently? Their lesson rows stay.
+                  {t('students.deleteWarning')}
                 </span>
                 <button className="btn" onClick={() => setConfirmDelete(false)}>
-                  Keep
+                  {t('common.keep')}
                 </button>
                 <button
                   className="btn border-danger text-danger"
                   onClick={onDelete}
                 >
-                  Delete
+                  {t('common.delete')}
                 </button>
               </>
             ) : (
@@ -161,24 +164,24 @@ function StudentEditor({
                 className="btn mr-auto border-danger text-danger"
                 onClick={() => setConfirmDelete(true)}
               >
-                Delete
+                {t('common.delete')}
               </button>
             ))}
           <button className="btn" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </button>
           <button
             className="btn btn-primary"
             disabled={!draft.name.trim()}
             onClick={() => onSave(draft)}
           >
-            Save
+            {t('common.save')}
           </button>
         </>
       }
     >
       <div className="space-y-3">
-        <Field label="Name">
+        <Field label={t('students.name')}>
           <input
             className="field"
             autoFocus
@@ -187,25 +190,25 @@ function StudentEditor({
           />
         </Field>
 
-        <Field label="Level">
+        <Field label={t('students.level')}>
           <input
             className="field"
-            placeholder="B1, C1…"
+            placeholder={t('students.levelHint')}
             value={draft.level ?? ''}
             onChange={(e) => set('level', e.target.value || null)}
           />
         </Field>
 
-        <Field label="Contact">
+        <Field label={t('students.contact')}>
           <input
             className="field"
-            placeholder="Email, WhatsApp…"
+            placeholder={t('students.contactHint')}
             value={draft.contact ?? ''}
             onChange={(e) => set('contact', e.target.value || null)}
           />
         </Field>
 
-        <Field label="Needs / goals">
+        <Field label={t('students.needs')}>
           <textarea
             className="field min-h-[4.5rem]"
             value={draft.needs ?? ''}
@@ -213,7 +216,7 @@ function StudentEditor({
           />
         </Field>
 
-        <Field label="Notes">
+        <Field label={t('students.notes')}>
           <textarea
             className="field min-h-[4.5rem]"
             value={draft.notes ?? ''}
@@ -227,7 +230,7 @@ function StudentEditor({
             checked={draft.archived}
             onChange={(e) => set('archived', e.target.checked)}
           />
-          Archived (no longer studying)
+          {t('students.archived')}
         </label>
       </div>
     </Modal>

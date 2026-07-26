@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import type { TKey } from './i18n'
 
 /**
  * The look is four independent choices rather than one theme name, so a palette
@@ -37,44 +38,52 @@ export type Theme = {
   doodlesOnPhone: boolean
 }
 
-export const PALETTES: { value: PaletteName; label: string; hint: string }[] = [
-  { value: 'sage', label: 'Sage', hint: 'Muted sage, terracotta, ochre' },
-  { value: 'peach', label: 'Peach', hint: 'Warm cream and soft pastels' },
-  { value: 'neon', label: 'Neon', hint: 'Bright coral, lime and orange' },
-  { value: 'ocean', label: 'Ocean', hint: 'Teal, sea blue and sand' },
-  { value: 'plum', label: 'Plum', hint: 'Purple, berry and dusty pink' },
-  { value: 'forest', label: 'Forest', hint: 'Deep green, moss and bark' },
-  { value: 'mono', label: 'Mono', hint: 'Greys with one blue accent' },
-  { value: 'slate', label: 'Slate', hint: 'Plain white and office blue' },
+/** Every option carries its translation keys; Settings does the wording. */
+export type Option<T extends string> = { value: T; label: TKey; hint: TKey }
+
+export const PALETTES: Option<PaletteName>[] = [
+  { value: 'sage', label: 'palette.sage', hint: 'palette.sage.hint' },
+  { value: 'peach', label: 'palette.peach', hint: 'palette.peach.hint' },
+  { value: 'neon', label: 'palette.neon', hint: 'palette.neon.hint' },
+  { value: 'ocean', label: 'palette.ocean', hint: 'palette.ocean.hint' },
+  { value: 'plum', label: 'palette.plum', hint: 'palette.plum.hint' },
+  { value: 'forest', label: 'palette.forest', hint: 'palette.forest.hint' },
+  { value: 'mono', label: 'palette.mono', hint: 'palette.mono.hint' },
+  { value: 'slate', label: 'palette.slate', hint: 'palette.slate.hint' },
 ]
 
-export const FONTS: { value: FontName; label: string; hint: string }[] = [
-  { value: 'quicksand', label: 'Rounded', hint: 'Quicksand headings, Inter text' },
-  { value: 'script', label: 'Script', hint: 'Sacramento and Caveat' },
-  { value: 'sketch', label: 'Sketch', hint: 'Amatic SC and Patrick Hand' },
-  { value: 'serif', label: 'Serif', hint: 'Classic book lettering' },
-  { value: 'typewriter', label: 'Typewriter', hint: 'Even-width, like a typed page' },
-  { value: 'system', label: 'Plain', hint: 'Your device sans-serif' },
+export const FONTS: Option<FontName>[] = [
+  { value: 'quicksand', label: 'fonts.quicksand', hint: 'fonts.quicksand.hint' },
+  { value: 'script', label: 'fonts.script', hint: 'fonts.script.hint' },
+  { value: 'sketch', label: 'fonts.sketch', hint: 'fonts.sketch.hint' },
+  { value: 'serif', label: 'fonts.serif', hint: 'fonts.serif.hint' },
+  { value: 'typewriter', label: 'fonts.typewriter', hint: 'fonts.typewriter.hint' },
+  { value: 'system', label: 'fonts.system', hint: 'fonts.system.hint' },
 ]
 
-export const PAPERS: { value: PaperName; label: string; hint: string }[] = [
-  { value: 'dots', label: 'Dot grid', hint: 'The bullet journal standard' },
-  { value: 'ruled', label: 'Ruled', hint: 'Horizontal lines, like a notebook' },
-  { value: 'plain', label: 'Plain', hint: 'No background at all' },
+export const PAPERS: Option<PaperName>[] = [
+  { value: 'dots', label: 'paper.dots', hint: 'paper.dots.hint' },
+  { value: 'ruled', label: 'paper.ruled', hint: 'paper.ruled.hint' },
+  { value: 'plain', label: 'paper.plain', hint: 'paper.plain.hint' },
 ]
 
-export const DOODLE_SETS: { value: DoodleSet; label: string; hint: string }[] = [
-  { value: 'plants', label: 'Plants', hint: 'Ferns, monstera, daisies, cactus' },
-  { value: 'marks', label: 'Pen marks', hint: 'Stars, arrows, banner, paperclip' },
-  { value: 'all', label: 'Everything', hint: 'Both sets, a full margin' },
-  { value: 'none', label: 'None', hint: 'Clean margins' },
+export const EDGES: Option<EdgeName>[] = [
+  { value: 'hand', label: 'edges.hand', hint: 'edges.hand.hint' },
+  { value: 'clean', label: 'edges.clean', hint: 'edges.clean.hint' },
 ]
 
-export const PRESETS: { value: string; label: string; hint: string; theme: Theme }[] = [
+export const DOODLE_SETS: Option<DoodleSet>[] = [
+  { value: 'plants', label: 'doodles.plants', hint: 'doodles.plants.hint' },
+  { value: 'marks', label: 'doodles.marks', hint: 'doodles.marks.hint' },
+  { value: 'all', label: 'doodles.all', hint: 'doodles.all.hint' },
+  { value: 'none', label: 'doodles.none', hint: 'doodles.none.hint' },
+]
+
+export const PRESETS: { value: string; label: TKey; hint: TKey; theme: Theme }[] = [
   {
     value: 'minimalist',
-    label: 'Minimalist',
-    hint: 'Muted sage, rounded lettering, plants',
+    label: 'preset.minimalist',
+    hint: 'preset.minimalist.hint',
     theme: {
       palette: 'sage',
       fonts: 'quicksand',
@@ -86,8 +95,8 @@ export const PRESETS: { value: string; label: string; hint: string; theme: Theme
   },
   {
     value: 'cozy',
-    label: 'Cozy',
-    hint: 'Pastels, handwriting, every doodle',
+    label: 'preset.cozy',
+    hint: 'preset.cozy.hint',
     theme: {
       palette: 'peach',
       fonts: 'script',
@@ -99,8 +108,8 @@ export const PRESETS: { value: string; label: string; hint: string; theme: Theme
   },
   {
     value: 'whimsical',
-    label: 'Whimsical',
-    hint: 'Neon, sketchy capitals, pen marks',
+    label: 'preset.whimsical',
+    hint: 'preset.whimsical.hint',
     theme: {
       palette: 'neon',
       fonts: 'sketch',
@@ -112,8 +121,8 @@ export const PRESETS: { value: string; label: string; hint: string; theme: Theme
   },
   {
     value: 'botanical',
-    label: 'Botanical',
-    hint: 'Forest green on ruled paper, serif',
+    label: 'preset.botanical',
+    hint: 'preset.botanical.hint',
     theme: {
       palette: 'forest',
       fonts: 'serif',
@@ -125,8 +134,8 @@ export const PRESETS: { value: string; label: string; hint: string; theme: Theme
   },
   {
     value: 'seaside',
-    label: 'Seaside',
-    hint: 'Teal and sand, rounded lettering',
+    label: 'preset.seaside',
+    hint: 'preset.seaside.hint',
     theme: {
       palette: 'ocean',
       fonts: 'quicksand',
@@ -138,8 +147,8 @@ export const PRESETS: { value: string; label: string; hint: string; theme: Theme
   },
   {
     value: 'berry',
-    label: 'Berry',
-    hint: 'Plum and dusty pink, handwriting',
+    label: 'preset.berry',
+    hint: 'preset.berry.hint',
     theme: {
       palette: 'plum',
       fonts: 'script',
@@ -151,8 +160,8 @@ export const PRESETS: { value: string; label: string; hint: string; theme: Theme
   },
   {
     value: 'typewriter',
-    label: 'Typewriter',
-    hint: 'Grey, typed, on ruled paper',
+    label: 'preset.typewriter',
+    hint: 'preset.typewriter.hint',
     theme: {
       palette: 'mono',
       fonts: 'typewriter',
@@ -164,8 +173,8 @@ export const PRESETS: { value: string; label: string; hint: string; theme: Theme
   },
   {
     value: 'modern',
-    label: 'Modern',
-    hint: 'Plain, not a journal',
+    label: 'preset.modern',
+    hint: 'preset.modern.hint',
     theme: {
       palette: 'slate',
       fonts: 'system',

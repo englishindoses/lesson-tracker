@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { formatDate, parseISODate } from '../lib/format'
+import { useT } from '../lib/i18n'
 
 const pad = (n: number) => String(n).padStart(2, '0')
 
@@ -56,6 +57,7 @@ export default function DateField({
   className?: string
   'aria-label'?: string
 }) {
+  const { t } = useT()
   // Idle it reads "Sat 25/07/2026"; focused it drops to the typeable
   // "25/07/2026" so the weekday can't get in the way of editing.
   const [editing, setEditing] = useState(false)
@@ -107,8 +109,8 @@ export default function DateField({
       <button
         type="button"
         className="shrink-0 px-1 text-ink-faint hover:text-ink"
-        aria-label="Open calendar"
-        title="Pick from a calendar"
+        aria-label={t('date.openCalendar')}
+        title={t('date.openCalendar')}
         onClick={() => {
           const el = picker.current
           if (!el) return

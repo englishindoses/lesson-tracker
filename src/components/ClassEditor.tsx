@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { nowISO, useStore } from '../data/store'
-import { LESSON_TYPES, type Class } from '../lib/types'
+import { type Class } from '../lib/types'
+import { LESSON_TYPE_KEYS, useT } from '../lib/i18n'
 import Modal from './Modal'
 import NumberField from './NumberField'
 import { Field } from './StudentsView'
@@ -14,6 +15,7 @@ export default function ClassEditor({
   existing: boolean
   onClose: () => void
 }) {
+  const { t } = useT()
   const students = useStore((s) => s.students)
   const roster = useStore((s) => s.class_students)
   const entries = useStore((s) => s.entries)
@@ -95,7 +97,7 @@ export default function ClassEditor({
 
   return (
     <Modal
-      title={existing ? draft.name || 'Class' : 'New class'}
+      title={existing ? draft.name || t('classEditor.one') : t('classEditor.new')}
       onClose={onClose}
       footer={
         <>
@@ -103,10 +105,10 @@ export default function ClassEditor({
             (confirmDelete ? (
               <>
                 <span className="mr-auto text-sm text-danger">
-                  Deletes every lesson and payment in it.
+                  {t('classEditor.deleteWarning')}
                 </span>
                 <button className="btn" onClick={() => setConfirmDelete(false)}>
-                  Keep
+                  {t('common.keep')}
                 </button>
                 <button
                   className="btn border-danger text-danger"
@@ -115,7 +117,7 @@ export default function ClassEditor({
                     onClose()
                   }}
                 >
-                  Delete
+                  {t('common.delete')}
                 </button>
               </>
             ) : (
@@ -123,35 +125,35 @@ export default function ClassEditor({
                 className="btn mr-auto border-danger text-danger"
                 onClick={() => setConfirmDelete(true)}
               >
-                Delete
+                {t('common.delete')}
               </button>
             ))}
           <button className="btn" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </button>
           <button
             className="btn btn-primary"
             disabled={!draft.name.trim()}
             onClick={save}
           >
-            Save
+            {t('common.save')}
           </button>
         </>
       }
     >
       <div className="space-y-3">
-        <Field label="Class name">
+        <Field label={t('classEditor.name')}>
           <input
             className="field"
             autoFocus
-            placeholder="Tuesday Business — Marta & Piotr"
+            placeholder={t('classEditor.nameHint')}
             value={draft.name}
             onChange={(e) => set('name', e.target.value)}
           />
         </Field>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <Field label="Lesson type">
+          <Field label={t('classEditor.lessonType')}>
             <input
               className="field"
               list="lesson-types-class"
@@ -159,12 +161,12 @@ export default function ClassEditor({
               onChange={(e) => set('lesson_type', e.target.value || null)}
             />
             <datalist id="lesson-types-class">
-              {LESSON_TYPES.map((t) => (
-                <option key={t} value={t} />
+              {LESSON_TYPE_KEYS.map((key) => (
+                <option key={key} value={t(key)} />
               ))}
             </datalist>
           </Field>
-          <Field label="Usual lesson length (minutes)">
+          <Field label={t('classEditor.usualLength')}>
             <NumberField
               className="field tabular"
               min={0}
@@ -178,12 +180,12 @@ export default function ClassEditor({
 
         {/* ---------------------------------------------------------- pricing */}
         <div className="card p-3">
-          <div className="mb-2 text-sm text-ink-soft">How this class is charged</div>
+          <div className="mb-2 text-sm text-ink-soft">{t('classEditor.howCharged')}</div>
           <div className="mb-3 flex gap-2">
             {(
               [
-                ['per_lesson', 'Per lesson'],
-                ['monthly', 'Monthly package'],
+                ['per_lesson', t('classEditor.perLesson')],
+                ['monthly', t('classEditor.monthly')],
               ] as const
             ).map(([value, label]) => (
               <button
@@ -200,7 +202,7 @@ export default function ClassEditor({
 
           {draft.pricing_mode === 'per_lesson' ? (
             <>
-              <Field label="Price per lesson (R$)">
+              <Field label={t('classEditor.pricePerLesson')}>
                 <NumberField
                   className="field tabular"
                   min={0}
@@ -210,15 +212,12 @@ export default function ClassEditor({
                 />
               </Field>
               {existing && (
-                <p className="mt-2 text-xs text-ink-faint">
-                  Changing this only affects lessons you add from now on. Lessons already
-                  in the table keep the price they were charged at.
-                </p>
+                <p className="mt-2 text-xs text-ink-faint">{t('classEditor.priceNote')}</p>
               )}
             </>
           ) : (
             <>
-              <Field label="Monthly price (R$)">
+              <Field label={t('classEditor.monthlyPrice')}>
                 <NumberField
                   className="field tabular"
                   min={0}
@@ -227,10 +226,7 @@ export default function ClassEditor({
                   onChange={(v) => set('monthly_price', v)}
                 />
               </Field>
-              <p className="mt-2 text-xs text-ink-faint">
-                On a monthly package the lessons themselves cost nothing. Add one payment row per
-                month — that row is the invoice, and ticking it paid clears the month.
-              </p>
+              <p className="mt-2 text-xs text-ink-faint">{t('classEditor.monthlyNote')}</p>
             </>
           )}
         </div>
@@ -238,8 +234,8 @@ export default function ClassEditor({
         {/* ---------------------------------------------------------- students */}
         <div>
           <div className="mb-1 flex items-center gap-2 text-sm text-ink-soft">
-            <span>Students in this class</span>
-            <span className="text-xs text-ink-faint">(price is for the class, not per head)</span>
+            <span>{t('classEditor.studentsIn')}</span>
+            <span className="text-xs text-ink-faint">{t('classEditor.priceIsPerClass')}</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -251,7 +247,7 @@ export default function ClassEditor({
                 {s.name}
                 <button
                   className="text-ink-faint hover:text-danger"
-                  aria-label={`Remove ${s.name}`}
+                  aria-label={t('classEditor.remove', { name: s.name })}
                   onClick={() => removeStudentFromClass(draft.id, s.id)}
                 >
                   ×
@@ -267,7 +263,7 @@ export default function ClassEditor({
                   setPicking((v) => !v)
                 }}
               >
-                + Add student
+                {t('classEditor.addStudent')}
               </button>
 
               {picking && (
@@ -276,7 +272,7 @@ export default function ClassEditor({
                   <div className="card absolute left-0 z-20 mt-1 max-h-60 w-56 overflow-y-auto p-1 text-sm">
                     {available.length === 0 ? (
                       <div className="px-3 py-2 text-ink-faint">
-                        Everyone is already in this class.
+                        {t('classEditor.everyoneIn')}
                       </div>
                     ) : (
                       available.map((s) => (
@@ -302,7 +298,7 @@ export default function ClassEditor({
           </div>
         </div>
 
-        <Field label="Class notes">
+        <Field label={t('classEditor.notes')}>
           <textarea
             className="field min-h-[4rem]"
             value={draft.notes ?? ''}
@@ -316,7 +312,7 @@ export default function ClassEditor({
             checked={draft.archived}
             onChange={(e) => set('archived', e.target.checked)}
           />
-          Archived (finished course)
+          {t('classEditor.archived')}
         </label>
       </div>
     </Modal>

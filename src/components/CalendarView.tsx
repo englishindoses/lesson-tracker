@@ -2,14 +2,15 @@ import { useMemo } from 'react'
 import type { Entry } from '../lib/types'
 import type { Line } from '../lib/ledger'
 import {
-  WEEKDAY_INITIALS,
-  WEEKDAY_NAMES,
   dateInMonth,
   daysInMonth,
   firstWeekdayOfMonth,
   formatDate,
   todayISO,
+  weekdayInitials,
+  weekdayNames,
 } from '../lib/format'
+import { useT } from '../lib/i18n'
 import { entryMark } from './EntryFields'
 
 /**
@@ -33,6 +34,10 @@ export default function CalendarView({
   onAdd: (dateISO: string) => void
   onOpen: (entry: Entry) => void
 }) {
+  const { t, lang } = useT()
+  const initials = weekdayInitials()
+  const names = weekdayNames()
+
   const byDay = useMemo(() => {
     const map = new Map<string, Entry[]>()
     for (const e of entries) {
@@ -56,10 +61,10 @@ export default function CalendarView({
   return (
     <div className="card overflow-hidden">
       <div className="grid grid-cols-7 border-b border-rule text-center text-xs text-ink-faint">
-        {WEEKDAY_INITIALS.map((initial, i) => (
-          <div key={i} className="py-1.5" title={WEEKDAY_NAMES[i]}>
+        {initials.map((initial, i) => (
+          <div key={i} className="py-1.5" title={names[i]}>
             <span aria-hidden>{initial}</span>
-            <span className="sr-only">{WEEKDAY_NAMES[i]}</span>
+            <span className="sr-only">{names[i]}</span>
           </div>
         ))}
       </div>
@@ -91,8 +96,8 @@ export default function CalendarView({
                 <button
                   className="rounded px-1 text-sm leading-none text-ink-faint hover:bg-accent-soft hover:text-ink"
                   onClick={() => onAdd(iso)}
-                  title={`Add on ${formatDate(iso)}`}
-                  aria-label={`Add an entry on ${formatDate(iso)}`}
+                  title={t('calendar.add', { date: formatDate(iso) })}
+                  aria-label={t('calendar.add', { date: formatDate(iso) })}
                 >
                   +
                 </button>
@@ -101,7 +106,7 @@ export default function CalendarView({
               <div className="mt-0.5 flex flex-wrap gap-1">
                 {items.map((entry) => {
                   const line = lines.get(entry.id)
-                  const { glyph, paid, label, struck } = entryMark(entry, line)
+                  const { glyph, paid, label, struck } = entryMark(entry, line, lang)
                   // Same tints as the table and the cards: a payment chip is
                   // marked as a payment, a settled lesson chip is tinted.
                   const tint =
@@ -115,7 +120,7 @@ export default function CalendarView({
                       key={entry.id}
                       onClick={() => onOpen(entry)}
                       title={`${label} — ${formatDate(iso)}`}
-                      aria-label={`${label} on ${formatDate(iso)}`}
+                      aria-label={`${label} — ${formatDate(iso)}`}
                       className={`flex items-center gap-0.5 rounded border px-1 py-0.5 text-xs leading-none hover:border-accent ${
                         entry.kind === 'payment'
                           ? 'border-accent/60 text-accent'

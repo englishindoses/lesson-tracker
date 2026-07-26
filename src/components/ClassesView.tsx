@@ -3,6 +3,7 @@ import { newId, nowISO, useStore } from '../data/store'
 import type { Class } from '../lib/types'
 import { buildLedger, totalsFor } from '../lib/ledger'
 import { duration, money } from '../lib/format'
+import { useT } from '../lib/i18n'
 import ClassEditor from './ClassEditor'
 
 function blankClass(userId: string): Class {
@@ -23,6 +24,7 @@ function blankClass(userId: string): Class {
 }
 
 export default function ClassesView({ onOpen }: { onOpen: (id: string) => void }) {
+  const { t } = useT()
   const userId = useStore((s) => s.userId)!
   const classes = useStore((s) => s.classes)
   const students = useStore((s) => s.students)
@@ -54,25 +56,24 @@ export default function ClassesView({ onOpen }: { onOpen: (id: string) => void }
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <h1 className="style-hand rule-under mr-auto text-2xl">Lesson Tracker</h1>
+        <h1 className="style-hand rule-under mr-auto text-2xl">{t('app.title')}</h1>
         {!showArchived && grandOwed > 0.005 && (
           <span className="text-sm text-ink-soft">
-            Outstanding: <strong className="tabular text-ink">{money(grandOwed)}</strong>
+            {t('classes.outstanding')}{' '}
+            <strong className="tabular text-ink">{money(grandOwed)}</strong>
           </span>
         )}
         <button className="btn" onClick={() => setShowArchived((v) => !v)}>
-          {showArchived ? 'Show active' : 'Show archived'}
+          {showArchived ? t('common.showActive') : t('common.showArchived')}
         </button>
         <button className="btn btn-primary" onClick={() => setCreating(blankClass(userId))}>
-          + Class
+          {t('classes.add')}
         </button>
       </div>
 
       {cards.length === 0 ? (
         <p className="py-10 text-center text-sm text-ink-faint">
-          {showArchived
-            ? 'Nothing archived.'
-            : 'No classes yet. Add students first, then set up a class.'}
+          {showArchived ? t('classes.noneArchived') : t('classes.none')}
         </p>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
@@ -84,20 +85,25 @@ export default function ClassesView({ onOpen }: { onOpen: (id: string) => void }
             >
               <div className="style-hand text-lg">{cls.name}</div>
               <div className="mt-0.5 text-xs text-ink-soft">
-                {names.length ? names.join(', ') : 'No students yet'}
+                {names.length ? names.join(', ') : t('classes.noStudents')}
               </div>
 
               <div className="mt-2 text-xs text-ink-faint">
                 {cls.lesson_type ? `${cls.lesson_type} · ` : ''}
                 {cls.default_duration_min} min ·{' '}
                 {cls.pricing_mode === 'per_lesson'
-                  ? `${cls.price_per_lesson != null ? money(cls.price_per_lesson) : '—'}/lesson`
-                  : `${cls.monthly_price != null ? money(cls.monthly_price) : '—'}/month`}
+                  ? t('classes.perLesson', {
+                      price: cls.price_per_lesson != null ? money(cls.price_per_lesson) : '—',
+                    })
+                  : t('classes.perMonth', {
+                      price: cls.monthly_price != null ? money(cls.monthly_price) : '—',
+                    })}
               </div>
 
               <div className="mt-3 flex items-baseline justify-between border-t border-rule pt-2 text-sm">
                 <span className="text-ink-soft">
-                  {totals.lessonCount} lessons · {duration(totals.taughtMinutes)}
+                  {t('classes.lessonCount', { n: totals.lessonCount })} ·{' '}
+                  {duration(totals.taughtMinutes)}
                 </span>
                 <span
                   className={`tabular font-semibold ${
@@ -107,8 +113,8 @@ export default function ClassesView({ onOpen }: { onOpen: (id: string) => void }
                   {ledger.owed > 0.005
                     ? money(ledger.owed)
                     : ledger.credit > 0.005
-                      ? `${money(ledger.credit)} credit`
-                      : 'settled'}
+                      ? t('classes.credit', { amount: money(ledger.credit) })
+                      : t('classes.settled')}
                 </span>
               </div>
             </button>
