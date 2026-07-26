@@ -218,6 +218,12 @@ body {
   box-shadow: inset 3px 0 0 var(--good);
 }
 
+/* A lesson that has been covered by a payment. Tinted, but without the green
+   edge that marks a payment row, so the two stay distinguishable. */
+.row-paid {
+  background-color: var(--good-soft);
+}
+
 /* The strike-out. A pen line through the row, not a greyed-out cell. */
 .struck {
   color: var(--ink-faint);

@@ -632,16 +632,19 @@ function TableRow(
     onDelete: () => void
   },
 ) {
-  const { entry, onPatch, expanded, onToggleExpanded, onRepeat, onDelete } = props
+  const { entry, line, onPatch, expanded, onToggleExpanded, onRepeat, onDelete } = props
   const isLesson = entry.kind === 'lesson'
   const struck = isLesson && entry.not_charged
   const cell = struck ? 'struck' : ''
+  const paidLesson = isLesson && line?.status === 'paid'
 
   return (
     <>
       <tr
         data-entry-id={entry.id}
-        className={`border-b border-rule align-middle ${isLesson ? '' : 'row-payment'}`}
+        className={`border-b border-rule align-middle ${
+          isLesson ? (paidLesson ? 'row-paid' : '') : 'row-payment'
+        }`}
       >
         <td className="px-2 py-1.5">
           <StrikeBox {...props} />
@@ -728,15 +731,18 @@ function TableRow(
 /* ----------------------------------------------------- narrow screens: cards */
 
 function EntryCard(props: RowProps & { onRepeat: () => void; onDelete: () => void }) {
-  const { entry, onPatch, onRepeat, onDelete } = props
+  const { entry, line, onPatch, onRepeat, onDelete } = props
   const [showExtra, setShowExtra] = useState(Boolean(entry.extra_notes))
   const isLesson = entry.kind === 'lesson'
   const struck = isLesson && entry.not_charged
+  const paidLesson = isLesson && line?.status === 'paid'
 
   return (
     <div
       data-entry-id={entry.id}
-      className={`card p-3 ${isLesson ? '' : 'row-payment'} ${struck ? 'struck' : ''}`}
+      className={`card p-3 ${
+        isLesson ? (paidLesson ? 'row-paid' : '') : 'row-payment'
+      } ${struck ? 'struck' : ''}`}
     >
       <div className="flex items-center gap-2">
         {isLesson ? (
