@@ -439,7 +439,7 @@ function Eucalyptus() {
 }
 
 /* ============================================================= 5. SEASIDE ==
-   Shells, water and a boat. */
+   Shells, water, a palm and a boat. */
 
 function SmallShell() {
   return (
@@ -504,18 +504,25 @@ function Conch() {
   )
 }
 
-function PalmFrond() {
+/** A whole tree: leaning trunk, six drooping fronds, two coconuts, a sand line. */
+function PalmTree() {
   return (
-    <svg viewBox="0 0 60 110" className={tall} aria-hidden>
+    <svg viewBox="0 0 70 110" className="h-20 w-16" aria-hidden>
       <g {...stroke}>
-        <path d="M28 106 C 29 78, 31 42, 36 8" />
-        <path d="M29 92 C 18 88, 12 78, 12 68 C 23 72, 29 82, 29 92 Z" />
-        <path d="M30 92 C 41 87, 47 77, 46 67 C 36 72, 30 82, 30 92 Z" />
-        <path d="M31 74 C 21 70, 16 60, 17 51 C 27 56, 31 65, 31 74 Z" />
-        <path d="M32 74 C 42 69, 46 60, 45 51 C 36 56, 32 65, 32 74 Z" />
-        <path d="M33 56 C 25 52, 22 44, 23 36 C 31 41, 34 49, 33 56 Z" />
-        <path d="M34 56 C 42 51, 45 43, 44 36 C 36 41, 33 49, 34 56 Z" />
-        <path d="M35 38 C 30 34, 28 27, 29 21 C 35 26, 37 33, 35 38 Z" />
+        <path d="M30 106 C 28 84, 30 60, 38 40" />
+        <path d="M29 92 L35 91" />
+        <path d="M30 78 L36 77" />
+        <path d="M32 64 L38 63" />
+        <path d="M34 52 L40 51" />
+        <path d="M38 38 C 26 34, 14 38, 10 48 C 20 48, 31 44, 38 38 Z" />
+        <path d="M38 38 C 28 26, 16 22, 8 26 C 16 34, 28 40, 38 38 Z" />
+        <path d="M38 38 C 34 24, 26 14, 18 12 C 22 24, 30 34, 38 38 Z" />
+        <path d="M38 38 C 42 24, 50 14, 58 12 C 54 24, 46 34, 38 38 Z" />
+        <path d="M38 38 C 50 26, 60 24, 66 28 C 58 36, 46 40, 38 38 Z" />
+        <path d="M38 38 C 50 36, 60 40, 62 50 C 52 48, 42 44, 38 38 Z" />
+        <circle cx="35" cy="44" r="2.4" />
+        <circle cx="41" cy="45" r="2.4" />
+        <path d="M12 106 L58 106" strokeDasharray="4 5" />
       </g>
     </svg>
   )
@@ -859,7 +866,7 @@ const SETS: Record<Exclude<DoodleSet, 'none'>, { left: Mark[]; right: Mark[] }> 
     left: [
       mark(<Conch />, -5, true),
       mark(<Ripples />, 0),
-      mark(<PalmFrond />, 4),
+      mark(<PalmTree />, 4),
       mark(<Pebbles />, 0),
       mark(<Seaweed />, -3),
       mark(<SmallShell />, 8, true),
@@ -870,7 +877,7 @@ const SETS: Record<Exclude<DoodleSet, 'none'>, { left: Mark[]; right: Mark[] }> 
       mark(<SmallShell />, -9),
       mark(<Seaweed />, 5),
       mark(<Ripples />, 0),
-      mark(<PalmFrond />, -4, true),
+      mark(<PalmTree />, -4, true),
     ],
   },
   berry: {
