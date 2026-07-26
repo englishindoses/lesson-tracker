@@ -4,7 +4,7 @@ A teacher's planner: student profiles, classes, and a tracker for attendance,
 time and money. Installable PWA, works offline, syncs through Supabase.
 
 - Live: https://englishindoses.github.io/lesson-tracker/
-- Repo: `englishindoses/lesson-tracker` (public — `main` auto-deploys to Pages in ~40s)
+- Repo: `englishindoses/lesson-tracker` (public — `main` auto-deploys to Pages)
 - Stack: Vite + React + TypeScript + Tailwind, Supabase for database and login
 - Setup instructions live in `README.md`
 
@@ -18,9 +18,9 @@ Only hold off if she says so.
 
 **Don't test unless asked.** She will say when she wants testing. If I think a
 change genuinely needs verifying before she tries it, I ask **before starting the
-edit**, not after. Running a build to check the code compiles is fine — that's
-seconds. Anything that drives a browser, signs in, or writes to her Supabase
-project needs her go-ahead first.
+edit**, not after. Running a build or `npm run check` to confirm the code
+compiles and the money logic still holds is fine. Anything that opens a browser,
+signs in, or writes to her Supabase project needs her go-ahead first.
 
 **No quote marks in commit messages.** They break the shell command. Never work
 around this by writing the message to a file — just write it without quotes.
@@ -32,9 +32,21 @@ or silently ignoring it.
 
 **Never create a git branch without asking.** Work on `main`.
 
-**Plain language.** No jargon, no padding, no over-explaining. She'll ask if she
-wants more detail. Don't estimate how long things will take — that's been wrong
-every time.
+**Never state how long anything will take.** Not in minutes, not in hours, not
+"quick" or "a moment". I have no reliable sense of my own wall-clock time, so any
+figure I give is invented. This includes build times, deploy times and effort
+estimates. If the size of a job matters, describe it relatively — which part is
+bigger than which.
+
+**Neutral, informational, concise.** Report what changed and what it does. Avoid:
+- performative phrasing chosen to sound impressive
+- padding, throat-clearing, restating the request back
+- heavy bold and tables where plain sentences would do
+- casual jargon ("drive it", "ship it", "under the hood")
+- announcing decisions as if they were achievements
+
+She'll ask if she wants more detail. She has raised the tone more than once —
+take it seriously rather than acknowledging and reverting.
 
 ---
 
