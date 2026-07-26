@@ -1,6 +1,14 @@
 import { useState } from 'react'
 import { useStore } from '../data/store'
-import { exportCSV, exportJSON } from '../lib/exportData'
+import {
+  countRows,
+  exportJSON,
+  exportLessonsCSV,
+  exportStudentsCSV,
+  monthsPresent,
+  type ExportOptions,
+} from '../lib/exportData'
+import { formatMonth } from '../lib/format'
 import { setStaysLoggedIn, staysLoggedIn } from '../lib/supabase'
 import {
   DOODLE_SETS,
@@ -115,6 +123,125 @@ function Toggle({
   )
 }
 
+/**
+ * The exports. Two spreadsheets rather than one: a student reads across
+ * (details and totals), a lesson reads down (one row each). Both answer to the
+ * same two questions — which months, and whether the archived count.
+ *
+ * The backup deliberately ignores both: a restore file that only holds half
+ * the data is a trap.
+ */
+function ExportControls() {
+  const { t } = useT()
+  // Subscribed, not just read through snapshot(), so the month list and the
+  // row counts follow a sync arriving while this page is open.
+  const entries = useStore((s) => s.entries)
+  const students = useStore((s) => s.students)
+  const snapshot = useStore((s) => s.snapshot)
+
+  const [opts, setOpts] = useState<ExportOptions>({
+    from: null,
+    to: null,
+    includeArchived: false,
+  })
+
+  const snap = { ...snapshot(), entries, students }
+  const months = monthsPresent(snap)
+  const counts = countRows(snap, opts)
+  const empty = !counts.entries && !counts.students
+
+  // Picking a "from" after the "to" would mean an empty file; the other end
+  // moves with it rather than leaving her with nothing.
+  const setFrom = (v: string | null) =>
+    setOpts((o) => ({ ...o, from: v, to: o.to && v && v > o.to ? v : o.to }))
+  const setTo = (v: string | null) =>
+    setOpts((o) => ({ ...o, to: v, from: o.from && v && v < o.from ? v : o.from }))
+
+  const MonthSelect = ({
+    label,
+    value,
+    onChange,
+    openLabel,
+  }: {
+    label: string
+    value: string | null
+    onChange: (v: string | null) => void
+    openLabel: string
+  }) => (
+    <label className="text-sm">
+      <span className="mr-1.5 text-ink-soft">{label}</span>
+      <select
+        className="field field-inline"
+        value={value ?? ''}
+        onChange={(e) => onChange(e.target.value || null)}
+      >
+        <option value="">{openLabel}</option>
+        {months.map((m) => (
+          <option key={m} value={m}>
+            {formatMonth(m)}
+          </option>
+        ))}
+      </select>
+    </label>
+  )
+
+  return (
+    <>
+      <div className="style-accent mb-1.5 text-sm text-ink-soft">{t('settings.exportMonths')}</div>
+      <div className="mb-3 flex flex-wrap items-center gap-3">
+        <MonthSelect
+          label={t('settings.exportFrom')}
+          value={opts.from}
+          onChange={setFrom}
+          openLabel={t('settings.fromStart')}
+        />
+        <MonthSelect
+          label={t('settings.exportTo')}
+          value={opts.to}
+          onChange={setTo}
+          openLabel={t('settings.toEnd')}
+        />
+      </div>
+
+      <Toggle
+        label={t('settings.includeArchived')}
+        hint={t('settings.includeArchivedHint')}
+        checked={opts.includeArchived}
+        onChange={(v) => setOpts((o) => ({ ...o, includeArchived: v }))}
+      />
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <button
+          className="btn"
+          disabled={!counts.students}
+          title={t('settings.exportStudentsHint')}
+          onClick={() => exportStudentsCSV(snap, opts)}
+        >
+          {t('settings.exportStudents')} ({counts.students})
+        </button>
+        <button
+          className="btn"
+          disabled={!counts.entries}
+          title={t('settings.exportLessonsHint')}
+          onClick={() => exportLessonsCSV(snap, opts)}
+        >
+          {t('settings.exportLessons')} ({counts.entries})
+        </button>
+      </div>
+      {empty && <p className="mt-2 text-sm text-danger">{t('settings.nothingToExport')}</p>}
+      <p className="mt-1 text-sm text-ink-faint">{t('settings.exportStudentsHint')}</p>
+      <p className="text-sm text-ink-faint">{t('settings.exportLessonsHint')}</p>
+
+      <div className="mt-5 border-t border-rule pt-4">
+        <button className="btn" onClick={() => exportJSON(snapshot())}>
+          {t('settings.backup')}
+        </button>
+        <p className="mt-1 text-sm text-ink-faint">{t('settings.backupHint')}</p>
+      </div>
+    </>
+  )
+}
+
 export default function SettingsView({
   theme,
   mode,
@@ -131,7 +258,6 @@ export default function SettingsView({
   const email = useStore((s) => s.email)
   const signOut = useStore((s) => s.signOut)
   const changePassword = useStore((s) => s.changePassword)
-  const snapshot = useStore((s) => s.snapshot)
 
   const [stay, setStay] = useState(staysLoggedIn)
   const [password, setPassword] = useState('')
@@ -279,14 +405,7 @@ export default function SettingsView({
       </Section>
 
       <Section title={t('settings.data')} hint={t('settings.dataHint')}>
-        <div className="flex flex-wrap gap-2">
-          <button className="btn" onClick={() => exportJSON(snapshot())}>
-            {t('settings.backup')}
-          </button>
-          <button className="btn" onClick={() => exportCSV(snapshot())}>
-            {t('settings.exportCSV')}
-          </button>
-        </div>
+        <ExportControls />
       </Section>
     </div>
   )
