@@ -140,17 +140,6 @@ export function PaidControl({ entry, line, onPatch, onPayOff }: RowProps) {
       </span>
     )
 
-  if (status === 'part')
-    return (
-      <button
-        className="text-xs text-ink-soft underline"
-        onClick={onPayOff}
-        title="Partly paid — tap to settle the rest"
-      >
-        part
-      </button>
-    )
-
   return (
     <button
       className="text-ink-faint hover:text-ink"

@@ -38,18 +38,18 @@ export default function ClassesView({ onOpen }: { onOpen: (id: string) => void }
       .sort((a, b) => a.name.localeCompare(b.name))
       .map((cls) => {
         const mine = entries.filter((e) => e.class_id === cls.id)
-        const lines = buildLedger(cls, mine)
-        const totals = totalsFor(mine, lines)
+        const ledger = buildLedger(cls, mine)
+        const totals = totalsFor(mine, ledger.lines)
         const names = roster
           .filter((cs) => cs.class_id === cls.id)
           .map((cs) => students.find((s) => s.id === cs.student_id)?.name)
           .filter(Boolean)
           .sort() as string[]
-        return { cls, totals, names }
+        return { cls, totals, ledger, names }
       })
   }, [classes, entries, roster, students, showArchived])
 
-  const grandOwed = cards.reduce((sum, c) => sum + c.totals.owed, 0)
+  const grandOwed = cards.reduce((sum, c) => sum + c.ledger.owed, 0)
 
   return (
     <div>
@@ -76,7 +76,7 @@ export default function ClassesView({ onOpen }: { onOpen: (id: string) => void }
         </p>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-          {cards.map(({ cls, totals, names }) => (
+          {cards.map(({ cls, totals, ledger, names }) => (
             <button
               key={cls.id}
               onClick={() => onOpen(cls.id)}
@@ -101,10 +101,14 @@ export default function ClassesView({ onOpen }: { onOpen: (id: string) => void }
                 </span>
                 <span
                   className={`tabular font-semibold ${
-                    totals.owed > 0.005 ? 'text-danger' : 'text-good'
+                    ledger.owed > 0.005 ? 'text-danger' : 'text-good'
                   }`}
                 >
-                  {totals.owed > 0.005 ? money(totals.owed) : 'settled'}
+                  {ledger.owed > 0.005
+                    ? money(ledger.owed)
+                    : ledger.credit > 0.005
+                      ? `${money(ledger.credit)} credit`
+                      : 'settled'}
                 </span>
               </div>
             </button>

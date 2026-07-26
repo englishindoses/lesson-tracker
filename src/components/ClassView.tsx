@@ -8,6 +8,7 @@ import {
   duration,
   formatMonth,
   money,
+  moneySigned,
   monthKey,
   todayISO,
 } from '../lib/format'
@@ -67,11 +68,16 @@ export default function ClassView({
     [allEntries, classId],
   )
 
-  // The ledger is always built on the whole history, never the filtered view.
-  const lines = useMemo(
-    () => (cls ? buildLedger(cls, classEntries) : new Map<string, Line>()),
+  // The ledger is always built on the whole history, never the filtered view:
+  // credit and what's owed describe the student, not the month on screen.
+  const ledger = useMemo(
+    () =>
+      cls
+        ? buildLedger(cls, classEntries)
+        : { lines: new Map<string, Line>(), credit: 0, unpaid: 0, owed: 0 },
     [cls, classEntries],
   )
+  const lines = ledger.lines
 
   const months = useMemo(() => {
     const set = new Set<string>()
@@ -86,7 +92,7 @@ export default function ClassView({
   // the totals stay honest about what you're looking at.
   const calendarMonth = month === 'all' ? monthKey(todayISO()) : month
 
-  const visible = useMemo(() => {
+  const matching = useMemo(() => {
     const effectiveMonth = view === 'calendar' ? calendarMonth : month
     return sortEntries(classEntries).filter((e) => {
       if (effectiveMonth !== 'all' && monthKey(e.entry_date ?? e.due_date) !== effectiveMonth)
@@ -102,6 +108,32 @@ export default function ClassView({
       return true
     })
   }, [classEntries, view, calendarMonth, month, kind, paid, presence, lines])
+
+  /**
+   * A row you're editing shouldn't slide away under your cursor. While a row
+   * has focus its position is held, and it stays on screen even if the edit
+   * makes it stop matching the filters. It settles when you move away.
+   */
+  const [held, setHeld] = useState<{ order: string[]; rowId: string } | null>(null)
+
+  const holdOrder = (rowId: string) => {
+    // Recompute from scratch, which also settles whichever row was held before.
+    setHeld({ order: sortEntries(classEntries).map((e) => e.id), rowId })
+  }
+
+  const visible = useMemo(() => {
+    if (!held) return matching
+    const rank = new Map(held.order.map((id, i) => [id, i]))
+    const shown = [...matching]
+    // Keep the row being edited on screen even if it no longer matches.
+    if (!shown.some((e) => e.id === held.rowId)) {
+      const editing = classEntries.find((e) => e.id === held.rowId)
+      if (editing) shown.push(editing)
+    }
+    return shown.sort(
+      (a, b) => (rank.get(a.id) ?? Number.MAX_SAFE_INTEGER) - (rank.get(b.id) ?? Number.MAX_SAFE_INTEGER),
+    )
+  }, [matching, held, classEntries])
 
   const totals = useMemo(() => totalsFor(visible, lines), [visible, lines])
 
@@ -449,7 +481,17 @@ export default function ClassView({
           onOpen={(entry) => setOpenEntryId(entry.id)}
         />
       ) : (
-        <>
+        <div
+          onFocus={(e) => {
+            const row = (e.target as HTMLElement).closest('[data-entry-id]')
+            const id = row?.getAttribute('data-entry-id')
+            if (id && id !== held?.rowId) holdOrder(id)
+          }}
+          onBlur={(e) => {
+            // Only let go once focus has left the list entirely.
+            if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setHeld(null)
+          }}
+        >
           {/* --------------------------------------------- wide screens: table */}
           <div className="card hidden overflow-x-auto lg:block">
             <table className="w-full border-collapse text-sm">
@@ -502,50 +544,32 @@ export default function ClassView({
               />
             ))}
           </div>
-        </>
+        </div>
       )}
 
       {/* ------------------------------------------------------------ totals */}
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-rule bg-paper">
         <div className="mx-auto max-w-[1600px] px-3 py-2 sm:px-6">
-          {/* phones: the number that matters, big, with the rest underneath */}
-          <div className="flex items-baseline justify-between gap-3 lg:hidden">
-            <span className="style-hand text-base">
-              Total{filtersActive || view === 'calendar' ? ' (filtered)' : ''}
+          {/* The three money figures describe the whole class, not the filtered
+              view — what a student owes isn't a per-month question. */}
+          <div className="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-1">
+            <span className="flex flex-wrap items-baseline gap-x-5 gap-y-1">
+              <Figure label="Credit" value={money(ledger.credit)} className="text-good" />
+              <Figure label="Unpaid" value={money(ledger.unpaid)} className="text-danger" />
+              <Figure label="Owed" value={moneySigned(ledger.owed)} className="text-ink" big />
             </span>
-            <span className="flex items-baseline gap-2">
-              <span className="text-xs text-ink-soft">Owed</span>
-              <strong
-                className={`tabular text-lg ${totals.owed > 0.005 ? 'text-danger' : 'text-good'}`}
-              >
-                {money(totals.owed)}
-              </strong>
-            </span>
-          </div>
-          <div className="mt-0.5 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-ink-soft lg:hidden">
-            <span>{totals.lessonCount} lessons</span>
-            <span>Taught {duration(totals.taughtMinutes)}</span>
-            <span>Charged {money(totals.charged)}</span>
-            <span>Received {money(totals.received)}</span>
-          </div>
 
-          {/* laptops: one wide line */}
-          <div className="hidden flex-wrap items-center gap-x-6 gap-y-1 text-sm lg:flex">
-            <span className="style-hand text-base">
-              Total{filtersActive || view === 'calendar' ? ' (filtered)' : ''}
-            </span>
-            <Stat label="Lessons" value={String(totals.lessonCount)} />
-            <Stat label="Taught" value={duration(totals.taughtMinutes)} />
-            <Stat label="Scheduled" value={duration(totals.scheduledMinutes)} />
-            <Stat label="Charged" value={money(totals.charged)} />
-            <Stat label="Received" value={money(totals.received)} />
-            <span className="ml-auto flex items-baseline gap-2">
-              <span className="text-ink-soft">Owed</span>
-              <strong
-                className={`tabular text-lg ${totals.owed > 0.005 ? 'text-danger' : 'text-good'}`}
-              >
-                {money(totals.owed)}
-              </strong>
+            <span className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-ink-soft">
+              <span className="hidden sm:inline">
+                {filtersActive || view === 'calendar' ? 'Showing:' : 'All:'}
+              </span>
+              <span>{totals.lessonCount} lessons</span>
+              <span>Taught {duration(totals.taughtMinutes)}</span>
+              <span className="hidden lg:inline">
+                Scheduled {duration(totals.scheduledMinutes)}
+              </span>
+              <span>Charged {money(totals.charged)}</span>
+              <span>Received {money(totals.received)}</span>
             </span>
           </div>
         </div>
@@ -579,11 +603,21 @@ export default function ClassView({
   )
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Figure({
+  label,
+  value,
+  className,
+  big,
+}: {
+  label: string
+  value: string
+  className: string
+  big?: boolean
+}) {
   return (
     <span className="flex items-baseline gap-1.5">
-      <span className="text-xs text-ink-faint">{label}</span>
-      <span className="tabular">{value}</span>
+      <span className="text-xs text-ink-soft">{label}</span>
+      <strong className={`tabular ${big ? 'text-lg' : 'text-base'} ${className}`}>{value}</strong>
     </span>
   )
 }
@@ -605,7 +639,10 @@ function TableRow(
 
   return (
     <>
-      <tr className={`border-b border-rule align-middle ${isLesson ? '' : 'row-payment'}`}>
+      <tr
+        data-entry-id={entry.id}
+        className={`border-b border-rule align-middle ${isLesson ? '' : 'row-payment'}`}
+      >
         <td className="px-2 py-1.5">
           <StrikeBox {...props} />
         </td>
@@ -697,7 +734,10 @@ function EntryCard(props: RowProps & { onRepeat: () => void; onDelete: () => voi
   const struck = isLesson && entry.not_charged
 
   return (
-    <div className={`card p-3 ${isLesson ? '' : 'row-payment'} ${struck ? 'struck' : ''}`}>
+    <div
+      data-entry-id={entry.id}
+      className={`card p-3 ${isLesson ? '' : 'row-payment'} ${struck ? 'struck' : ''}`}
+    >
       <div className="flex items-center gap-2">
         {isLesson ? (
           <StrikeBox {...props} />

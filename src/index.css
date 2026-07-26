@@ -1,4 +1,4 @@
-@tailwind base;
+﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -38,6 +38,7 @@
   --accent-soft: #fbe6a2;
   --danger: #a33a2a;
   --good: #3d6b3a;
+  --good-soft: #e6efe0;
   --grid: #d9d0ba;
   --radius: 3px;
 }
@@ -54,6 +55,7 @@
   --accent-soft: #4a4326;
   --danger: #e08b7c;
   --good: #8fc08a;
+  --good-soft: #1e2a1e;
   --grid: #2b2e33;
   --radius: 3px;
 }
@@ -70,6 +72,7 @@
   --accent-soft: #dbeafe;
   --danger: #c02626;
   --good: #157347;
+  --good-soft: #e3f4ea;
   --grid: transparent;
   --radius: 10px;
 }
@@ -86,6 +89,7 @@
   --accent-soft: #1c2a45;
   --danger: #f07171;
   --good: #57b98a;
+  --good-soft: #15251d;
   --grid: transparent;
   --radius: 10px;
 }
@@ -210,8 +214,8 @@ body {
    Tailwind's /opacity modifiers don't work on var() colours, so this is its
    own token rather than bg-accent-soft/30. */
 .row-payment {
-  background-color: var(--paper-raised);
-  box-shadow: inset 3px 0 0 var(--accent);
+  background-color: var(--good-soft);
+  box-shadow: inset 3px 0 0 var(--good);
 }
 
 /* The strike-out. A pen line through the row, not a greyed-out cell. */

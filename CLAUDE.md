@@ -50,10 +50,18 @@ Charges:
 - **Monthly class**: lessons charge nothing. A payment row *is* the monthly
   invoice, so its amount is the charge.
 
-Credits: any payment row with `paid` ticked.
+Money received: any payment row with `paid` ticked.
 
-**Owed = charges − credits.** Credits are applied to lesson charges oldest-first,
-which is what lets one payment tick off four lessons.
+Received money ticks off **whole** lessons, oldest first, and stops at the first
+one it can't cover completely. A lesson is paid or it isn't — there is no
+half-paid lesson. Whatever is left over is the student's **credit**.
+
+**Owed = unpaid lessons − credit.** It goes negative when they've paid ahead,
+meaning you're holding their money.
+
+The bottom bar shows three figures, and they describe the **whole class**, not
+the filtered view — what a student owes isn't a per-month question. The other
+stats (lessons, time, charged, received) stay filtered.
 
 Other rules:
 - The first-column checkbox (`not_charged`) strikes a row out: it stays in the

@@ -9,19 +9,24 @@ import type { Class, Entry } from './types'
  *   - monthly class: lessons charge nothing. A payment row *is* the monthly
  *     invoice, so its amount is the charge.
  *
- * Credits (money actually received)
- *   - any payment row with "paid" ticked, for its amount.
+ * Money received: any payment row with "paid" ticked.
  *
- * Owed = charges - credits.
+ * Received money ticks off **whole** lessons, oldest first, and stops at the
+ * first lesson it cannot cover completely. A lesson is paid or it isn't —
+ * there is no half-paid lesson. Whatever is left over becomes the student's
+ * credit, carried against future lessons.
  *
- * Credits are then allocated across unpaid lesson charges oldest-first, which
- * is what lets one payment tick off four lessons at once.
+ *   4 x R$100 owed, R$350 paid
+ *     -> three lessons ticked, the fourth still unpaid,
+ *        R$50 credit, R$50 owed
+ *
+ * So: owed = unpaid lessons - credit. It goes negative when they have paid
+ * ahead, which means you are holding their money.
  */
 
 export type PaidStatus =
-  | 'paid' // fully covered by payments received
-  | 'part' // partly covered
-  | 'due' // charged, nothing received against it yet
+  | 'paid' // fully covered by money received
+  | 'due' // charged, not yet covered
   | 'free' // struck out, or a non-charging lesson on a monthly package
   | 'received' // a payment row that has been received
   | 'expected' // a payment row still outstanding
@@ -32,9 +37,20 @@ export interface Line {
   charge: number
   /** What this row pays off. */
   credit: number
-  /** How much of `charge` has been covered by credits so far. */
+  /** How much of `charge` has been covered — all of it, or none. */
   covered: number
   status: PaidStatus
+}
+
+/** A class's standing: what's outstanding, and what's paid ahead. */
+export interface Ledger {
+  lines: Map<string, Line>
+  /** Money received that hasn't ticked off a whole lesson yet. */
+  credit: number
+  /** Total charge of every lesson still unpaid. */
+  unpaid: number
+  /** unpaid - credit. Negative means they've paid ahead. */
+  owed: number
 }
 
 export const isLesson = (e: Entry) => e.kind === 'lesson'
@@ -67,7 +83,7 @@ export function lessonCharge(entry: Entry, cls: Class): number {
  * March payment still has to pay off a February lesson even when you're only
  * looking at March.
  */
-export function buildLedger(cls: Class, allEntries: Entry[]): Map<string, Line> {
+export function buildLedger(cls: Class, allEntries: Entry[]): Ledger {
   const ordered = sortEntries(allEntries)
   const lines = new Map<string, Line>()
 
@@ -94,28 +110,46 @@ export function buildLedger(cls: Class, allEntries: Entry[]): Map<string, Line> 
     }
   }
 
-  // Allocate received money to lesson charges, oldest first.
-  let pot = ordered.reduce(
-    (sum, e) => sum + (e.kind === 'payment' && e.paid ? e.amount ?? 0 : 0),
-    0,
-  )
-  if (cls.pricing_mode === 'monthly') {
-    // Monthly invoices already consumed their own payment above.
-    pot = 0
-  }
+  // Tick off whole lessons, oldest first, with the money actually received.
+  let pot =
+    cls.pricing_mode === 'monthly'
+      ? // Monthly invoices already consumed their own payment above.
+        0
+      : ordered.reduce(
+          (sum, e) => sum + (e.kind === 'payment' && e.paid ? e.amount ?? 0 : 0),
+          0,
+        )
+
+  let unpaid = 0
 
   for (const entry of ordered) {
     if (entry.kind !== 'lesson') continue
     const line = lines.get(entry.id)!
     if (line.charge <= 0) continue
-    const applied = Math.min(pot, line.charge)
-    pot -= applied
-    line.covered = applied
-    line.status =
-      applied >= line.charge - 0.001 ? 'paid' : applied > 0 ? 'part' : 'due'
+
+    // Part of a lesson is not a paid lesson: once the pot can't cover one
+    // outright, everything from here on stays due and the rest is credit.
+    if (pot >= line.charge - 0.001) {
+      pot -= line.charge
+      line.covered = line.charge
+      line.status = 'paid'
+    } else {
+      line.covered = 0
+      line.status = 'due'
+      unpaid += line.charge
+    }
   }
 
-  return lines
+  if (cls.pricing_mode === 'monthly') {
+    for (const entry of ordered) {
+      if (entry.kind === 'payment' && !entry.paid) unpaid += entry.amount ?? 0
+    }
+  }
+
+  const credit = Math.max(0, Number(pot.toFixed(2)))
+  unpaid = Number(unpaid.toFixed(2))
+
+  return { lines, credit, unpaid, owed: Number((unpaid - credit).toFixed(2)) }
 }
 
 export interface Totals {
@@ -126,12 +160,16 @@ export interface Totals {
   lessonCount: number
   charged: number
   received: number
-  owed: number
   /** Payment rows not yet ticked -- money you're still waiting on. */
   expected: number
 }
 
-/** Totals for whatever set of rows is currently on screen. */
+/**
+ * Totals for whatever set of rows is currently on screen.
+ *
+ * Deliberately does not include what's owed: that's a property of the class as
+ * a whole, not of the month you happen to be looking at. See `Ledger`.
+ */
 export function totalsFor(visible: Entry[], lines: Map<string, Line>): Totals {
   const t: Totals = {
     taughtMinutes: 0,
@@ -139,7 +177,6 @@ export function totalsFor(visible: Entry[], lines: Map<string, Line>): Totals {
     lessonCount: 0,
     charged: 0,
     received: 0,
-    owed: 0,
     expected: 0,
   }
 
@@ -160,6 +197,5 @@ export function totalsFor(visible: Entry[], lines: Map<string, Line>): Totals {
     t.received += line.credit
   }
 
-  t.owed = t.charged - t.received
   return t
 }
