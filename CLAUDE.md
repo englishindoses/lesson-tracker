@@ -22,8 +22,10 @@ edit**, not after. Running a build or `npm run check` to confirm the code
 compiles and the money logic still holds is fine. Anything that opens a browser,
 signs in, or writes to her Supabase project needs her go-ahead first.
 
-**No quote marks in commit messages.** They break the shell command. Never work
-around this by writing the message to a file — just write it without quotes.
+**Commit messages: short, plain, no quote marks.** A subject line, and a few
+lines of body only when the reason isn't obvious from the diff. Not essays — my
+recent ones were far too long. Never any quote marks: they break the shell
+command, and never work around that by writing the message to a file.
 
 **Keep the docs current, and remind her.** When we change how something works,
 this file and `memory/project-log.md` need updating too. She has asked to be
