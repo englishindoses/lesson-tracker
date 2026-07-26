@@ -8,6 +8,7 @@ import ClassesView from './components/ClassesView'
 import ClassView from './components/ClassView'
 import ThemeMenu from './components/ThemeMenu'
 import Menu from './components/Menu'
+import Doodles from './components/Doodles'
 
 type Tab = 'classes' | 'students'
 
@@ -67,14 +68,17 @@ export default function App() {
 
   return (
     <div className="dotgrid min-h-screen">
+      {/* Margin decoration only, on wide screens. Never over the content. */}
+      {style !== 'modern' && <Doodles />}
+
       {/* Opaque, not bg-paper/95: Tailwind's opacity modifier emits invalid CSS
           for a var() colour, which leaves the bar see-through. */}
       <header
         ref={headerRef}
         className="no-print sticky top-0 z-30 border-b border-rule bg-paper"
       >
-        <div className="mx-auto flex max-w-[1600px] items-center gap-2 px-3 py-2 sm:gap-3 sm:px-6">
-          <nav className="flex gap-1">
+        <div className="mx-auto flex max-w-[1600px] items-end gap-2 px-3 pt-2 sm:gap-3 sm:px-6">
+          <nav className="flex items-end gap-1">
             {(
               [
                 ['classes', 'Lesson Tracker'],
@@ -83,28 +87,27 @@ export default function App() {
             ).map(([value, label]) => (
               <button
                 key={value}
+                aria-current={tab === value && !openClassId ? 'page' : undefined}
                 onClick={() => {
                   setTab(value)
                   setOpenClassId(null)
                 }}
-                className={`style-hand rounded px-2.5 py-1 text-base sm:text-lg ${
-                  tab === value && !openClassId
-                    ? 'bg-accent-soft text-ink'
-                    : 'text-ink-soft hover:text-ink'
-                }`}
+                className="tab style-hand text-base sm:text-lg"
               >
                 {label}
               </button>
             ))}
           </nav>
 
-          <span className={`ml-auto hidden text-xs sm:inline ${syncColor}`}>
+          <span className={`ml-auto mb-2 hidden text-xs sm:inline ${syncColor}`}>
             {syncLabel[sync]}
           </span>
 
-          <ThemeMenu style={style} mode={mode} setStyle={setStyle} setMode={setMode} />
+          <div className="mb-2">
+            <ThemeMenu style={style} mode={mode} setStyle={setStyle} setMode={setMode} />
+          </div>
 
-          <Menu label="⋯" title="More" buttonClass="btn px-2 py-1 text-xs">
+          <Menu label="⋯" title="More" buttonClass="btn mb-2 px-2 py-1 text-xs">
             {(close) => (
               <>
                 <div className="truncate px-3 py-2 text-xs text-ink-faint">{email}</div>
@@ -142,7 +145,9 @@ export default function App() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-[1600px] px-3 py-4 sm:px-6 sm:py-6">
+      {/* Above the doodles: a fixed z-0 layer would otherwise paint over the
+          normal-flow content. */}
+      <main className="relative z-10 mx-auto max-w-[1600px] px-3 py-4 sm:px-6 sm:py-6">
         {openClassId ? (
           <ClassView classId={openClassId} onBack={() => setOpenClassId(null)} />
         ) : tab === 'classes' ? (

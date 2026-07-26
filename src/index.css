@@ -329,6 +329,40 @@ html:not([data-style='modern']) .field:focus {
   filter: brightness(1.12);
   background-color: var(--accent);
 }
+/* Page tabs, like the dividers in a ring binder. The active one is filled with
+   the theme's highlighter and breaks the rule under the header, so it reads as
+   attached to the page below. */
+.tab {
+  position: relative;
+  margin-bottom: -1px;
+  padding: 0.3rem 0.85rem 0.4rem;
+  border: 1px solid transparent;
+  border-bottom: 0;
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius);
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.tab:hover {
+  color: var(--ink);
+}
+.tab[aria-current='page'] {
+  border-color: var(--ink-faint);
+  background-color: var(--accent-soft);
+  color: var(--ink);
+}
+/* Covers the header rule for the width of the active tab. */
+.tab[aria-current='page']::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 -1px 0;
+  height: 2px;
+  background-color: var(--accent-soft);
+}
+html:not([data-style='modern']) .tab {
+  border-radius: 11px 9px 0 0 / 9px 12px 0 0;
+}
+
 html:not([data-style='modern']) .btn {
   border-radius: 8px 6px 9px 5px / 6px 9px 5px 8px;
 }
