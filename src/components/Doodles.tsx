@@ -1,17 +1,22 @@
 import type { DoodleSet } from '../lib/theme'
 
 /**
- * Pen marks in the margins, the way a journal page collects them.
+ * Pen marks down both margins, the way a journal page collects them.
  *
  * SVG rather than background images: the strokes inherit the theme's ink
  * colour through currentColor, so one set works across every palette in both
  * light and dark. Images would need one variant per palette and would still be
  * wrong the moment a colour changed.
  *
- * One set per preset — botanical, seaside, berry and so on — chosen in
- * Settings. Wide screens only by default, since a phone has no margins to
- * spare; the slots marked `phone` sit far enough into the corners to be shown
- * anyway if she asks for them. Never interactive.
+ * Overlap is prevented by construction, not by arithmetic: each margin is a
+ * full-height flex column with `justify-between`, so the browser spaces
+ * whatever it is given evenly from top to bottom of the screen and two
+ * drawings can never land on each other. Fewer drawings simply means bigger
+ * gaps -- which is exactly what the minimalist set wants.
+ *
+ * Each set mixes small marks with larger ones. Small drawings sit in a 2.5rem
+ * box, large ones in 4rem to 5rem, so a margin reads as a hand filling space
+ * rather than a row of identical stamps.
  */
 
 const stroke = {
@@ -22,167 +27,175 @@ const stroke = {
   strokeLinejoin: 'round' as const,
 }
 
-function Sparkles() {
+/* ============================================================= small marks ==
+   All on a 40x40 grid, drawn in a 2.5rem box. Simple enough to read at that
+   size -- anything with more than a few strokes turns to mush. */
+
+const sm = 'h-10 w-10'
+
+function Leaf() {
   return (
-    <svg viewBox="0 0 60 70" className="h-14 w-12" aria-hidden>
+    <svg viewBox="0 0 40 40" className={sm} aria-hidden>
       <g {...stroke}>
-        <path d="M20 4 L23 16 L35 19 L23 22 L20 34 L17 22 L5 19 L17 16 Z" />
-        <path d="M44 30 L46 37 L53 39 L46 41 L44 48 L42 41 L35 39 L42 37 Z" />
-        <path d="M15 50 L16.5 55 L21 56.5 L16.5 58 L15 63 L13.5 58 L9 56.5 L13.5 55 Z" />
+        <path d="M20 37 L20 22" />
+        <path d="M20 22 C 8 18, 8 8, 20 3 C 32 8, 32 18, 20 22 Z" />
+        <path d="M20 21 L20 5" />
       </g>
     </svg>
   )
 }
 
-function CurlyArrow() {
+function Star() {
   return (
-    <svg viewBox="0 0 70 90" className="h-16 w-12" aria-hidden>
+    <svg viewBox="0 0 40 40" className={sm} aria-hidden>
       <g {...stroke}>
-        <path d="M12 6 C 40 14, 8 40, 34 52 C 52 60, 44 74, 34 82" />
-        <path d="M26 74 L34 83 L44 78" />
+        <path d="M20 4 L24.5 15.5 L37 16.5 L27.5 24.5 L30.5 36.5 L20 30 L9.5 36.5 L12.5 24.5 L3 16.5 L15.5 15.5 Z" />
       </g>
     </svg>
   )
 }
 
-function Sprig() {
+function Sparkle() {
   return (
-    <svg viewBox="0 0 50 90" className="h-16 w-8" aria-hidden>
+    <svg viewBox="0 0 40 40" className={sm} aria-hidden>
       <g {...stroke}>
-        <path d="M25 84 C 25 60, 24 30, 26 8" />
-        <path d="M25 66 C 14 62, 10 52, 12 46 C 20 46, 25 56, 25 66 Z" />
-        <path d="M26 54 C 37 50, 41 40, 39 34 C 31 34, 26 44, 26 54 Z" />
-        <path d="M26 40 C 16 36, 13 27, 15 22 C 22 22, 26 31, 26 40 Z" />
-        <path d="M26 27 C 35 24, 38 16, 37 11 C 30 11, 26 19, 26 27 Z" />
+        <path d="M20 3 C 21.5 13, 27 18.5, 37 20 C 27 21.5, 21.5 27, 20 37 C 18.5 27, 13 21.5, 3 20 C 13 18.5, 18.5 13, 20 3 Z" />
       </g>
     </svg>
   )
 }
 
-function Fern() {
+function BerryTrio() {
   return (
-    <svg viewBox="0 0 46 100" className="h-20 w-8" aria-hidden>
+    <svg viewBox="0 0 40 40" className={sm} aria-hidden>
       <g {...stroke}>
-        <path d="M23 96 C 22 68, 22 34, 25 6" />
-        <path d="M23 84 C 15 82, 11 76, 11 71" />
-        <path d="M23 84 C 31 81, 35 75, 35 70" />
-        <path d="M23 70 C 15 68, 12 62, 12 57" />
-        <path d="M23 70 C 31 67, 34 61, 34 56" />
-        <path d="M24 56 C 17 54, 14 49, 14 44" />
-        <path d="M24 56 C 31 53, 33 48, 33 43" />
-        <path d="M24 42 C 18 40, 16 36, 16 32" />
-        <path d="M24 42 C 30 40, 32 35, 32 31" />
-        <path d="M25 28 C 20 27, 19 23, 19 20" />
-        <path d="M25 28 C 29 26, 30 22, 30 19" />
+        <path d="M20 38 C 20 31, 18 28, 15 26" />
+        <path d="M20 38 C 20 30, 22 27, 25 25" />
+        <path d="M20 38 L20 17" />
+        <circle cx="13" cy="23" r="4.5" />
+        <circle cx="27" cy="22" r="4.5" />
+        <circle cx="20" cy="11" r="4.5" />
       </g>
     </svg>
   )
 }
 
-function MonsteraLeaf() {
+function TinyFlower() {
   return (
-    <svg viewBox="0 0 74 86" className="h-16 w-12" aria-hidden>
+    <svg viewBox="0 0 40 40" className={sm} aria-hidden>
       <g {...stroke}>
-        <path d="M37 82 C 37 66, 37 54, 37 44" />
-        <path d="M37 44 C 14 42, 5 26, 12 12 C 24 4, 50 4, 62 12 C 69 26, 60 42, 37 44 Z" />
-        <path d="M37 44 C 31 34, 25 26, 14 20" />
-        <path d="M37 42 C 43 32, 49 25, 60 19" />
-        <path d="M22 41 C 24 33, 26 27, 30 21" />
-        <path d="M52 40 C 50 32, 48 26, 44 20" />
+        <circle cx="20" cy="20" r="3.5" />
+        <ellipse cx="20" cy="10" rx="4.5" ry="6" />
+        <ellipse cx="20" cy="10" rx="4.5" ry="6" transform="rotate(72 20 20)" />
+        <ellipse cx="20" cy="10" rx="4.5" ry="6" transform="rotate(144 20 20)" />
+        <ellipse cx="20" cy="10" rx="4.5" ry="6" transform="rotate(216 20 20)" />
+        <ellipse cx="20" cy="10" rx="4.5" ry="6" transform="rotate(288 20 20)" />
       </g>
     </svg>
   )
 }
 
-function PottedPlant() {
+function Heart() {
   return (
-    <svg viewBox="0 0 64 88" className="h-16 w-12" aria-hidden>
+    <svg viewBox="0 0 40 40" className={sm} aria-hidden>
       <g {...stroke}>
-        <path d="M14 56 L50 56 L44 84 L20 84 Z" />
-        <path d="M11 48 L53 48 L53 56 L11 56 Z" />
-        <path d="M32 48 C 32 36, 32 28, 32 20" />
-        <path d="M32 38 C 20 36, 14 28, 15 20 C 25 20, 32 30, 32 38 Z" />
-        <path d="M32 34 C 44 31, 50 23, 49 16 C 39 16, 32 26, 32 34 Z" />
-        <path d="M32 22 C 26 18, 24 10, 27 5 C 34 8, 35 17, 32 22 Z" />
+        <path d="M20 35 C 7 26, 3 16, 10 9 C 15 4.5, 20 8, 20 12.5 C 20 8, 25 4.5, 30 9 C 37 16, 33 26, 20 35 Z" />
       </g>
     </svg>
   )
 }
 
-function Daisy() {
+function Curl() {
   return (
-    <svg viewBox="0 0 48 88" className="h-16 w-8" aria-hidden>
+    <svg viewBox="0 0 40 40" className={sm} aria-hidden>
       <g {...stroke}>
-        <path d="M24 84 C 23 66, 24 52, 24 38" />
-        <path d="M24 66 C 14 64, 9 56, 10 50 C 18 51, 23 59, 24 66 Z" />
-        <path d="M25 54 C 34 52, 38 45, 37 40 C 30 41, 25 48, 25 54 Z" />
-        <circle cx="24" cy="24" r="4.5" />
-        <g>
-          <ellipse cx="24" cy="12" rx="4" ry="7" />
-          <ellipse cx="24" cy="12" rx="4" ry="7" transform="rotate(60 24 24)" />
-          <ellipse cx="24" cy="12" rx="4" ry="7" transform="rotate(120 24 24)" />
-          <ellipse cx="24" cy="12" rx="4" ry="7" transform="rotate(180 24 24)" />
-          <ellipse cx="24" cy="12" rx="4" ry="7" transform="rotate(240 24 24)" />
-          <ellipse cx="24" cy="12" rx="4" ry="7" transform="rotate(300 24 24)" />
-        </g>
+        <path d="M22 20 C 22 17, 18 17, 18 21 C 18 26, 24 26, 26 21 C 29 13, 20 7, 13 11 C 4 16, 4 29, 13 34 C 20 38, 29 36, 34 30" />
       </g>
     </svg>
   )
 }
 
-function Cactus() {
+function Arrow() {
   return (
-    <svg viewBox="0 0 60 90" className="h-16 w-12" aria-hidden>
+    <svg viewBox="0 0 40 40" className={sm} aria-hidden>
       <g {...stroke}>
-        <path d="M23 74 C 19 66, 19 40, 21 30 C 23 20, 37 20, 39 30 C 41 40, 41 66, 37 74 Z" />
-        <path d="M21 52 C 12 52, 9 46, 9 39 C 9 34, 14 34, 14 39 C 14 45, 16 48, 21 48" />
-        <path d="M39 44 C 47 44, 50 39, 50 33 C 50 29, 46 29, 46 33 C 46 38, 44 40, 39 40" />
-        <path d="M16 74 L44 74 L41 86 L19 86 Z" />
-        <path d="M30 20 C 30 16, 27 14, 27 11" />
-        <circle cx="26" cy="9" r="2.6" />
+        <path d="M7 5 C 24 8, 12 23, 29 29" />
+        <path d="M21 26 L30 30 L27 21" />
       </g>
     </svg>
   )
 }
 
-function LeafVine() {
+function Asterisk() {
   return (
-    <svg viewBox="0 0 44 120" className="h-20 w-8" aria-hidden>
+    <svg viewBox="0 0 40 40" className={sm} aria-hidden>
       <g {...stroke}>
-        <path d="M22 4 C 34 20, 10 36, 22 52 C 34 68, 10 84, 22 100 C 27 108, 24 114, 22 116" />
-        <path d="M28 14 C 36 12, 40 16, 39 21 C 33 23, 28 20, 28 14 Z" />
-        <path d="M14 34 C 6 33, 3 37, 5 42 C 11 43, 15 40, 14 34 Z" />
-        <path d="M29 62 C 37 60, 41 64, 40 69 C 34 71, 29 68, 29 62 Z" />
-        <path d="M14 82 C 6 81, 3 85, 5 90 C 11 91, 15 88, 14 82 Z" />
-        <path d="M27 104 C 34 103, 37 106, 36 110 C 31 112, 27 109, 27 104 Z" />
+        <path d="M20 7 L20 33" />
+        <path d="M9 13 L31 27" />
+        <path d="M31 13 L9 27" />
       </g>
     </svg>
   )
 }
 
-function Berries() {
+function Ripples() {
   return (
-    <svg viewBox="0 0 54 76" className="h-16 w-12" aria-hidden>
+    <svg viewBox="0 0 40 40" className={sm} aria-hidden>
       <g {...stroke}>
-        <path d="M27 72 C 26 54, 27 34, 29 10" />
-        <path d="M28 44 C 18 42, 13 34, 14 28 C 23 29, 28 37, 28 44 Z" />
-        <path d="M28 30 C 38 27, 43 19, 42 13 C 33 14, 28 23, 28 30 Z" />
-        <circle cx="19" cy="18" r="4" />
-        <circle cx="27" cy="9" r="4" />
-        <circle cx="36" cy="34" r="4" />
-        <path d="M19 18 L26 12" strokeWidth={1.2} />
-        <path d="M36 34 L30 26" strokeWidth={1.2} />
+        <path d="M4 13 C 10 7, 16 19, 22 13 C 27 8, 33 14, 36 11" />
+        <path d="M4 22 C 10 16, 16 28, 22 22 C 27 17, 33 23, 36 20" />
+        <path d="M9 31 C 14 27, 19 35, 25 31" />
       </g>
     </svg>
   )
 }
 
-function Banner() {
+function Dots() {
   return (
-    <svg viewBox="0 0 110 40" className="h-10 w-28" aria-hidden>
+    <svg viewBox="0 0 40 40" className={sm} aria-hidden>
       <g {...stroke}>
-        <path d="M8 10 L102 10 L94 22 L102 34 L8 34 L16 22 Z" />
-        <path d="M28 22 L82 22" strokeDasharray="2 6" />
+        <circle cx="12" cy="27" r="2.6" />
+        <circle cx="20" cy="14" r="2.6" />
+        <circle cx="28" cy="27" r="2.6" />
+      </g>
+    </svg>
+  )
+}
+
+function SmallShell() {
+  return (
+    <svg viewBox="0 0 40 40" className={sm} aria-hidden>
+      <g {...stroke}>
+        <path d="M20 34 C 7 30, 4 16, 11 8 C 17 3, 23 3, 29 8 C 36 16, 33 30, 20 34 Z" />
+        <path d="M20 34 L12 10" />
+        <path d="M20 34 L20 5" />
+        <path d="M20 34 L28 10" />
+      </g>
+    </svg>
+  )
+}
+
+function Cherries() {
+  return (
+    <svg viewBox="0 0 40 40" className={sm} aria-hidden>
+      <g {...stroke}>
+        <path d="M13 25 C 15 18, 18 11, 21 6" />
+        <path d="M27 27 C 25 19, 23 12, 21 6" />
+        <circle cx="12" cy="30" r="6" />
+        <circle cx="28" cy="32" r="6" />
+        <path d="M21 7 C 27 3, 33 5, 35 9 C 30 13, 23 11, 21 7 Z" />
+      </g>
+    </svg>
+  )
+}
+
+function Dashes() {
+  return (
+    <svg viewBox="0 0 40 40" className={sm} aria-hidden>
+      <g {...stroke}>
+        <path d="M5 12 L35 12" strokeDasharray="4 5" />
+        <path d="M5 20 L27 20" strokeDasharray="4 5" />
+        <path d="M5 28 L31 28" strokeDasharray="4 5" />
       </g>
     </svg>
   )
@@ -190,9 +203,233 @@ function Banner() {
 
 function Paperclip() {
   return (
-    <svg viewBox="0 0 40 80" className="h-16 w-8" aria-hidden>
+    <svg viewBox="0 0 30 44" className="h-10 w-7" aria-hidden>
       <g {...stroke} strokeWidth={2}>
-        <path d="M26 12 L26 58 C 26 68, 12 68, 12 58 L12 18 C 12 12, 21 12, 21 18 L21 56" />
+        <path d="M20 7 L20 31 C 20 38, 9 38, 9 31 L9 12 C 9 7, 16 7, 16 12 L16 30" />
+      </g>
+    </svg>
+  )
+}
+
+/* ============================================================ large marks ==
+   Taller drawings, 4rem to 5rem, with room for real detail. */
+
+const lg = 'h-20 w-14'
+
+function Fern() {
+  return (
+    <svg viewBox="0 0 60 110" className={lg} aria-hidden>
+      <g {...stroke}>
+        <path d="M30 106 C 29 76, 29 40, 33 6" />
+        <path d="M30 95 C 20 93, 13 87, 12 80" />
+        <path d="M30 95 C 40 92, 47 86, 48 79" />
+        <path d="M30 82 C 21 80, 15 74, 14 68" />
+        <path d="M30 82 C 39 79, 45 73, 46 67" />
+        <path d="M30 69 C 22 67, 17 62, 16 56" />
+        <path d="M30 69 C 38 66, 43 61, 44 55" />
+        <path d="M31 56 C 24 54, 20 50, 19 45" />
+        <path d="M31 56 C 38 53, 42 49, 43 44" />
+        <path d="M31 43 C 25 41, 22 37, 21 33" />
+        <path d="M31 43 C 37 41, 40 37, 41 33" />
+        <path d="M32 30 C 27 29, 25 25, 24 22" />
+        <path d="M32 30 C 36 28, 38 25, 39 21" />
+      </g>
+    </svg>
+  )
+}
+
+function Monstera() {
+  return (
+    <svg viewBox="0 0 80 100" className="h-20 w-16" aria-hidden>
+      <g {...stroke}>
+        <path d="M40 96 C 40 82, 40 68, 40 58" />
+        <path d="M40 58 C 14 55, 5 36, 12 18 C 26 8, 54 8, 68 18 C 75 36, 66 55, 40 58 Z" />
+        <path d="M40 58 C 33 46, 26 36, 14 28" />
+        <path d="M40 55 C 47 44, 54 35, 66 27" />
+        <path d="M25 53 C 26 43, 29 33, 34 25" />
+        <path d="M55 51 C 54 41, 51 32, 46 24" />
+      </g>
+    </svg>
+  )
+}
+
+function PottedPlant() {
+  return (
+    <svg viewBox="0 0 60 110" className={lg} aria-hidden>
+      <g {...stroke}>
+        <path d="M18 74 L42 74 L38 104 L22 104 Z" />
+        <path d="M15 66 L45 66 L45 74 L15 74 Z" />
+        <path d="M30 66 C 30 52, 30 40, 30 28" />
+        <path d="M30 56 C 18 54, 12 45, 13 37 C 23 38, 30 47, 30 56 Z" />
+        <path d="M31 49 C 43 46, 48 38, 47 30 C 37 31, 31 41, 31 49 Z" />
+        <path d="M30 37 C 24 31, 23 21, 27 15 C 33 20, 34 31, 30 37 Z" />
+      </g>
+    </svg>
+  )
+}
+
+function Daisy() {
+  return (
+    <svg viewBox="0 0 60 110" className={lg} aria-hidden>
+      <g {...stroke}>
+        <path d="M30 106 C 29 84, 30 62, 30 46" />
+        <path d="M30 86 C 19 84, 13 76, 14 68 C 23 70, 29 78, 30 86 Z" />
+        <path d="M31 72 C 42 69, 47 61, 46 54 C 37 55, 31 64, 31 72 Z" />
+        <circle cx="30" cy="30" r="6" />
+        <ellipse cx="30" cy="15" rx="5" ry="9" />
+        <ellipse cx="30" cy="15" rx="5" ry="9" transform="rotate(60 30 30)" />
+        <ellipse cx="30" cy="15" rx="5" ry="9" transform="rotate(120 30 30)" />
+        <ellipse cx="30" cy="15" rx="5" ry="9" transform="rotate(180 30 30)" />
+        <ellipse cx="30" cy="15" rx="5" ry="9" transform="rotate(240 30 30)" />
+        <ellipse cx="30" cy="15" rx="5" ry="9" transform="rotate(300 30 30)" />
+      </g>
+    </svg>
+  )
+}
+
+function Blossom() {
+  return (
+    <svg viewBox="0 0 60 110" className={lg} aria-hidden>
+      <g {...stroke}>
+        <path d="M30 106 C 30 84, 30 64, 30 48" />
+        <path d="M30 82 C 20 80, 14 72, 15 65 C 24 66, 30 74, 30 82 Z" />
+        <path d="M31 68 C 41 65, 46 58, 45 51 C 36 52, 31 60, 31 68 Z" />
+        <circle cx="30" cy="32" r="5" />
+        <ellipse cx="30" cy="18" rx="7.5" ry="9.5" />
+        <ellipse cx="30" cy="18" rx="7.5" ry="9.5" transform="rotate(72 30 32)" />
+        <ellipse cx="30" cy="18" rx="7.5" ry="9.5" transform="rotate(144 30 32)" />
+        <ellipse cx="30" cy="18" rx="7.5" ry="9.5" transform="rotate(216 30 32)" />
+        <ellipse cx="30" cy="18" rx="7.5" ry="9.5" transform="rotate(288 30 32)" />
+      </g>
+    </svg>
+  )
+}
+
+function Cactus() {
+  return (
+    <svg viewBox="0 0 60 110" className={lg} aria-hidden>
+      <g {...stroke}>
+        <path d="M24 88 C 20 78, 20 44, 22 33 C 24 22, 38 22, 40 33 C 42 44, 42 78, 38 88 Z" />
+        <path d="M22 58 C 12 58, 9 51, 9 43 C 9 38, 15 38, 15 43 C 15 50, 17 53, 22 53" />
+        <path d="M40 50 C 49 50, 52 44, 52 37 C 52 33, 47 33, 47 37 C 47 43, 45 46, 40 46" />
+        <path d="M18 88 L44 88 L41 104 L21 104 Z" />
+        <circle cx="31" cy="18" r="4" />
+      </g>
+    </svg>
+  )
+}
+
+function PalmFrond() {
+  return (
+    <svg viewBox="0 0 60 110" className={lg} aria-hidden>
+      <g {...stroke}>
+        <path d="M28 106 C 29 78, 31 42, 36 8" />
+        <path d="M29 92 C 18 88, 12 78, 12 68 C 23 72, 29 82, 29 92 Z" />
+        <path d="M30 92 C 41 87, 47 77, 46 67 C 36 72, 30 82, 30 92 Z" />
+        <path d="M31 74 C 21 70, 16 60, 17 51 C 27 56, 31 65, 31 74 Z" />
+        <path d="M32 74 C 42 69, 46 60, 45 51 C 36 56, 32 65, 32 74 Z" />
+        <path d="M33 56 C 25 52, 22 44, 23 36 C 31 41, 34 49, 33 56 Z" />
+        <path d="M34 56 C 42 51, 45 43, 44 36 C 36 41, 33 49, 34 56 Z" />
+        <path d="M35 38 C 30 34, 28 27, 29 21 C 35 26, 37 33, 35 38 Z" />
+      </g>
+    </svg>
+  )
+}
+
+function Seaweed() {
+  return (
+    <svg viewBox="0 0 60 110" className={lg} aria-hidden>
+      <g {...stroke}>
+        <path d="M21 106 C 11 88, 29 74, 19 56 C 11 40, 27 26, 23 8" />
+        <path d="M39 106 C 47 90, 33 76, 43 60 C 51 46, 39 32, 43 14" />
+        <circle cx="13" cy="52" r="2.6" />
+        <circle cx="50" cy="42" r="2.6" />
+        <circle cx="15" cy="26" r="2.2" />
+      </g>
+    </svg>
+  )
+}
+
+function BerryBranch() {
+  return (
+    <svg viewBox="0 0 60 110" className={lg} aria-hidden>
+      <g {...stroke}>
+        <path d="M28 106 C 27 80, 29 46, 34 8" />
+        <path d="M28 88 C 17 85, 12 77, 13 69 C 22 71, 28 80, 28 88 Z" />
+        <path d="M30 66 C 41 63, 46 55, 45 47 C 36 49, 30 58, 30 66 Z" />
+        <path d="M32 44 C 23 41, 19 34, 20 27 C 28 29, 33 37, 32 44 Z" />
+        <circle cx="42" cy="78" r="4.5" />
+        <circle cx="20" cy="56" r="4.5" />
+        <circle cx="40" cy="34" r="4.5" />
+        <circle cx="33" cy="16" r="4.5" />
+      </g>
+    </svg>
+  )
+}
+
+function Wildflowers() {
+  return (
+    <svg viewBox="0 0 80 110" className="h-20 w-16" aria-hidden>
+      <g {...stroke}>
+        <path d="M40 106 C 35 84, 28 66, 21 51" />
+        <path d="M40 106 C 40 80, 40 60, 40 40" />
+        <path d="M40 106 C 45 84, 53 66, 60 53" />
+        <path d="M36 78 C 27 76, 22 69, 23 62 C 31 64, 36 71, 36 78 Z" />
+        <path d="M44 68 C 53 66, 58 59, 57 52 C 49 54, 44 61, 44 68 Z" />
+        <circle cx="17" cy="46" r="3.4" />
+        <circle cx="24" cy="43" r="3.4" />
+        <circle cx="20" cy="36" r="3.4" />
+        <circle cx="40" cy="33" r="3.6" />
+        <ellipse cx="40" cy="24" rx="4" ry="6" />
+        <ellipse cx="40" cy="24" rx="4" ry="6" transform="rotate(72 40 33)" />
+        <ellipse cx="40" cy="24" rx="4" ry="6" transform="rotate(144 40 33)" />
+        <ellipse cx="40" cy="24" rx="4" ry="6" transform="rotate(216 40 33)" />
+        <ellipse cx="40" cy="24" rx="4" ry="6" transform="rotate(288 40 33)" />
+        <circle cx="62" cy="47" r="3.2" />
+        <circle cx="57" cy="41" r="3.2" />
+        <circle cx="64" cy="38" r="3.2" />
+      </g>
+    </svg>
+  )
+}
+
+function BigShell() {
+  return (
+    <svg viewBox="0 0 80 70" className="h-16 w-16" aria-hidden>
+      <g {...stroke}>
+        <path d="M40 64 C 10 56, 4 28, 15 12 C 27 3, 53 3, 65 12 C 76 28, 70 56, 40 64 Z" />
+        <path d="M40 64 L16 16" />
+        <path d="M40 64 L27 8" />
+        <path d="M40 64 L40 5" />
+        <path d="M40 64 L53 8" />
+        <path d="M40 64 L64 16" />
+      </g>
+    </svg>
+  )
+}
+
+function Starfish() {
+  return (
+    <svg viewBox="0 0 80 80" className="h-16 w-16" aria-hidden>
+      <g {...stroke}>
+        <path d="M40 6 L51 30 L77 33 L58 50 L63 76 L40 63 L17 76 L22 50 L3 33 L29 30 Z" />
+        <circle cx="40" cy="38" r="2" />
+        <circle cx="33" cy="48" r="1.8" />
+        <circle cx="47" cy="48" r="1.8" />
+      </g>
+    </svg>
+  )
+}
+
+function Teacup() {
+  return (
+    <svg viewBox="0 0 80 70" className="h-16 w-16" aria-hidden>
+      <g {...stroke}>
+        <path d="M14 26 L58 26 C 56 46, 50 57, 36 57 C 22 57, 16 46, 14 26 Z" />
+        <path d="M58 31 C 69 29, 71 42, 60 46" />
+        <path d="M8 63 L68 63" />
+        <path d="M28 19 C 32 14, 24 10, 28 4" />
+        <path d="M42 19 C 46 14, 38 10, 42 4" />
       </g>
     </svg>
   )
@@ -208,140 +445,40 @@ function CoffeeRing() {
   )
 }
 
-function DottedFlourish() {
-  return (
-    <svg viewBox="0 0 120 30" className="h-8 w-32" aria-hidden>
-      <g {...stroke}>
-        <path d="M4 22 C 24 4, 44 30, 64 14 C 78 4, 92 12, 112 8" strokeDasharray="1 7" />
-      </g>
-    </svg>
-  )
-}
-
-function Heart() {
-  return (
-    <svg viewBox="0 0 60 56" className="h-14 w-14" aria-hidden>
-      <g {...stroke}>
-        <path d="M30 50 C 6 34, 4 18, 14 10 C 22 4, 29 9, 30 16 C 31 9, 38 4, 46 10 C 56 18, 54 34, 30 50 Z" />
-      </g>
-    </svg>
-  )
-}
-
-/* ------------------------------------------------------------------ seaside */
-
-function Shell() {
-  return (
-    <svg viewBox="0 0 70 62" className="h-14 w-16" aria-hidden>
-      <g {...stroke}>
-        <path d="M35 56 C 10 50, 4 26, 14 12 C 26 2, 44 2, 56 12 C 66 26, 60 50, 35 56 Z" />
-        <path d="M35 56 L14 15" />
-        <path d="M35 56 L24 8" />
-        <path d="M35 56 L35 5" />
-        <path d="M35 56 L46 8" />
-        <path d="M35 56 L56 15" />
-      </g>
-    </svg>
-  )
-}
-
-function Waves() {
-  return (
-    <svg viewBox="0 0 120 52" className="h-12 w-32" aria-hidden>
-      <g {...stroke}>
-        <path d="M4 14 C 20 2, 32 26, 48 14 C 62 4, 74 26, 90 14 C 100 7, 110 12, 116 10" />
-        <path d="M4 30 C 20 18, 32 42, 48 30 C 62 20, 74 42, 90 30 C 100 23, 110 28, 116 26" />
-        <path d="M18 46 C 32 38, 44 54, 58 46" />
-      </g>
-    </svg>
-  )
-}
-
-function PalmLeaf() {
-  return (
-    <svg viewBox="0 0 80 92" className="h-16 w-12" aria-hidden>
-      <g {...stroke}>
-        <path d="M40 88 C 40 62, 40 32, 43 6" />
-        <path d="M40 74 C 26 72, 18 62, 17 52 C 30 54, 39 64, 40 74 Z" />
-        <path d="M41 74 C 55 71, 63 61, 63 51 C 50 54, 42 64, 41 74 Z" />
-        <path d="M41 58 C 28 55, 21 45, 21 36 C 33 39, 41 48, 41 58 Z" />
-        <path d="M42 58 C 54 54, 60 45, 60 36 C 48 39, 42 48, 42 58 Z" />
-        <path d="M42 40 C 32 37, 27 29, 27 21 C 37 24, 42 32, 42 40 Z" />
-        <path d="M43 40 C 52 36, 56 28, 55 21 C 46 24, 42 32, 43 40 Z" />
-      </g>
-    </svg>
-  )
-}
-
-function Starfish() {
-  return (
-    <svg viewBox="0 0 70 70" className="h-16 w-16" aria-hidden>
-      <g {...stroke}>
-        <path d="M35 5 L45 26 L67 29 L51 44 L55 66 L35 55 L15 66 L19 44 L3 29 L25 26 Z" />
-        <circle cx="35" cy="34" r="2" />
-        <circle cx="29" cy="42" r="1.6" />
-        <circle cx="41" cy="42" r="1.6" />
-      </g>
-    </svg>
-  )
-}
-
-/* -------------------------------------------------------------------- berry */
-
-function Cherries() {
-  return (
-    <svg viewBox="0 0 62 82" className="h-16 w-12" aria-hidden>
-      <g {...stroke}>
-        <path d="M18 52 C 20 36, 25 22, 31 10" />
-        <path d="M43 58 C 40 40, 36 24, 31 10" />
-        <circle cx="18" cy="62" r="10" />
-        <circle cx="43" cy="68" r="10" />
-        <path d="M31 12 C 41 5, 52 8, 55 15 C 47 22, 36 20, 31 12 Z" />
-      </g>
-    </svg>
-  )
-}
-
-function Blossom() {
-  return (
-    <svg viewBox="0 0 64 64" className="h-14 w-14" aria-hidden>
-      <g {...stroke}>
-        <circle cx="32" cy="32" r="5" />
-        <ellipse cx="32" cy="16" rx="7" ry="10" />
-        <ellipse cx="32" cy="16" rx="7" ry="10" transform="rotate(72 32 32)" />
-        <ellipse cx="32" cy="16" rx="7" ry="10" transform="rotate(144 32 32)" />
-        <ellipse cx="32" cy="16" rx="7" ry="10" transform="rotate(216 32 32)" />
-        <ellipse cx="32" cy="16" rx="7" ry="10" transform="rotate(288 32 32)" />
-      </g>
-    </svg>
-  )
-}
-
-/* ---------------------------------------------------------------- whimsical */
-
 function StarBurst() {
   return (
-    <svg viewBox="0 0 64 64" className="h-14 w-14" aria-hidden>
+    <svg viewBox="0 0 80 80" className="h-16 w-16" aria-hidden>
       <g {...stroke}>
-        <circle cx="32" cy="32" r="7" />
-        <path d="M32 4 L32 16" />
-        <path d="M32 48 L32 60" />
-        <path d="M4 32 L16 32" />
-        <path d="M48 32 L60 32" />
-        <path d="M12 12 L21 21" />
-        <path d="M43 43 L52 52" />
-        <path d="M52 12 L43 21" />
-        <path d="M21 43 L12 52" />
+        <circle cx="40" cy="40" r="9" />
+        <path d="M40 4 L40 20" />
+        <path d="M40 60 L40 76" />
+        <path d="M4 40 L20 40" />
+        <path d="M60 40 L76 40" />
+        <path d="M15 15 L26 26" />
+        <path d="M54 54 L65 65" />
+        <path d="M65 15 L54 26" />
+        <path d="M26 54 L15 65" />
       </g>
     </svg>
   )
 }
 
-function Spiral() {
+function Loops() {
   return (
-    <svg viewBox="0 0 64 64" className="h-14 w-14" aria-hidden>
+    <svg viewBox="0 0 60 110" className={lg} aria-hidden>
       <g {...stroke}>
-        <path d="M34 32 C 34 27, 27 27, 27 33 C 27 41, 37 42, 41 35 C 46 26, 36 15, 25 18 C 11 22, 8 40, 19 51 C 30 62, 52 58, 58 43" />
+        <path d="M30 6 C 12 18, 12 36, 30 34 C 47 32, 47 53, 30 57 C 13 61, 13 81, 30 85 C 41 87, 43 97, 34 104" />
+      </g>
+    </svg>
+  )
+}
+
+function Banner() {
+  return (
+    <svg viewBox="0 0 120 40" className="h-10 w-24" aria-hidden>
+      <g {...stroke}>
+        <path d="M10 8 L110 8 L100 22 L110 36 L10 36 L20 22 Z" />
+        <path d="M34 22 L88 22" strokeDasharray="2 6" />
       </g>
     </svg>
   )
@@ -349,29 +486,12 @@ function Spiral() {
 
 function SpeechBubble() {
   return (
-    <svg viewBox="0 0 92 62" className="h-14 w-24" aria-hidden>
+    <svg viewBox="0 0 120 72" className="h-14 w-24" aria-hidden>
       <g {...stroke}>
-        <path d="M14 6 L78 6 C 84 6, 88 10, 88 16 L88 38 C 88 44, 84 48, 78 48 L32 48 L16 60 L20 48 L14 48 C 8 48, 4 44, 4 38 L4 16 C 4 10, 8 6, 14 6 Z" />
-        <circle cx="30" cy="27" r="2" />
-        <circle cx="46" cy="27" r="2" />
-        <circle cx="62" cy="27" r="2" />
-      </g>
-    </svg>
-  )
-}
-
-/* --------------------------------------------------------------- typewriter */
-
-function Asterisks() {
-  return (
-    <svg viewBox="0 0 54 72" className="h-16 w-12" aria-hidden>
-      <g {...stroke}>
-        <path d="M16 6 L16 26" />
-        <path d="M7 11 L25 21" />
-        <path d="M25 11 L7 21" />
-        <path d="M38 40 L38 58" />
-        <path d="M30 44 L46 54" />
-        <path d="M46 44 L30 54" />
+        <path d="M18 8 L102 8 C 110 8, 114 12, 114 20 L114 44 C 114 52, 110 56, 102 56 L42 56 L22 70 L28 56 L18 56 C 10 56, 6 52, 6 44 L6 20 C 6 12, 10 8, 18 8 Z" />
+        <circle cx="42" cy="32" r="2.4" />
+        <circle cx="60" cy="32" r="2.4" />
+        <circle cx="78" cy="32" r="2.4" />
       </g>
     </svg>
   )
@@ -379,13 +499,13 @@ function Asterisks() {
 
 function NoteCard() {
   return (
-    <svg viewBox="0 0 92 66" className="h-16 w-24" aria-hidden>
+    <svg viewBox="0 0 120 80" className="h-14 w-24" aria-hidden>
       <g {...stroke}>
-        <path d="M6 8 L74 8 L86 22 L86 58 L6 58 Z" />
-        <path d="M74 8 L74 22 L86 22" />
-        <path d="M16 32 L70 32" strokeDasharray="3 5" />
-        <path d="M16 42 L64 42" strokeDasharray="3 5" />
-        <path d="M16 50 L48 50" strokeDasharray="3 5" />
+        <path d="M8 10 L96 10 L112 26 L112 70 L8 70 Z" />
+        <path d="M96 10 L96 26 L112 26" />
+        <path d="M20 40 L96 40" strokeDasharray="3 5" />
+        <path d="M20 50 L88 50" strokeDasharray="3 5" />
+        <path d="M20 60 L66 60" strokeDasharray="3 5" />
       </g>
     </svg>
   )
@@ -393,170 +513,178 @@ function NoteCard() {
 
 /* ========================================================================== */
 
-type Slot = {
-  className: string
-  rotate: number
-  opacity: number
-  /** Safe in a phone's corners too, rather than over the content column. */
-  phone?: boolean
+type Mark = { node: React.ReactElement; rotate: number; phone?: boolean }
+
+const mark = (node: React.ReactElement, rotate: number, phone?: boolean): Mark => ({
+  node,
+  rotate,
+  phone,
+})
+
+/**
+ * Each set is two columns, left and right, read top to bottom. Sizes are meant
+ * to alternate: a big drawing, a small one, a big one. The first and last of
+ * each column are the phone-safe ones -- they sit in the corners.
+ */
+const SETS: Record<Exclude<DoodleSet, 'none'>, { left: Mark[]; right: Mark[] }> = {
+  // Deliberately bare: two small marks a side, so the gaps are enormous.
+  minimalist: {
+    left: [mark(<Leaf />, -6, true), mark(<Dots />, 0, true)],
+    right: [mark(<TinyFlower />, 5, true), mark(<Leaf />, 8, true)],
+  },
+  cozy: {
+    left: [
+      mark(<Teacup />, -4, true),
+      mark(<Heart />, 6),
+      mark(<Daisy />, -3),
+      mark(<Sparkle />, 10),
+      mark(<Banner />, -2),
+      mark(<TinyFlower />, 7, true),
+    ],
+    right: [
+      mark(<Heart />, -8, true),
+      mark(<PottedPlant />, 4),
+      mark(<Dots />, 0),
+      mark(<Blossom />, -5),
+      mark(<Sparkle />, 12),
+      mark(<CoffeeRing />, 0, true),
+    ],
+  },
+  whimsical: {
+    left: [
+      mark(<StarBurst />, 6, true),
+      mark(<Star />, -10),
+      mark(<Loops />, 3),
+      mark(<Sparkle />, 14),
+      mark(<SpeechBubble />, -3),
+      mark(<Dots />, 0, true),
+    ],
+    right: [
+      mark(<Sparkle />, -12, true),
+      mark(<Loops />, -4),
+      mark(<Arrow />, 8),
+      mark(<StarBurst />, -6),
+      mark(<Curl />, 10),
+      mark(<Banner />, 3, true),
+    ],
+  },
+  botanical: {
+    left: [
+      mark(<Fern />, -4, true),
+      mark(<Leaf />, 8),
+      mark(<Monstera />, 5),
+      mark(<BerryTrio />, -6),
+      mark(<PottedPlant />, -3),
+      mark(<Dots />, 0, true),
+    ],
+    right: [
+      mark(<Leaf />, -9, true),
+      mark(<Wildflowers />, 4),
+      mark(<TinyFlower />, 7),
+      mark(<Fern />, 6),
+      mark(<BerryTrio />, -5),
+      mark(<Cactus />, -2, true),
+    ],
+  },
+  seaside: {
+    left: [
+      mark(<PalmFrond />, -5, true),
+      mark(<SmallShell />, 8),
+      mark(<Starfish />, -7),
+      mark(<Ripples />, 0),
+      mark(<Seaweed />, 4),
+      mark(<SmallShell />, -10, true),
+    ],
+    right: [
+      mark(<Ripples />, 0, true),
+      mark(<BigShell />, 6),
+      mark(<Dots />, 0),
+      mark(<Seaweed />, -4),
+      mark(<SmallShell />, 9),
+      mark(<Starfish />, 5, true),
+    ],
+  },
+  berry: {
+    left: [
+      mark(<BerryBranch />, -4, true),
+      mark(<Cherries />, 7),
+      mark(<Blossom />, 3),
+      mark(<BerryTrio />, -8),
+      mark(<Wildflowers />, 5),
+      mark(<Leaf />, 10, true),
+    ],
+    right: [
+      mark(<Cherries />, -9, true),
+      mark(<Daisy />, 4),
+      mark(<TinyFlower />, 6),
+      mark(<BerryBranch />, -3),
+      mark(<Heart />, 8),
+      mark(<Blossom />, -5, true),
+    ],
+  },
+  typewriter: {
+    left: [
+      mark(<NoteCard />, -3, true),
+      mark(<Asterisk />, 0),
+      mark(<CoffeeRing />, 0),
+      mark(<Dashes />, 2),
+      mark(<Paperclip />, -12),
+      mark(<Asterisk />, 0, true),
+    ],
+    right: [
+      mark(<Dashes />, -2, true),
+      mark(<Paperclip />, 9),
+      mark(<Asterisk />, 0),
+      mark(<NoteCard />, 4),
+      mark(<Dots />, 0),
+      mark(<CoffeeRing />, 0, true),
+    ],
+  },
 }
 
 /**
- * Where doodles go: both margins, top to bottom, alternating sides at close
- * intervals. A set doesn't fill these in order -- it spreads itself across the
- * whole list (see `spread` below), so even a sparse set reaches the bottom of
- * the page instead of clumping at the top.
+ * One margin. `justify-between` does the spacing, so nothing can overlap and a
+ * short set simply spreads further apart.
  */
-const SLOTS: Slot[] = [
-  { className: 'left-2 top-2', rotate: -6, opacity: 0.4 },
-  { className: 'right-2 top-[7%]', rotate: 5, opacity: 0.38, phone: true },
-  { className: 'left-5 top-[17%]', rotate: 7, opacity: 0.34 },
-  { className: 'right-5 top-[24%]', rotate: -8, opacity: 0.36 },
-  { className: 'left-1 top-[34%]', rotate: -3, opacity: 0.38 },
-  { className: 'right-1 top-[41%]', rotate: 9, opacity: 0.34 },
-  { className: 'left-4 top-[51%]', rotate: 6, opacity: 0.36 },
-  { className: 'right-4 top-[58%]', rotate: -5, opacity: 0.38 },
-  { className: 'left-2 top-[68%]', rotate: -9, opacity: 0.34 },
-  { className: 'right-2 top-[75%]', rotate: 4, opacity: 0.36 },
-  { className: 'left-2 bottom-4 sm:left-5 sm:bottom-6', rotate: 4, opacity: 0.36, phone: true },
-  { className: 'right-2 bottom-3 sm:right-3 sm:bottom-5', rotate: -4, opacity: 0.36, phone: true },
-]
-
-/**
- * Spread n doodles evenly over the slots, rather than filling the first n. A
- * set of four then runs top to bottom of the page instead of sitting in a
- * huddle at the top.
- */
-function spread(count: number): Slot[] {
-  // Never reuse a slot: two doodles in one place is the thing this avoids.
-  if (count >= SLOTS.length) return SLOTS
-  if (count === 1) return [SLOTS[0]]
-  const step = (SLOTS.length - 1) / (count - 1)
-  return Array.from({ length: count }, (_, i) => SLOTS[Math.round(i * step)])
-}
-
-/**
- * One set per preset, so choosing Botanical gets botanical margins. The names
- * match `PRESETS` in theme.ts on purpose -- a set and a look are chosen
- * separately, but they are the same vocabulary.
- */
-const SETS: Record<Exclude<DoodleSet, 'none'>, React.ReactElement[]> = {
-  // The quiet one: a few marks, and a lot of white paper left.
-  minimalist: [<Sprig />, <DottedFlourish />, <Fern />, <Sprig />, <DottedFlourish />, <Sprig />],
-  cozy: [
-    <CoffeeRing />,
-    <Heart />,
-    <Banner />,
-    <Sparkles />,
-    <Daisy />,
-    <PottedPlant />,
-    <Paperclip />,
-    <DottedFlourish />,
-    <Heart />,
-    <Sparkles />,
-    <CoffeeRing />,
-    <Daisy />,
-  ],
-  whimsical: [
-    <StarBurst />,
-    <Sparkles />,
-    <Banner />,
-    <Spiral />,
-    <SpeechBubble />,
-    <CurlyArrow />,
-    <DottedFlourish />,
-    <StarBurst />,
-    <Sparkles />,
-    <Spiral />,
-    <CurlyArrow />,
-    <SpeechBubble />,
-  ],
-  botanical: [
-    <Fern />,
-    <Cactus />,
-    <MonsteraLeaf />,
-    <LeafVine />,
-    <Sprig />,
-    <Daisy />,
-    <Berries />,
-    <PottedPlant />,
-    <Fern />,
-    <LeafVine />,
-    <MonsteraLeaf />,
-    <Berries />,
-  ],
-  seaside: [
-    <Shell />,
-    <Starfish />,
-    <Waves />,
-    <PalmLeaf />,
-    <Shell />,
-    <Waves />,
-    <Starfish />,
-    <PalmLeaf />,
-    <Waves />,
-    <Shell />,
-    <Starfish />,
-    <PalmLeaf />,
-  ],
-  berry: [
-    <Cherries />,
-    <Berries />,
-    <Blossom />,
-    <LeafVine />,
-    <Heart />,
-    <Daisy />,
-    <Cherries />,
-    <Blossom />,
-    <Berries />,
-    <LeafVine />,
-    <Blossom />,
-    <Cherries />,
-  ],
-  typewriter: [
-    <Asterisks />,
-    <Paperclip />,
-    <NoteCard />,
-    <CoffeeRing />,
-    <DottedFlourish />,
-    <Asterisks />,
-    <NoteCard />,
-    <Paperclip />,
-    <DottedFlourish />,
-    <CoffeeRing />,
-    <Asterisks />,
-    <NoteCard />,
-  ],
-}
-
-export default function Doodles({ set, onPhone }: { set: DoodleSet; onPhone: boolean }) {
-  if (set === 'none') return null
-  // A set never draws more than there are slots for.
-  const drawings = (SETS[set] ?? []).slice(0, SLOTS.length)
-  const slots = spread(drawings.length)
-
+function Margin({
+  side,
+  marks,
+  onPhone,
+}: {
+  side: 'left' | 'right'
+  marks: Mark[]
+  onPhone: boolean
+}) {
   return (
     <div
-      aria-hidden
-      className={`pointer-events-none fixed inset-0 z-0 select-none text-ink-faint ${
-        onPhone ? 'block opacity-60 xl:opacity-100' : 'hidden xl:block'
-      }`}
+      className={`absolute inset-y-0 ${side === 'left' ? 'left-0' : 'right-0'} w-24
+        flex-col items-center justify-between py-6 ${onPhone ? 'flex' : 'hidden xl:flex'}`}
     >
-      {drawings.map((node, i) => {
-        const slot = slots[i]
-        return (
-          <div
-            key={i}
-            className={`absolute ${slot.className} ${
-              onPhone && !slot.phone ? 'hidden xl:block' : ''
-            }`}
-            style={{ transform: `rotate(${slot.rotate}deg)`, opacity: slot.opacity }}
-          >
-            {node}
-          </div>
-        )
-      })}
+      {marks.map((m, i) => (
+        <div
+          key={i}
+          className={onPhone && !m.phone ? 'hidden xl:block' : undefined}
+          style={{ transform: `rotate(${m.rotate}deg)` }}
+        >
+          {m.node}
+        </div>
+      ))}
     </div>
   )
 }
 
+export default function Doodles({ set, onPhone }: { set: DoodleSet; onPhone: boolean }) {
+  if (set === 'none') return null
+  const columns = SETS[set]
+  if (!columns) return null
+
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none fixed inset-0 z-0 select-none text-ink-faint opacity-40"
+    >
+      <Margin side="left" marks={columns.left} onPhone={onPhone} />
+      <Margin side="right" marks={columns.right} onPhone={onPhone} />
+    </div>
+  )
+}

@@ -427,24 +427,33 @@ const S = {
   'edges.clean': ['Straight', 'Retas'],
   'edges.clean.hint': ['Plain boxes', 'Caixas simples'],
 
-  'doodles.minimalist.hint': ['A sprig and a flourish, barely there', 'Um raminho e um floreio, quase nada'],
+  'doodles.minimalist.hint': [
+    'A leaf and three dots, barely there',
+    'Uma folha e três pontinhos, quase nada',
+  ],
   'doodles.cozy.hint': [
-    'Coffee ring, heart, banner, daisy',
-    'Marca de xícara, coração, faixa, margarida',
+    'Teacup, hearts, daisies, a banner',
+    'Xícara, corações, margaridas, uma faixa',
   ],
   'doodles.whimsical.hint': [
-    'Stars, spirals, arrows, a speech bubble',
-    'Estrelas, espirais, setas, um balão de fala',
+    'Starbursts, loops, arrows, a speech bubble',
+    'Estrelas, voltas, setas, um balão de fala',
   ],
   'doodles.botanical.hint': [
-    'Ferns, monstera, daisies, cactus',
-    'Samambaia, costela-de-adão, margaridas, cacto',
+    'Ferns, monstera, wildflowers, cactus',
+    'Samambaia, costela-de-adão, flores do campo, cacto',
   ],
-  'doodles.seaside.hint': ['Shells, waves, starfish, palm', 'Conchas, ondas, estrela-do-mar, palmeira'],
-  'doodles.berry.hint': ['Cherries, berries, blossom, vine', 'Cerejas, frutinhas, flor, trepadeira'],
+  'doodles.seaside.hint': [
+    'Shells, ripples, starfish, seaweed',
+    'Conchas, ondinhas, estrela-do-mar, alga',
+  ],
+  'doodles.berry.hint': [
+    'Cherries, berry branches, blossom',
+    'Cerejas, ramos de frutinhas, flores',
+  ],
   'doodles.typewriter.hint': [
-    'Asterisks, paperclip, note card, coffee ring',
-    'Asteriscos, clipe, ficha, marca de xícara',
+    'Asterisks, paperclips, note cards, coffee ring',
+    'Asteriscos, clipes, fichas, marca de xícara',
   ],
   'doodles.none': ['None', 'Nenhum'],
   'doodles.none.hint': ['Clean margins', 'Margens limpas'],

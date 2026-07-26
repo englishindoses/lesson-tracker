@@ -173,9 +173,12 @@ immediately rather than at the next sign-in.
   the same hues, since pastels and neons are unreadable as text.
 
 - Margin doodles live in `Doodles.tsx`: stroke-only SVG using `currentColor`, so
-  one set works for every palette and both modes. Two sets, plants and pen
-  marks, chosen in Settings. Wide screens only unless she turns on the phone
-  option, which shows just the few marked `phone` — the corner ones.
+  one set works for every palette and both modes. One set per preset, chosen in
+  Settings, each a left and a right column of small and large drawings.
+  Overlap is prevented by construction — a margin is a full-height flex column
+  with `justify-between`, so the browser does the spacing and a short set just
+  spreads further apart. Wide screens only unless she turns on the phone
+  option, which shows just the marks flagged `phone` — the corner ones.
 
 - Fonts are **self-hosted** in `src/fonts/`, not linked from Google, so the app
   keeps its typography offline. Regenerate with `node scripts/fetch-fonts.mjs`;
