@@ -1,22 +1,39 @@
 # Font licences
 
 The fonts in `src/fonts/` are bundled with the app so it keeps its typography
-offline. All are freely redistributable. They were downloaded from Google Fonts
-by `scripts/fetch-fonts.mjs`, unmodified.
+offline. They were downloaded unmodified from Google Fonts by
+`scripts/fetch-fonts.mjs`.
 
-| Font | Used by | Licence |
+**All seven are under the SIL Open Font License 1.1.** Verified against the
+`google/fonts` repository, where a font's licence is determined by the directory
+it lives in; all seven are under `ofl/`. Full text for each is in
+`src/fonts/licences/`, downloaded by `scripts/fetch-font-licences.mjs`.
+
+| Font | Used by | Copyright |
 |---|---|---|
-| Quicksand | Minimalist theme — headings | SIL Open Font License 1.1 |
-| Inter | Minimalist theme — body | SIL Open Font License 1.1 |
-| Sacramento | Cozy theme — headings | SIL Open Font License 1.1 |
-| Amatic SC | Cozy theme — accents, Whimsical theme — headings | SIL Open Font License 1.1 |
-| Caveat | Cozy theme — body | SIL Open Font License 1.1 |
-| Indie Flower | Whimsical theme — accents | SIL Open Font License 1.1 |
-| Patrick Hand | Whimsical theme — body | SIL Open Font License 1.1 |
+| Quicksand | Minimalist — headings | The Quicksand Project Authors. Reserved Font Name: Quicksand |
+| Inter | Minimalist — body | The Inter Project Authors |
+| Sacramento | Cozy — headings | Brian J. Bonislawsky / Astigmatic. Reserved Font Name: Sacramento |
+| Amatic SC | Cozy — accents; Whimsical — headings | The Amatic SC Project Authors |
+| Caveat | Cozy — body | The Caveat Project Authors |
+| Indie Flower | Whimsical — accents | The Indie Flower Authors (Kimberly Geswein) |
+| Patrick Hand | Whimsical — body | Patrick Wagesreiter |
 
-The SIL Open Font License permits use, study, modification and redistribution,
-including in a commercial product, provided the fonts are not sold on their own
-and any modified versions are released under the same licence. Full text:
-https://openfontlicense.org
+## What the OFL allows
 
-To re-download them: `node scripts/fetch-fonts.mjs`
+- Bundling the fonts in an application, **including one you sell**. There is no
+  fee, no attribution requirement in the user interface, and no obligation to
+  open-source the app itself.
+- Redistribution, as long as the licence text goes with the fonts — which is why
+  `src/fonts/licences/` exists and should not be deleted.
+
+## What it does not allow
+
+- Selling the fonts on their own, as fonts.
+- Releasing a **modified** version of Quicksand or Sacramento under those names.
+  Both carry a Reserved Font Name, so a modified copy would need renaming. This
+  only matters if the font files themselves are edited; using them as they are
+  is unaffected.
+
+To re-download: `node scripts/fetch-fonts.mjs` and
+`node scripts/fetch-font-licences.mjs`.
