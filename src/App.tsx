@@ -71,7 +71,9 @@ export default function App() {
         className="no-print sticky top-0 z-30 border-b border-rule bg-paper"
       >
         <div className="mx-auto flex max-w-[1600px] items-end gap-2 px-3 pt-2 sm:gap-3 sm:px-6">
-          <nav className="flex items-end gap-1">
+          {/* min-w-0 so a long title gives way first: everything to its right
+              is fixed-width and must stay reachable on a narrow phone. */}
+          <nav className="flex min-w-0 items-end gap-1">
             {(
               [
                 ['classes', t('app.title')],
@@ -85,7 +87,7 @@ export default function App() {
                   setTab(value)
                   setOpenClassId(null)
                 }}
-                className="tab style-hand text-base sm:text-lg"
+                className="tab style-hand truncate text-base sm:text-lg"
               >
                 {label}
               </button>
@@ -117,7 +119,7 @@ export default function App() {
               setTab('settings')
               setOpenClassId(null)
             }}
-            className="tab text-lg leading-none"
+            className="tab shrink-0 text-lg leading-none"
           >
             <span aria-hidden>⚙</span>
           </button>
