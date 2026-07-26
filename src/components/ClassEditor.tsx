@@ -16,7 +16,9 @@ export default function ClassEditor({
 }) {
   const students = useStore((s) => s.students)
   const roster = useStore((s) => s.class_students)
+  const entries = useStore((s) => s.entries)
   const upsertClass = useStore((s) => s.upsertClass)
+  const upsertEntries = useStore((s) => s.upsertEntries)
   const deleteClass = useStore((s) => s.deleteClass)
   const addStudentToClass = useStore((s) => s.addStudentToClass)
   const removeStudentFromClass = useStore((s) => s.removeStudentFromClass)
@@ -35,6 +37,36 @@ export default function ClassEditor({
     default_duration_min: durationDraft ?? 60,
     updated_at: nowISO(),
   })
+
+  /**
+   * A price change applies to future lessons only.
+   *
+   * Lessons that were charging the class price carry no amount of their own, so
+   * they'd silently re-price themselves. Before saving a new price, write the
+   * old one onto each of them, freezing what they were worth at the time.
+   */
+  function freezeExistingPrices(next: Class) {
+    const previous = cls.price_per_lesson
+    const changed =
+      next.pricing_mode === 'per_lesson' &&
+      previous != null &&
+      next.price_per_lesson !== previous
+
+    if (!existing || !changed) return
+
+    const stamped = entries
+      .filter((e) => e.class_id === cls.id && e.kind === 'lesson' && e.amount == null)
+      .map((e) => ({ ...e, amount: previous, updated_at: nowISO() }))
+
+    if (stamped.length) upsertEntries(stamped)
+  }
+
+  function save() {
+    const next = toSave()
+    freezeExistingPrices(next)
+    upsertClass(next)
+    onClose()
+  }
 
   const enrolled = useMemo(
     () =>
@@ -100,10 +132,7 @@ export default function ClassEditor({
           <button
             className="btn btn-primary"
             disabled={!draft.name.trim()}
-            onClick={() => {
-              upsertClass(toSave())
-              onClose()
-            }}
+            onClick={save}
           >
             Save
           </button>
@@ -170,15 +199,23 @@ export default function ClassEditor({
           </div>
 
           {draft.pricing_mode === 'per_lesson' ? (
-            <Field label="Price per lesson (R$)">
-              <NumberField
-                className="field tabular"
-                min={0}
-                step="0.01"
-                value={draft.price_per_lesson}
-                onChange={(v) => set('price_per_lesson', v)}
-              />
-            </Field>
+            <>
+              <Field label="Price per lesson (R$)">
+                <NumberField
+                  className="field tabular"
+                  min={0}
+                  step="0.01"
+                  value={draft.price_per_lesson}
+                  onChange={(v) => set('price_per_lesson', v)}
+                />
+              </Field>
+              {existing && (
+                <p className="mt-2 text-xs text-ink-faint">
+                  Changing this only affects lessons you add from now on. Lessons already
+                  in the table keep the price they were charged at.
+                </p>
+              )}
+            </>
           ) : (
             <>
               <Field label="Monthly price (R$)">

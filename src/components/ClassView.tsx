@@ -185,7 +185,9 @@ export default function ClassView({
       kind: 'lesson',
       entry_date: dateISO,
       duration_min: cls!.default_duration_min,
-      presence: 'present',
+      // Left blank on purpose: presence is something you record after the
+      // lesson, not a guess made when you schedule it.
+      presence: null,
     }
   }
 
@@ -243,7 +245,7 @@ export default function ClassView({
             entry_date: date,
             due_date: null,
             duration_min: cls!.default_duration_min,
-            presence: 'present',
+            presence: null,
           }
         : {
             kind: 'payment',
@@ -266,7 +268,7 @@ export default function ClassView({
         ...entry,
         id: newId(),
         entry_date: addDays(entry.entry_date, 7 * i),
-        presence: 'present',
+        presence: null,
         not_charged: false,
         paid: false,
         paid_date: null,
