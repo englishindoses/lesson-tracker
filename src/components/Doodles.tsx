@@ -914,6 +914,10 @@ const SETS: Record<Exclude<DoodleSet, 'none'>, { left: Mark[]; right: Mark[] }> 
 /**
  * One margin. `justify-between` does the spacing, so nothing can overlap and a
  * short set simply spreads further apart.
+ *
+ * The column stops short of both ends of the screen on purpose: the sticky
+ * header covers the top and the totals bar covers the bottom, and a sparse set
+ * puts its only two marks exactly there -- where they were invisible.
  */
 function Margin({
   side,
@@ -926,8 +930,12 @@ function Margin({
 }) {
   return (
     <div
-      className={`absolute inset-y-0 ${side === 'left' ? 'left-0' : 'right-0'} w-24
-        flex-col items-center justify-between py-6 ${onPhone ? 'flex' : 'hidden xl:flex'}`}
+      // Inline rather than a Tailwind arbitrary value: the class doesn't
+      // survive the scanner inside a template literal, and silently not
+      // compiling is worse than being verbose.
+      style={{ top: 'calc(var(--header-h, 3.25rem) + 1rem)', bottom: '5.5rem' }}
+      className={`absolute ${side === 'left' ? 'left-0' : 'right-0'} w-24 flex-col
+        items-center justify-between ${onPhone ? 'flex' : 'hidden xl:flex'}`}
     >
       {marks.map((m, i) => (
         <div
