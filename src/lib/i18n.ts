@@ -452,8 +452,8 @@ const S = {
     'Cerejas, ramos de frutinhas, flores',
   ],
   'doodles.typewriter.hint': [
-    'Asterisks, paperclips, note cards, coffee ring',
-    'Asteriscos, clipes, fichas, marca de xícara',
+    'Asterisks, paperclips, note cards, dashes',
+    'Asteriscos, clipes, fichas, tracinhos',
   ],
   'doodles.none': ['None', 'Nenhum'],
   'doodles.none.hint': ['Clean margins', 'Margens limpas'],

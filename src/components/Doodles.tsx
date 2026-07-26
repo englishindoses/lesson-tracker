@@ -435,16 +435,6 @@ function Teacup() {
   )
 }
 
-function CoffeeRing() {
-  return (
-    <svg viewBox="0 0 80 80" className="h-16 w-16" aria-hidden>
-      <g {...stroke} strokeWidth={2.4}>
-        <path d="M40 8 C 58 8, 72 22, 72 40 C 72 58, 58 72, 40 72 C 22 72, 8 58, 8 40 C 8 24, 20 10, 36 8" />
-      </g>
-    </svg>
-  )
-}
-
 function StarBurst() {
   return (
     <svg viewBox="0 0 80 80" className="h-16 w-16" aria-hidden>
@@ -547,7 +537,7 @@ const SETS: Record<Exclude<DoodleSet, 'none'>, { left: Mark[]; right: Mark[] }> 
       mark(<Dots />, 0),
       mark(<Blossom />, -5),
       mark(<Sparkle />, 12),
-      mark(<CoffeeRing />, 0, true),
+      mark(<Cherries />, -6, true),
     ],
   },
   whimsical: {
@@ -626,7 +616,7 @@ const SETS: Record<Exclude<DoodleSet, 'none'>, { left: Mark[]; right: Mark[] }> 
     left: [
       mark(<NoteCard />, -3, true),
       mark(<Asterisk />, 0),
-      mark(<CoffeeRing />, 0),
+      mark(<Dots />, 0),
       mark(<Dashes />, 2),
       mark(<Paperclip />, -12),
       mark(<Asterisk />, 0, true),
@@ -637,7 +627,7 @@ const SETS: Record<Exclude<DoodleSet, 'none'>, { left: Mark[]; right: Mark[] }> 
       mark(<Asterisk />, 0),
       mark(<NoteCard />, 4),
       mark(<Dots />, 0),
-      mark(<CoffeeRing />, 0, true),
+      mark(<Dashes />, 3, true),
     ],
   },
 }
