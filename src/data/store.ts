@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import { supabase, isConfigured } from '../lib/supabase'
+import { supabase, isConfigured, bindStayToUser, unbindStay } from '../lib/supabase'
+import * as prefs from '../lib/prefs'
 import type { Class, ClassStudent, Entry, Student } from '../lib/types'
 import { getLang, translate } from '../lib/i18n'
 
@@ -127,8 +128,15 @@ export const useStore = create<StoreState>((set, get) => {
       }
 
       const { data } = await supabase.auth.getSession()
+      const startId = data.session?.user.id ?? null
+      // Before authReady, so the first paint after opening is already wearing
+      // the right look rather than correcting itself a frame later.
+      if (startId) {
+        bindStayToUser(startId)
+        void prefs.signIn(startId)
+      }
       set({
-        userId: data.session?.user.id ?? null,
+        userId: startId,
         email: data.session?.user.email ?? null,
         authReady: true,
       })
@@ -137,15 +145,25 @@ export const useStore = create<StoreState>((set, get) => {
         const nextId = session?.user.id ?? null
         const changed = nextId !== get().userId
         set({ userId: nextId, email: session?.user.email ?? null })
-        if (nextId && changed) void get().pull()
+        if (nextId && changed) {
+          bindStayToUser(nextId)
+          void prefs.signIn(nextId)
+          void get().pull()
+        }
         if (!nextId) {
           // Signing out must not leave another account's rows on the device.
           localStorage.removeItem(CACHE_KEY)
           set(emptySnapshot())
+          // Nor its settings: the next person gets the default look and English.
+          unbindStay()
+          prefs.signOut()
         }
       })
 
-      window.addEventListener('online', () => void get().flush())
+      window.addEventListener('online', () => {
+        void get().flush()
+        prefs.flush()
+      })
       window.addEventListener('offline', () => set({ sync: 'offline' }))
       window.addEventListener('focus', () => {
         if (get().userId && navigator.onLine) void get().pull()

@@ -1,8 +1,8 @@
 <!doctype html>
 <html
   lang="en"
-  data-palette="sage"
-  data-fonts="quicksand"
+  data-palette="neon"
+  data-fonts="sketch"
   data-paper="dots"
   data-edges="hand"
 >
@@ -18,30 +18,43 @@
       // Applied before first paint so the app never flashes the wrong theme.
       // Deliberately dumb: it trusts what it reads and lets the app correct it
       // a moment later, rather than repeating the validation from theme.ts.
+      //
+      // Settings belong to the account, but the account isn't known until auth
+      // resolves -- far too late to paint. So we use the last account signed in
+      // on this device as the guess, and fall back to the default look, which
+      // is also what the sign-in page is meant to wear.
       try {
         var root = document.documentElement
-        var t = JSON.parse(localStorage.getItem('lt.theme') || 'null')
+        // Keep in step with the whimsical preset in theme.ts.
+        var DEFAULT = { palette: 'neon', fonts: 'sketch', paper: 'dots', edges: 'hand' }
+        var p = {}
+        var uid = localStorage.getItem('lt.lastUser')
+        if (uid) {
+          var mirror = JSON.parse(localStorage.getItem('lt.prefs.' + uid) || 'null')
+          p = (mirror && mirror.data) || {}
+        }
+        var t = p.theme
         if (!t) {
           // Older versions stored one theme name. Map it to the four choices.
-          var old = localStorage.getItem('lt.style')
           var map = {
             cozy: { palette: 'peach', fonts: 'script', paper: 'dots', edges: 'hand' },
             whimsical: { palette: 'neon', fonts: 'sketch', paper: 'dots', edges: 'hand' },
             modern: { palette: 'slate', fonts: 'system', paper: 'plain', edges: 'clean' },
           }
-          t = map[old]
+          t = map[p.style]
         }
-        if (t) {
-          if (t.palette) root.dataset.palette = t.palette
-          if (t.fonts) root.dataset.fonts = t.fonts
-          if (t.paper) root.dataset.paper = t.paper
-          if (t.edges) root.dataset.edges = t.edges
-        }
-        var m = localStorage.getItem('lt.mode') || 'system'
+        if (!t) t = DEFAULT
+        root.dataset.palette = t.palette || DEFAULT.palette
+        root.dataset.fonts = t.fonts || DEFAULT.fonts
+        root.dataset.paper = t.paper || DEFAULT.paper
+        root.dataset.edges = t.edges || DEFAULT.edges
+
+        var m = p.mode || 'system'
         var dark =
           m === 'dark' ||
           (m === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
         root.dataset.mode = dark ? 'dark' : 'light'
+        root.lang = p.lang === 'pt' ? 'pt-BR' : 'en'
       } catch (e) {}
     </script>
   </head>

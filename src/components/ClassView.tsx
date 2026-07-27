@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useSyncExternalStore } from 'react'
 import { newId, nowISO, useStore } from '../data/store'
+import * as prefs from '../lib/prefs'
 import { PRESENCE_META, PRESENCE_ORDER, type Entry, type Presence } from '../lib/types'
 import { buildLedger, sortEntries, totalsFor, type Line } from '../lib/ledger'
 import {
@@ -35,6 +36,10 @@ type PaidFilter = 'all' | 'paid' | 'unpaid'
 type KindFilter = 'all' | 'lesson' | 'payment'
 type ViewMode = 'list' | 'calendar'
 
+const readView = (): ViewMode => (prefs.get().classView === 'calendar' ? 'calendar' : 'list')
+/** Pinned unless she has said otherwise. */
+const readPinned = () => prefs.get().pinFilters !== false
+
 export default function ClassView({
   classId,
   onBack,
@@ -60,11 +65,10 @@ export default function ClassView({
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [repeating, setRepeating] = useState<Entry | null>(null)
   const [openEntryId, setOpenEntryId] = useState<string | null>(null)
-  const [view, setView] = useState<ViewMode>(
-    () => (localStorage.getItem('lt.classView') as ViewMode) || 'list',
-  )
-  // Pinning is a preference, so it survives reloads and applies to every class.
-  const [pinned, setPinned] = useState(() => localStorage.getItem('lt.pinFilters') !== 'off')
+  // Both of these are preferences: they survive reloads, apply to every class,
+  // and follow the account rather than the machine.
+  const view = useSyncExternalStore(prefs.subscribe, readView, readView)
+  const pinned = useSyncExternalStore(prefs.subscribe, readPinned, readPinned)
 
   const classEntries = useMemo(
     () => allEntries.filter((e) => e.class_id === classId),
@@ -294,10 +298,7 @@ export default function ClassView({
       return next
     })
 
-  const setViewMode = (next: ViewMode) => {
-    setView(next)
-    localStorage.setItem('lt.classView', next)
-  }
+  const setViewMode = (next: ViewMode) => prefs.patch({ classView: next })
 
   const filtersActive =
     (view === 'list' && month !== 'all') ||
@@ -470,11 +471,7 @@ export default function ClassView({
             aria-pressed={pinned}
             aria-label={pinned ? t('classView.unpin') : t('classView.pin')}
             title={pinned ? t('classView.pinned') : t('classView.pin')}
-            onClick={() => {
-              const next = !pinned
-              setPinned(next)
-              localStorage.setItem('lt.pinFilters', next ? 'on' : 'off')
-            }}
+            onClick={() => prefs.patch({ pinFilters: !pinned })}
           >
             {pinned ? '📌' : '📍'}
           </button>

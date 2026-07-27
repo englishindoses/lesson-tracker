@@ -1,4 +1,5 @@
 import { useCallback, useSyncExternalStore } from 'react'
+import * as prefs from './prefs'
 
 /**
  * English and Brazilian Portuguese, side by side.
@@ -13,8 +14,6 @@ import { useCallback, useSyncExternalStore } from 'react'
  */
 
 export type Lang = 'en' | 'pt'
-
-const LANG_KEY = 'lt.lang'
 
 const S = {
   // ------------------------------------------------------------------ common
@@ -598,25 +597,46 @@ export function translate(
 
 /* ----------------------------------------------------------- the live setting */
 
-let current: Lang =
-  (typeof localStorage !== 'undefined' && localStorage.getItem(LANG_KEY)) === 'pt' ? 'pt' : 'en'
-const listeners = new Set<() => void>()
+/**
+ * The language belongs to the account, so it comes from the preferences blob.
+ * Signed out the blob is empty and this is English -- the sign-in page always
+ * opens in English, and the toggle there is a look at the page rather than a
+ * setting, so it lasts only until the tab is reloaded.
+ */
+let signedOutChoice: Lang | null = null
 
 function applyLang(lang: Lang) {
   document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en'
 }
-applyLang(current)
 
 export function getLang(): Lang {
-  return current
+  const stored = prefs.get().lang
+  if (stored === 'pt' || stored === 'en') return stored
+  return signedOutChoice ?? 'en'
 }
 
-export function setLang(lang: Lang) {
-  if (lang === current) return
-  current = lang
-  localStorage.setItem(LANG_KEY, lang)
-  applyLang(lang)
+const listeners = new Set<() => void>()
+
+function announce() {
+  // Once there is an account to hold the choice, the signed-out one is spent.
+  if (prefs.isSignedIn()) signedOutChoice = null
+  applyLang(getLang())
   for (const fn of listeners) fn()
+}
+
+// Signing in or out replaces the whole blob, and the language goes with it.
+prefs.subscribe(announce)
+applyLang(getLang())
+
+export function setLang(lang: Lang) {
+  if (lang === getLang()) return
+  // Signed out there is nowhere to keep it, and nowhere is the right answer:
+  // the next visitor to this device gets English again.
+  if (prefs.isSignedIn()) prefs.patch({ lang })
+  else {
+    signedOutChoice = lang
+    announce()
+  }
 }
 
 function subscribe(fn: () => void) {

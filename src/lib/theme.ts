@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useSyncExternalStore } from 'react'
 import type { TKey } from './i18n'
+import * as prefs from './prefs'
 
 /**
  * The look is four independent choices rather than one theme name, so a palette
@@ -199,12 +200,14 @@ export const PRESETS: { value: string; label: TKey; hint: TKey; theme: Theme }[]
   },
 ]
 
-const THEME_KEY = 'lt.theme'
-const MODE_KEY = 'lt.mode'
-/** Written by versions that had one theme name instead of four choices. */
-const OLD_STYLE_KEY = 'lt.style'
-
-const DEFAULT_THEME = PRESETS[0].theme
+/**
+ * The look signed-out visitors get, and the fallback for any field that is
+ * missing or unrecognised. Whimsical rather than the first preset: the sign-in
+ * page is the one page with nothing on it, so it may as well be the liveliest.
+ * index.html hardcodes the same four choices to paint before this file loads --
+ * keep the two in step.
+ */
+const DEFAULT_THEME = PRESETS.find((p) => p.value === 'whimsical')!.theme
 
 const OLD_STYLES: Record<string, string> = {
   minimalist: 'minimalist',
@@ -238,15 +241,16 @@ function clean(raw: unknown): Theme {
 }
 
 export function readTheme(): Theme {
-  try {
-    const stored = localStorage.getItem(THEME_KEY)
-    if (stored) return clean(JSON.parse(stored))
-  } catch {
-    // Unreadable JSON is the same as none.
-  }
-  const old = localStorage.getItem(OLD_STYLE_KEY)
-  const preset = old && PRESETS.find((p) => p.value === OLD_STYLES[old])
+  const stored = prefs.get()
+  if (stored.theme) return clean(stored.theme)
+  // A device last used before the look became four separate choices.
+  const preset = PRESETS.find((p) => p.value === OLD_STYLES[stored.style as string])
   return preset ? preset.theme : DEFAULT_THEME
+}
+
+function readMode(): ModeSetting {
+  const m = prefs.get().mode
+  return m === 'light' || m === 'dark' || m === 'system' ? m : 'system'
 }
 
 /** The preset this theme matches exactly, if any -- so Settings can tick one. */
@@ -266,11 +270,26 @@ function applyMode(mode: ModeSetting) {
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme.trim())
 }
 
+/**
+ * The theme comes from the preferences blob, which changes both when she picks
+ * something and when another device's choice arrives -- so it is an external
+ * store rather than component state. Reading through a cache keeps the
+ * snapshot referentially stable, which useSyncExternalStore requires.
+ */
+let themeCache: Theme = readTheme()
+let themeCacheFrom: unknown = prefs.get()
+function themeSnapshot(): Theme {
+  const source = prefs.get()
+  if (source !== themeCacheFrom) {
+    themeCacheFrom = source
+    themeCache = readTheme()
+  }
+  return themeCache
+}
+
 export function useTheme() {
-  const [theme, setThemeState] = useState<Theme>(readTheme)
-  const [mode, setModeState] = useState<ModeSetting>(
-    () => (localStorage.getItem(MODE_KEY) as ModeSetting) || 'system',
-  )
+  const theme = useSyncExternalStore(prefs.subscribe, themeSnapshot, themeSnapshot)
+  const mode = useSyncExternalStore(prefs.subscribe, readMode, readMode)
 
   useEffect(() => {
     const root = document.documentElement
@@ -278,7 +297,6 @@ export function useTheme() {
     root.dataset.fonts = theme.fonts
     root.dataset.paper = theme.paper
     root.dataset.edges = theme.edges
-    localStorage.setItem(THEME_KEY, JSON.stringify(theme))
     applyMode(mode)
   }, [theme, mode])
 
@@ -292,12 +310,11 @@ export function useTheme() {
 
   /** Change one choice without disturbing the others. */
   const setTheme = useCallback((patch: Partial<Theme>) => {
-    setThemeState((prev) => ({ ...prev, ...patch }))
+    prefs.patch({ theme: { ...readTheme(), ...patch } })
   }, [])
 
   const setMode = useCallback((m: ModeSetting) => {
-    setModeState(m)
-    localStorage.setItem(MODE_KEY, m)
+    prefs.patch({ mode: m })
   }, [])
 
   return { theme, mode, setTheme, setMode }

@@ -155,6 +155,25 @@ end $$;
 
 
 -- ---------------------------------------------------------------------------
+-- Preferences -- the look, the language, and the two view switches.
+--
+-- Settings belong to the account, not to the machine: signing in on a new
+-- phone should bring your own palette with you, and signing in as someone else
+-- on a shared laptop must not hand them your settings.
+--
+-- One jsonb blob rather than a column each. Nothing queries inside it, it is
+-- read and written whole, and a new choice of lettering shouldn't need a
+-- migration. "Stay signed in" is deliberately NOT here -- how much you trust
+-- the machine you are sitting at is a fact about that machine.
+-- ---------------------------------------------------------------------------
+create table if not exists preferences (
+  user_id    uuid primary key references auth.users (id) on delete cascade,
+  data       jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+
+
+-- ---------------------------------------------------------------------------
 -- Row Level Security
 --
 -- This is what actually protects the data. The anon key shipped in the browser
@@ -164,11 +183,12 @@ alter table students       enable row level security;
 alter table classes        enable row level security;
 alter table class_students enable row level security;
 alter table entries        enable row level security;
+alter table preferences    enable row level security;
 
 do $$
 declare t text;
 begin
-  foreach t in array array['students', 'classes', 'class_students', 'entries'] loop
+  foreach t in array array['students', 'classes', 'class_students', 'entries', 'preferences'] loop
     execute format('drop policy if exists "own rows" on %I', t);
     execute format(
       'create policy "own rows" on %I

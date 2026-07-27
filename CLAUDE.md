@@ -146,6 +146,55 @@ theme menu or ⋯ menu any more.
 and `sessionStorage` (`src/lib/supabase.ts`), so switching it off takes effect
 immediately rather than at the next sign-in.
 
+It is also the **one setting that does not follow the account**. How much you
+trust the machine you are sitting at is a fact about that machine, and two
+people sharing a laptop can reasonably disagree — so it is stored per device
+*and* per account, under `lt.stayLoggedIn.<userId>`. The session token is
+written before auth resolves, so `bindStayToUser` moves it to `sessionStorage`
+a moment later if that account had asked not to stay signed in.
+
+## Settings belong to the account
+
+Everything else personal — the six look choices, light/dark, the language, the
+list/calendar switch and the pinned filter bar — lives in a `preferences` row
+in Supabase and syncs across devices. `src/lib/prefs.ts` owns it.
+
+The rules this was built to satisfy:
+
+- Sign in on a new phone and your own palette comes with you.
+- Sign in as someone else on the same laptop and they get **none** of your
+  settings.
+- **Signed out there are no settings at all.** The sign-in page is therefore
+  always **Whimsical** and always **English**. The EN | PT toggle still works
+  there, but it is a look at the page rather than a setting: it is held in
+  memory and gone on reload.
+
+`prefs.ts` moves an untyped jsonb blob between the browser and the server and
+deliberately knows nothing about what a palette or a language *is* — `theme.ts`
+and `i18n.ts` own the meaning, and both fall back per field, so an empty blob
+simply means "all defaults". One blob rather than a column each: nothing
+queries inside it, and a new choice of lettering shouldn't need a migration.
+
+Changes apply locally at once and push after a short debounce, so clicking
+through presets to compare them is one write. Offline changes set a dirty flag
+and go up on the next reconnect or sign-in. Conflicts are last-write-wins on
+`updated_at`, the same rule the data layer uses.
+
+**The default preset is defined once**, as `DEFAULT_THEME` in `theme.ts`
+(whimsical). `index.html` hardcodes the same four values to paint before any JS
+loads — keep the two in step, along with the four data attributes on `<html>`.
+
+**The pre-paint guess uses `lt.lastUser`.** The account isn't known until auth
+resolves, far too late to paint, so `index.html` reads the last account signed
+in on this device and applies its mirror (`lt.prefs.<userId>`). Signing out
+removes `lt.lastUser`, so the next paint is the default look. A session that
+expires without an explicit sign-out will still paint the old look once before
+the sign-in page appears.
+
+The mirror is kept on the device after sign-out, unlike the data cache, which
+is deleted. It holds a colour scheme, not her students — and keeping it is what
+makes a return visit instant.
+
 ---
 
 ## Exports

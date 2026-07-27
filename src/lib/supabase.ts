@@ -8,11 +8,42 @@ export const isConfigured = Boolean(
   url && anonKey && !url.includes('YOUR-PROJECT-REF') && !anonKey.includes('YOUR-ANON'),
 )
 
-const STAY_KEY = 'lt.stayLoggedIn'
+/**
+ * Unlike every other setting, this one stays on the device -- and is scoped to
+ * the account as well. How much you trust the machine you are sitting at is a
+ * fact about that machine, and two people sharing a laptop can reasonably
+ * disagree about it, so it is neither synced nor shared.
+ */
+const stayKey = (uid: string | null) => (uid ? `lt.stayLoggedIn.${uid}` : 'lt.stayLoggedIn')
+
+/** Set once auth resolves; until then there is no account to ask about. */
+let activeUser: string | null = null
 
 /** Default on: asking her to sign in on every visit is not what a planner does. */
 export function staysLoggedIn() {
-  return localStorage.getItem(STAY_KEY) !== 'false'
+  return localStorage.getItem(stayKey(activeUser)) !== 'false'
+}
+
+/**
+ * Called when the account becomes known. The session token was written a
+ * moment earlier under the default, so if this account had asked not to stay
+ * signed in we move it now. The window where it sat in localStorage is a
+ * single page load.
+ */
+export function bindStayToUser(uid: string) {
+  activeUser = uid
+  const scoped = localStorage.getItem(stayKey(uid))
+  if (scoped === null) {
+    // First sign-in since this became per-account: adopt whatever the device
+    // was set to, so her existing choice is not silently reset.
+    const legacy = localStorage.getItem('lt.stayLoggedIn')
+    if (legacy !== null) localStorage.setItem(stayKey(uid), legacy)
+  }
+  if (!staysLoggedIn()) setStaysLoggedIn(false)
+}
+
+export function unbindStay() {
+  activeUser = null
 }
 
 /**
@@ -22,7 +53,7 @@ export function staysLoggedIn() {
  * the next sign-in.
  */
 export function setStaysLoggedIn(stay: boolean) {
-  localStorage.setItem(STAY_KEY, stay ? 'true' : 'false')
+  localStorage.setItem(stayKey(activeUser), stay ? 'true' : 'false')
   const from = stay ? sessionStorage : localStorage
   const to = stay ? localStorage : sessionStorage
   for (const key of Object.keys(from)) {
