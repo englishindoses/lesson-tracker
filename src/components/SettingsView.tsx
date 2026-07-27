@@ -30,6 +30,7 @@ import {
 import { useT, type TKey } from '../lib/i18n'
 import { useSyncLabel } from '../lib/syncLabel'
 import LanguageToggle from './LanguageToggle'
+import ReportView from './ReportView'
 
 /**
  * Everything that isn't lesson data: how the app looks, the account, and the
@@ -181,6 +182,7 @@ function ExportControls() {
     to: null,
     includeArchived: false,
   })
+  const [report, setReport] = useState(false)
 
   const snap = { ...snapshot(), entries, students, classes }
   const months = monthsPresent(snap)
@@ -223,6 +225,14 @@ function ExportControls() {
 
       <div className="mt-4 flex flex-wrap gap-2">
         <button
+          className="btn btn-primary"
+          disabled={!counts.entries}
+          title={t('settings.exportPDFHint')}
+          onClick={() => setReport(true)}
+        >
+          {t('settings.exportPDF')}
+        </button>
+        <button
           className="btn"
           disabled={!counts.students}
           title={t('settings.exportStudentsHint')}
@@ -248,7 +258,8 @@ function ExportControls() {
         </button>
       </div>
       {empty && <p className="mt-2 text-sm text-danger">{t('settings.nothingToExport')}</p>}
-      <p className="mt-1 text-sm text-ink-faint">{t('settings.exportStudentsHint')}</p>
+      <p className="mt-1 text-sm text-ink-faint">{t('settings.exportPDFHint')}</p>
+      <p className="text-sm text-ink-faint">{t('settings.exportStudentsHint')}</p>
       <p className="text-sm text-ink-faint">{t('settings.exportClassesHint')}</p>
       <p className="text-sm text-ink-faint">{t('settings.exportLessonsHint')}</p>
 
@@ -258,6 +269,10 @@ function ExportControls() {
         </button>
         <p className="mt-1 text-sm text-ink-faint">{t('settings.backupHint')}</p>
       </div>
+
+      {report && (
+        <ReportView snapshot={snap} options={opts} onClose={() => setReport(false)} />
+      )}
     </>
   )
 }

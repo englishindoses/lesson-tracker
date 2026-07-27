@@ -1,5 +1,5 @@
 import type { Class, ClassStudent, Entry, Student } from './types'
-import { buildLedger, totalsFor, type Line, type PaidStatus } from './ledger'
+import { buildLedger, totalsFor, type Line, type PaidStatus, type Totals } from './ledger'
 import { formatDate, formatMonth, monthKey } from './format'
 import { getLang, presenceKey, translate, type TKey } from './i18n'
 
@@ -46,6 +46,14 @@ function rangeTag(o: ExportOptions): string {
   if (!o.from && !o.to) return 'all'
   return `${o.from ?? 'start'}_${o.to ?? 'end'}`
 }
+
+/**
+ * Semicolons, not commas. A Brazilian Excel reads a comma as the decimal point
+ * and expects semicolons between the columns — fed commas it puts the whole
+ * line in one cell, which is what made the first version of this unreadable.
+ * Google Sheets detects either.
+ */
+const SEP = ';'
 
 const csvCell = (v: unknown) => {
   const s = v == null ? '' : String(v)
@@ -120,7 +128,9 @@ function select(snap: Snapshot, o: ExportOptions) {
 }
 
 function toCSV(header: string[], rows: unknown[][]): string {
-  return [header, ...rows].map((r) => r.map(csvCell).join(',')).join('\r\n')
+  // No "sep=;" preamble: Excel understands it, but Google Sheets shows it as a
+  // stray first row and then stops detecting the separator on its own.
+  return [header, ...rows].map((r) => r.map(csvCell).join(SEP)).join('\r\n')
 }
 
 /** "January 2026 — July 2026", for the note at the top of a sheet. */
@@ -131,7 +141,7 @@ function rangeWords(o: ExportOptions, say: (k: TKey) => string): string {
   return o.from === o.to && o.from ? formatMonth(o.from) : `${from} — ${to}`
 }
 
-const statusKey = (s: PaidStatus) => `csv.status.${s}` as TKey
+export const statusKey = (s: PaidStatus) => `csv.status.${s}` as TKey
 
 /** Complete backup. This is the file that can restore everything. */
 export function exportJSON(snap: Snapshot) {
@@ -287,6 +297,52 @@ export function exportClassesCSV(snap: Snapshot, o: ExportOptions) {
     'text/csv;charset=utf-8',
     toCSV(header.map(say), rows),
   )
+}
+
+/** One class as it appears in the printable report. */
+export interface ReportClass {
+  cls: Class
+  students: Student[]
+  rows: { entry: Entry; line: Line | undefined }[]
+  totals: Totals
+  owed: number
+}
+
+export interface Report {
+  /** The months in words, for the heading. */
+  range: string
+  students: Student[]
+  classes: ReportClass[]
+}
+
+/**
+ * The same slice of data as the spreadsheets, arranged for reading rather than
+ * for a machine: students first, then a section per class with its rows and
+ * its totals. A class with nothing in the months chosen is left out — an empty
+ * heading only wastes a page.
+ */
+export function buildReport(snap: Snapshot, o: ExportOptions): Report {
+  const lang = getLang()
+  const say = (key: TKey) => translate(lang, key)
+  const { classes, students, visible, ledgers, studentsOfClass } = select(snap, o)
+
+  return {
+    range: rangeWords(o, say),
+    students,
+    classes: classes
+      .map((cls) => {
+        const led = ledgers.get(cls.id)
+        const mine = visible.filter((e) => e.class_id === cls.id)
+        return {
+          cls,
+          students: studentsOfClass.get(cls.id) ?? [],
+          rows: mine.map((entry) => ({ entry, line: led?.lines.get(entry.id) })),
+          totals: totalsFor(mine, led?.lines ?? new Map<string, Line>()),
+          owed: led?.owed ?? 0,
+        }
+      })
+      .filter((c) => c.rows.length),
+  }
 }
 
 /** The months that actually have something in them, newest first. */

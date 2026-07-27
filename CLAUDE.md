@@ -150,7 +150,16 @@ immediately rather than at the next sign-in.
 
 ## Exports
 
-`src/lib/exportData.ts`, driven from Settings → Your data. Four files:
+`src/lib/exportData.ts`, driven from Settings → Your data. A printable report
+and four files:
+
+- **Printable report (PDF)** — `ReportView.tsx`. There is no PDF library: the
+  page is rendered and printed, and both phone and laptop offer "Save as PDF"
+  in the print box. A library would have to carry its own fonts to get the
+  accents right, for a worse result. It renders through a **portal on `<body>`**
+  so the print CSS can hide `#root` outright instead of unpicking the app's
+  layout; `body[data-printing]` is what switches that on. Plain black on white
+  — a printer should not be asked to lay down the paper texture.
 
 - **Students CSV** — one row per student: contact, level, needs, notes,
   archived, their classes, and their teaching for the months chosen (lessons,
@@ -172,7 +181,14 @@ on each class's full history and only the *rows* are filtered, so a March
 payment settles a February lesson even in a March-only export.
 
 Money in the CSVs is a plain Brazilian number (`1234,50`), no `R$` — a
-spreadsheet can add those up.
+spreadsheet can add those up. The report writes `R$` in full, since it is read
+rather than calculated with.
+
+**The CSV separator is a semicolon, not a comma.** A Brazilian Excel reads a
+comma as the decimal point and expects `;` between columns; fed commas it puts
+the whole line in one cell, which is what made the first version unreadable.
+No `sep=;` preamble — Excel understands it but Google Sheets shows it as a
+stray first row and then stops detecting the separator itself.
 
 ## Layout
 

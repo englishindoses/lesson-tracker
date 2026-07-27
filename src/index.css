@@ -605,8 +605,93 @@ body {
   border-radius: 99px;
 }
 
+/* ------------------------------------------------------- printable report --
+   Deliberately plain: black on white, no paper texture, no wobbly borders.
+   It is the one part of the app meant to leave the screen, and a printer
+   should not be asked to lay down a background. */
+.report-print {
+  background: #fff;
+  color: #111;
+}
+.report {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.report h1 {
+  font-family: var(--font-hand);
+  font-size: 1.9rem;
+  line-height: 1.1;
+}
+.report h2 {
+  font-family: var(--font-accent);
+  font-size: 1.15rem;
+  margin-bottom: 0.15rem;
+  /* Never leave a class heading stranded at the foot of a page. */
+  break-after: avoid;
+}
+.report-sub,
+.report-meta {
+  color: #555;
+  font-size: 12px;
+}
+.report section {
+  margin-top: 1.6rem;
+}
+.report-student {
+  margin-bottom: 0.35rem;
+}
+.report table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+}
+.report th,
+.report td {
+  border-bottom: 1px solid #ddd;
+  padding: 3px 6px;
+  text-align: left;
+  vertical-align: top;
+}
+.report th {
+  border-bottom: 1px solid #888;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.report .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.report tr {
+  break-inside: avoid;
+}
+.report-totals {
+  margin-top: 0.5rem;
+  break-inside: avoid;
+}
+
 @media print {
   .no-print {
     display: none !important;
+  }
+  @page {
+    margin: 14mm;
+  }
+  /* The report is a portal on <body>, so the whole app can simply be hidden
+     rather than trying to unpick its layout for the printer. */
+  body[data-printing] > #root {
+    display: none !important;
+  }
+  .report-print {
+    position: static !important;
+    overflow: visible !important;
+  }
+  .report {
+    max-width: none;
+    padding: 0;
   }
 }

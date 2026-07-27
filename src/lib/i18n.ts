@@ -356,6 +356,15 @@ const S = {
   'csv.status.received': ['Received', 'Recebido'],
   'csv.status.expected': ['Still expected', 'A receber'],
 
+  // --------------------------------------------------------- printed report
+  'report.print': ['Print / Save as PDF', 'Imprimir / Salvar como PDF'],
+  'report.printHint': [
+    'In the print box, choose Save as PDF.',
+    'Na tela de impressão, escolha Salvar como PDF.',
+  ],
+  'report.students': ['Students', 'Alunos'],
+  'report.generated': ['Made on {date}', 'Gerado em {date}'],
+
   // ---------------------------------------------------------------- settings
   'settings.look': ['Look', 'Aparência'],
   'settings.lookHint': [
@@ -407,6 +416,11 @@ const S = {
   'settings.exportStudentsHint': [
     'One row per student: their details, their classes, and how many lessons they had in the months chosen.',
     'Uma linha por aluno: os dados dele, as turmas e quantas aulas teve nos meses escolhidos.',
+  ],
+  'settings.exportPDF': ['Printable report (PDF)', 'Relatório para imprimir (PDF)'],
+  'settings.exportPDFHint': [
+    'A page to read: every class with its lessons, its totals and your students’ details. Print it and choose Save as PDF — that works on the phone as well as the laptop.',
+    'Uma página para ler: cada turma com suas aulas, os totais e os dados dos alunos. Mande imprimir e escolha Salvar como PDF — funciona no celular e no computador.',
   ],
   'settings.exportClasses': ['Classes and money (CSV)', 'Turmas e valores (CSV)'],
   'settings.exportClassesHint': [
