@@ -83,7 +83,8 @@ function Flourish() {
 }
 
 /* ================================================================ 2. COZY ==
-   The kitchen table: tea, books, candlelight, a jar of flowers. */
+   The kitchen table: a sleeping cat, tea, books, candlelight, a jar of
+   flowers. */
 
 function Heart() {
   return (
@@ -109,13 +110,15 @@ function Bow() {
   )
 }
 
-function TeaBag() {
+function CupSaucer() {
   return (
     <svg viewBox="0 0 40 40" className={sm} aria-hidden>
       <g {...stroke}>
-        <path d="M22 4 L34 4 L34 12 L22 12 Z" />
-        <path d="M28 12 C 28 18, 17 18, 17 23" />
-        <path d="M9 23 L25 23 L23 35 L11 35 Z" />
+        <path d="M12 16 L28 16 L26 28 L14 28 Z" />
+        <path d="M28 19 C 34 19, 34 26, 27 26" />
+        <path d="M7 31 L33 31 L29 36 L11 36 Z" />
+        <path d="M17 12 C 20 9, 15 7, 18 3" />
+        <path d="M24 12 C 27 9, 22 7, 25 3" />
       </g>
     </svg>
   )
@@ -137,17 +140,26 @@ function SmallDaisy() {
   )
 }
 
-function Teapot() {
+/** Curled asleep, tail round the front, head resting on the paws. */
+function SleepingCat() {
   return (
     <svg viewBox="0 0 80 80" className={sq} aria-hidden>
       <g {...stroke}>
-        <path d="M16 34 C 16 56, 26 66, 40 66 C 54 66, 64 56, 64 34 Z" />
-        <path d="M28 34 C 29 26, 51 26, 52 34" />
-        <path d="M40 26 L40 21" />
-        <path d="M16 40 C 8 41, 4 49, 6 57" />
-        <path d="M64 38 C 74 36, 76 52, 65 56" />
-        <path d="M32 20 C 36 15, 28 11, 32 5" />
-        <path d="M48 20 C 52 15, 44 11, 48 5" />
+        <path d="M14 64 C 8 40, 26 22, 48 26 C 68 30, 74 58, 60 66" />
+        <path d="M14 64 C 24 70, 52 70, 60 66" />
+        <path d="M60 66 C 72 62, 72 46, 60 46" />
+        <path d="M46 28 C 48 32, 48 37, 46 41" />
+        <path d="M57 33 C 59 37, 59 42, 57 46" />
+        <circle cx="28" cy="50" r="15" />
+        <path d="M16 40 L12 28 L24 34" />
+        <path d="M40 34 L46 24 L42 38" />
+        <path d="M20 48 C 22 52, 25 52, 27 48" />
+        <path d="M30 48 C 32 52, 35 52, 37 48" />
+        <path d="M28 56 L30 58 L32 56" />
+        <path d="M17 53 L7 51" />
+        <path d="M17 58 L8 60" />
+        <path d="M39 53 L49 51" />
+        <path d="M39 58 L48 60" />
       </g>
     </svg>
   )
@@ -439,7 +451,7 @@ function Eucalyptus() {
 }
 
 /* ============================================================= 5. SEASIDE ==
-   Shells, water, a palm and a boat. */
+   Shells, water, a palm, a boat and a night sky. */
 
 function SmallShell() {
   return (
@@ -489,16 +501,15 @@ function SmallStarfish() {
   )
 }
 
-function Conch() {
+/** Night over the water: a crescent and three stars of falling size. */
+function MoonStars() {
   return (
     <svg viewBox="0 0 80 80" className={sq} aria-hidden>
       <g {...stroke}>
-        <path d="M14 46 C 10 26, 30 10, 50 16 C 66 21, 73 40, 62 56 C 54 68, 34 73, 24 64" />
-        <path d="M24 64 C 16 58, 13 52, 14 46" />
-        <path d="M40 57 C 28 57, 22 47, 26 39 C 30 31, 42 31, 46 39" />
-        <path d="M22 31 L17 25" />
-        <path d="M34 19 L32 12" />
-        <path d="M50 20 L53 13" />
+        <path d="M50 10 C 30 16, 18 32, 20 48 C 22 66, 40 76, 56 70 C 38 64, 30 48, 34 34 C 37 22, 42 14, 50 10 Z" />
+        <path d="M64 16 L66 24 L74 26 L66 28 L64 36 L62 28 L54 26 L62 24 Z" />
+        <path d="M62 48 L63.4 53 L68 54 L63.4 55 L62 60 L60.6 55 L56 54 L60.6 53 Z" />
+        <path d="M12 16 L13 20 L17 21 L13 22 L12 26 L11 22 L7 21 L11 20 Z" />
       </g>
     </svg>
   )
@@ -810,18 +821,18 @@ const SETS: Record<Exclude<DoodleSet, 'none'>, { left: Mark[]; right: Mark[] }> 
   },
   cozy: {
     left: [
-      mark(<Teapot />, -4, true),
+      mark(<SleepingCat />, -4, true),
       mark(<Heart />, 7),
       mark(<BookStack />, 3),
       mark(<Bow />, -8),
       mark(<FlowerJar />, -2),
-      mark(<TeaBag />, 6, true),
+      mark(<CupSaucer />, 6, true),
     ],
     right: [
       mark(<SmallDaisy />, 5, true),
       mark(<Candle />, -3),
-      mark(<TeaBag />, -7),
-      mark(<Teapot />, 4),
+      mark(<CupSaucer />, -7),
+      mark(<SleepingCat />, 4),
       mark(<Heart />, -6),
       mark(<BookStack />, -2, true),
     ],
@@ -864,7 +875,7 @@ const SETS: Record<Exclude<DoodleSet, 'none'>, { left: Mark[]; right: Mark[] }> 
   },
   seaside: {
     left: [
-      mark(<Conch />, -5, true),
+      mark(<MoonStars />, -5, true),
       mark(<Ripples />, 0),
       mark(<PalmTree />, 4),
       mark(<Pebbles />, 0),

@@ -510,8 +510,8 @@ const S = {
     'Uma folha, pontinhos, um tique, um floreio',
   ],
   'doodles.cozy.hint': [
-    'Teapot, books, candle, jar of flowers',
-    'Bule, livros, vela, jarro de flores',
+    'Sleeping cat, books, candle, jar of flowers',
+    'Gato dormindo, livros, vela, jarro de flores',
   ],
   'doodles.whimsical.hint': [
     'Starbursts, loops, bunting, confetti',
@@ -522,8 +522,8 @@ const S = {
     'Samambaia, costela-de-adão, eucalipto, bolotas',
   ],
   'doodles.seaside.hint': [
-    'Conch, palm, seaweed, a sailboat',
-    'Búzio, palmeira, alga, um veleiro',
+    'Moon, palm, seaweed, a sailboat',
+    'Lua, palmeira, alga, um veleiro',
   ],
   'doodles.berry.hint': [
     'Cherries, grapes, blossom, vine',
