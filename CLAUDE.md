@@ -95,6 +95,11 @@ Other rules:
 
 ---
 
+**`lesson_type` belongs to the class, not the student.** The students table had
+it once; `schema.sql` drops it and Katerina has run that, so the column is gone
+from her database. No code reads it — `types.ts` has it on `Class` only. It is
+settled: don't reintroduce it, and don't treat it as a live concern.
+
 ## Traps already hit — don't repeat these
 
 **A failed flush must block the pull.** `pull()` replaces local state wholesale,
