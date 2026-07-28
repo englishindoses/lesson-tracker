@@ -247,7 +247,22 @@ export const useStore = create<StoreState>((set, get) => {
           if (res.error) throw res.error
         } catch (e) {
           // Keep the op queued and try again on the next online event.
-          set({ sync: 'error', syncError: (e as Error).message })
+          //
+          // Say which row and which table, not just the message: a stuck queue
+          // blocks every later write, and "duplicate key" alone doesn't tell
+          // you whether it was a lesson or a student, or which one.
+          const err = e as { message?: string; details?: string; hint?: string; code?: string }
+          const where = op.op === 'upsert' ? `${op.op} ${op.table}` : `delete ${op.table}`
+          set({
+            sync: 'error',
+            syncError: [
+              `${where}${err.code ? ` [${err.code}]` : ''}: ${err.message ?? String(e)}`,
+              err.details,
+              err.hint,
+            ]
+              .filter(Boolean)
+              .join(' — '),
+          })
           return
         }
         queue.shift()
