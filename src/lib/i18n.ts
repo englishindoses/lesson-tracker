@@ -411,6 +411,45 @@ const S = {
     'The backup is always the whole thing — the choices above only shape the spreadsheets.',
     'O backup é sempre tudo — as escolhas acima valem só para as planilhas.',
   ],
+  'settings.restore': ['Restore from a backup', 'Restaurar de um backup'],
+  'settings.restoreHint': [
+    'Pick a backup file to bring back anything missing. Nothing already here is changed or deleted.',
+    'Escolha um arquivo de backup para trazer de volta o que estiver faltando. Nada do que já está aqui é alterado ou apagado.',
+  ],
+  'import.reading': ['Reading the file…', 'Lendo o arquivo…'],
+  'import.notJSON': [
+    'That is not a backup file — it could not be read as JSON.',
+    'Esse não é um arquivo de backup — não foi possível ler como JSON.',
+  ],
+  'import.notBackup': [
+    'That file is not a Lesson Tracker backup.',
+    'Esse arquivo não é um backup do Lesson Tracker.',
+  ],
+  'import.wrongVersion': [
+    'That backup was written by a different version of the app.',
+    'Esse backup foi gerado por outra versão do app.',
+  ],
+  'import.unreadable': ['The file could not be read.', 'Não foi possível ler o arquivo.'],
+  'import.signedOut': [
+    'Sign in before restoring, so the data has an account to belong to.',
+    'Entre na sua conta antes de restaurar, para os dados terem a quem pertencer.',
+  ],
+  'import.nothingNew': [
+    'Everything in that backup is already here — nothing to restore.',
+    'Tudo nesse backup já está aqui — nada a restaurar.',
+  ],
+  'import.done': ['Restored', 'Restaurado'],
+  'import.students': ['students', 'alunos'],
+  'import.classes': ['classes', 'turmas'],
+  'import.entries': ['lessons and payments', 'aulas e pagamentos'],
+  'import.alreadyHere': [
+    'rows were already here and were left alone',
+    'linhas já estavam aqui e não foram alteradas',
+  ],
+  'import.orphaned': [
+    'rows were skipped because the class they belong to is missing',
+    'linhas foram ignoradas porque a turma delas não existe',
+  ],
   'settings.exportStudents': ['Students (CSV)', 'Alunos (CSV)'],
   'settings.exportStudentsHint': [
     'One row per student: their details, their classes, and how many lessons they had in the months chosen.',

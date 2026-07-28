@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { supabase, isConfigured, bindStayToUser, unbindStay } from '../lib/supabase'
 import * as prefs from '../lib/prefs'
 import type { Class, ClassStudent, Entry, Student } from '../lib/types'
+import type { Backup } from '../lib/importData'
 import { getLang, translate } from '../lib/i18n'
 
 /**
@@ -63,6 +64,15 @@ function forWire(row: Record<string, unknown>) {
 
 export type SyncState = 'offline' | 'syncing' | 'synced' | 'error' | 'unconfigured'
 
+/** What a restore did: rows brought back, and rows left alone because they exist. */
+export interface ImportResult {
+  added: { students: number; classes: number; class_students: number; entries: number }
+  skipped: number
+  /** Rows dropped because the class or student they belong to is nowhere to be found. */
+  orphaned: number
+  signedOut: boolean
+}
+
 interface StoreState extends Snapshot {
   userId: string | null
   email: string | null
@@ -87,6 +97,9 @@ interface StoreState extends Snapshot {
   upsertEntry: (row: Entry) => void
   upsertEntries: (rows: Entry[]) => void
   deleteEntry: (id: string) => void
+
+  /** Merge a parsed backup in. Adds what is missing, never overwrites, never deletes. */
+  importRows: (backup: Backup) => ImportResult
 
   snapshot: () => Snapshot
 }
@@ -327,6 +340,106 @@ export const useStore = create<StoreState>((set, get) => {
     deleteEntry(id) {
       set({ entries: get().entries.filter((e) => e.id !== id) })
       enqueue({ op: 'delete', table: 'entries', match: { id } })
+    },
+
+    /**
+     * Restore. Deliberately add-only: a row whose id is already here is left
+     * exactly as it is, so pointing this at an old file can never undo newer
+     * work. What it does do is bring back anything that has gone missing.
+     *
+     * Rows are stamped with the account doing the restoring, because user_id is
+     * what row-level security checks -- a file exported from another account
+     * would otherwise be rejected in full by the server.
+     *
+     * One local update and one queue write for the whole file rather than per
+     * row, since a year of teaching is thousands of rows. Students and classes
+     * are queued ahead of the rows that point at them, so the server never sees
+     * a lesson before its class.
+     */
+    importRows(backup) {
+      const userId = get().userId
+      if (!userId) {
+        return {
+          added: { students: 0, classes: 0, class_students: 0, entries: 0 },
+          skipped: 0,
+          orphaned: 0,
+          signedOut: true,
+        }
+      }
+
+      const state = get()
+      const own = <T extends { user_id: string }>(row: T): T => ({ ...row, user_id: userId })
+
+      const haveStudent = new Set(state.students.map((s) => s.id))
+      const haveClass = new Set(state.classes.map((c) => c.id))
+      const haveEntry = new Set(state.entries.map((e) => e.id))
+      const haveLink = new Set(
+        state.class_students.map((cs) => `${cs.class_id}/${cs.student_id}`),
+      )
+
+      const newStudents = backup.students.filter((s) => !haveStudent.has(s.id)).map(own)
+      const newClasses = backup.classes.filter((c) => !haveClass.has(c.id)).map(own)
+
+      // A lesson needs its class, and a roster row needs both ends: after the
+      // file's own rows are counted in, anything still dangling is dropped
+      // rather than queued to fail against the server's foreign keys forever.
+      const classesAfter = new Set([...haveClass, ...newClasses.map((c) => c.id)])
+      const studentsAfter = new Set([...haveStudent, ...newStudents.map((s) => s.id)])
+
+      const wantedLinks = backup.class_students.filter(
+        (cs) => !haveLink.has(`${cs.class_id}/${cs.student_id}`),
+      )
+      const newLinks = wantedLinks
+        .filter((cs) => classesAfter.has(cs.class_id) && studentsAfter.has(cs.student_id))
+        .map(own)
+
+      const wantedEntries = backup.entries.filter((e) => !haveEntry.has(e.id))
+      const newEntries = wantedEntries
+        .filter((e) => classesAfter.has(e.class_id))
+        .map(own)
+
+      const result: ImportResult = {
+        added: {
+          students: newStudents.length,
+          classes: newClasses.length,
+          class_students: newLinks.length,
+          entries: newEntries.length,
+        },
+        skipped:
+          backup.students.length - newStudents.length +
+          (backup.classes.length - newClasses.length) +
+          (backup.class_students.length - wantedLinks.length) +
+          (backup.entries.length - wantedEntries.length),
+        orphaned:
+          wantedLinks.length - newLinks.length + (wantedEntries.length - newEntries.length),
+        signedOut: false,
+      }
+
+      const total =
+        newStudents.length + newClasses.length + newLinks.length + newEntries.length
+      if (!total) return result
+
+      set({
+        students: [...state.students, ...newStudents],
+        classes: [...state.classes, ...newClasses],
+        class_students: [...state.class_students, ...newLinks],
+        entries: [...state.entries, ...newEntries],
+      })
+
+      const push = (table: TableName, rows: { [k: string]: unknown }[]) => {
+        for (const row of rows) queue.push({ op: 'upsert', table, row })
+      }
+      push('students', newStudents as unknown as Record<string, unknown>[])
+      push('classes', newClasses as unknown as Record<string, unknown>[])
+      push('class_students', newLinks as unknown as Record<string, unknown>[])
+      push('entries', newEntries as unknown as Record<string, unknown>[])
+
+      persistQueue()
+      set({ pendingWrites: queue.length })
+      cacheNow()
+      void get().flush()
+
+      return result
     },
 
     snapshot() {

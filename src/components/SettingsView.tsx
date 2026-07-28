@@ -9,6 +9,7 @@ import {
   monthsPresent,
   type ExportOptions,
 } from '../lib/exportData'
+import { readFile } from '../lib/importData'
 import { formatMonth } from '../lib/format'
 import { setStaysLoggedIn, staysLoggedIn } from '../lib/supabase'
 import {
@@ -159,6 +160,79 @@ function MonthSelect({
 }
 
 /**
+ * Reading a backup back in. The other direction from the JSON button above it,
+ * and the reason that button is worth pressing.
+ *
+ * A file picker rather than anything cleverer: the file was downloaded to the
+ * device, the app never held on to it, so choosing it is the user's to do. The
+ * restore only adds, so there is nothing here to confirm or undo.
+ */
+function RestoreControl() {
+  const { t } = useT()
+  const importRows = useStore((s) => s.importRows)
+  const [busy, setBusy] = useState(false)
+  const [note, setNote] = useState<{ ok: boolean; text: string } | null>(null)
+
+  async function pick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    // Clear it straight away, so choosing the same file twice still fires.
+    e.target.value = ''
+    if (!file) return
+
+    setBusy(true)
+    setNote(null)
+    const parsed = await readFile(file)
+    setBusy(false)
+
+    if (!parsed.ok) {
+      setNote({ ok: false, text: t(parsed.error) })
+      return
+    }
+
+    const r = importRows(parsed.backup)
+    if (r.signedOut) {
+      setNote({ ok: false, text: t('import.signedOut') })
+      return
+    }
+
+    const added = [
+      [r.added.students, t('import.students')] as const,
+      [r.added.classes, t('import.classes')] as const,
+      [r.added.entries, t('import.entries')] as const,
+    ].filter(([n]) => n > 0)
+
+    if (!added.length) {
+      setNote({ ok: true, text: t('import.nothingNew') })
+      return
+    }
+
+    const parts = [`${t('import.done')}: ${added.map(([n, w]) => `${n} ${w}`).join(', ')}.`]
+    if (r.skipped) parts.push(`${r.skipped} ${t('import.alreadyHere')}.`)
+    if (r.orphaned) parts.push(`${r.orphaned} ${t('import.orphaned')}.`)
+    setNote({ ok: true, text: parts.join(' ') })
+  }
+
+  return (
+    <div className="mt-4">
+      <label className="btn inline-block cursor-pointer">
+        {busy ? t('import.reading') : t('settings.restore')}
+        <input
+          type="file"
+          accept="application/json,.json"
+          className="hidden"
+          disabled={busy}
+          onChange={(e) => void pick(e)}
+        />
+      </label>
+      <p className="mt-1 text-sm text-ink-faint">{t('settings.restoreHint')}</p>
+      {note && (
+        <p className={`mt-2 text-sm ${note.ok ? 'text-good' : 'text-danger'}`}>{note.text}</p>
+      )}
+    </div>
+  )
+}
+
+/**
  * The exports. Three spreadsheets, each answering one question: who the
  * students are, what each class is owed, and what happened on each day. The
  * money sits on the classes sheet, because a class is what owes money — it can
@@ -268,6 +342,7 @@ function ExportControls() {
           {t('settings.backup')}
         </button>
         <p className="mt-1 text-sm text-ink-faint">{t('settings.backupHint')}</p>
+        <RestoreControl />
       </div>
 
       {report && (

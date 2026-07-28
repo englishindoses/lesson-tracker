@@ -224,6 +224,36 @@ and four files:
 - **Backup JSON** — always the whole thing, deliberately ignoring the options.
   A restore file holding half the data is a trap.
 
+## Restore
+
+`src/lib/importData.ts` parses and validates a backup file; `importRows` in the
+store applies it. The button sits under the backup one in Settings → Your data.
+
+**Add-only, on purpose.** A row whose id is already present is left exactly as
+it is. So a restore brings back what has gone missing and can never undo newer
+work — which is why there is no confirmation step and nothing to undo. Replace
+was considered and rejected: a restore that deletes can destroy the data it
+exists to protect. The cost is that it can't repair a damaged row, only a
+missing one.
+
+Three things it has to get right:
+
+- **`user_id` is re-stamped** with the account doing the restoring. It's what
+  row-level security checks, so a file from another account would otherwise be
+  rejected in full by the server.
+- **Rows are queued in dependency order** — students and classes before the
+  roster rows and lessons that point at them — because the queue is FIFO and the
+  server has foreign keys. Anything still dangling after the file's own rows are
+  counted in is dropped rather than left to fail forever in the queue.
+- **It goes through the store, not through Supabase.** One local update and one
+  queue write for the whole file: a year of teaching is thousands of rows. Going
+  direct would leave the local cache showing the old data.
+
+The file itself is a plain browser download — the app never holds a copy, which
+is why restoring means picking the file yourself, and why a backup left in
+Downloads doesn't survive losing the phone. Nothing currently moves it off the
+device; the share sheet is the obvious next step if that matters.
+
 All three spreadsheets take a month range (`from`/`to`, "YYYY-MM", either end
 open) and an include-archived switch, off by default. The ledger is still built
 on each class's full history and only the *rows* are filtered, so a March
