@@ -143,13 +143,55 @@ function rangeWords(o: ExportOptions, say: (k: TKey) => string): string {
 
 export const statusKey = (s: PaidStatus) => `csv.status.${s}` as TKey
 
+function backupFile(snap: Snapshot): { name: string; text: string } {
+  return {
+    name: `lesson-tracker-backup-${stamp()}.json`,
+    text: JSON.stringify({ version: 1, exported_at: new Date().toISOString(), ...snap }, null, 2),
+  }
+}
+
 /** Complete backup. This is the file that can restore everything. */
 export function exportJSON(snap: Snapshot) {
-  download(
-    `lesson-tracker-backup-${stamp()}.json`,
-    'application/json',
-    JSON.stringify({ version: 1, exported_at: new Date().toISOString(), ...snap }, null, 2),
-  )
+  const { name, text } = backupFile(snap)
+  download(name, 'application/json', text)
+}
+
+/**
+ * Whether this device can hand a file to the system share sheet -- Drive,
+ * Files, WhatsApp, email. Checked with a real File, because the phones disagree
+ * about which types they will accept and asking is the only reliable way.
+ */
+export function canShareBackup(): boolean {
+  if (typeof navigator.canShare !== 'function' || typeof navigator.share !== 'function') {
+    return false
+  }
+  try {
+    const probe = new File(['{}'], 'probe.json', { type: 'application/json' })
+    return navigator.canShare({ files: [probe] })
+  } catch {
+    return false
+  }
+}
+
+export type ShareOutcome = 'shared' | 'cancelled' | 'failed'
+
+/**
+ * The backup, handed to the share sheet instead of the downloads folder. This is
+ * how it leaves the device -- a backup sitting in Downloads on the same phone
+ * protects against a wrong deletion but not against losing the phone.
+ *
+ * Cancelling is not a failure: the sheet reports a dismissal as an AbortError,
+ * and nothing should be said about it.
+ */
+export async function shareJSON(snap: Snapshot): Promise<ShareOutcome> {
+  const { name, text } = backupFile(snap)
+  const file = new File([text], name, { type: 'application/json' })
+  try {
+    await navigator.share({ files: [file], title: name })
+    return 'shared'
+  } catch (e) {
+    return (e as Error)?.name === 'AbortError' ? 'cancelled' : 'failed'
+  }
 }
 
 /**

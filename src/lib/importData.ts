@@ -24,7 +24,12 @@ export type ParseResult =
   | { ok: true; backup: Backup }
   | { ok: false; error: TKey }
 
-/** The version exportJSON writes. An older or newer file is refused. */
+/**
+ * The version exportJSON writes. Anything else is refused, which is safe only
+ * while 1 is the only version there has ever been. If the format changes, bump
+ * this and accept both -- read the old shape and fill in what the new one adds.
+ * Refusing an old backup would recreate the problem this file exists to fix.
+ */
 const SUPPORTED = 1
 
 function isRecord(v: unknown): v is Record<string, unknown> {

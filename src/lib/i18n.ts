@@ -411,6 +411,15 @@ const S = {
     'The backup is always the whole thing — the choices above only shape the spreadsheets.',
     'O backup é sempre tudo — as escolhas acima valem só para as planilhas.',
   ],
+  'settings.shareBackup': ['Send it somewhere', 'Enviar para algum lugar'],
+  'settings.shareFailed': [
+    'The file could not be shared. Use the backup button instead.',
+    'Não foi possível compartilhar o arquivo. Use o botão de backup.',
+  ],
+  'settings.offDeviceHint': [
+    'Sending it to Drive, Files or your email keeps it safe if the phone is lost — a backup in Downloads is on the same phone.',
+    'Enviar para o Drive, para Arquivos ou para o seu e-mail mantém o backup seguro se o celular se perder — um backup em Downloads está no mesmo celular.',
+  ],
   'settings.restore': ['Restore from a backup', 'Restaurar de um backup'],
   'settings.restoreHint': [
     'Pick a backup file to bring back anything missing. Nothing already here is changed or deleted.',

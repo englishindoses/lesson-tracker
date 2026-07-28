@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { useStore } from '../data/store'
 import {
+  canShareBackup,
   countRows,
   exportClassesCSV,
   exportJSON,
   exportLessonsCSV,
   exportStudentsCSV,
   monthsPresent,
+  shareJSON,
   type ExportOptions,
 } from '../lib/exportData'
 import { readFile } from '../lib/importData'
@@ -156,6 +158,41 @@ function MonthSelect({
         ))}
       </select>
     </label>
+  )
+}
+
+/**
+ * Sending the backup to the system share sheet, so it can go to Drive, Files or
+ * email instead of the downloads folder of the very device it is protecting.
+ *
+ * Only rendered where the device can actually do it, which in practice means the
+ * phones; on a laptop the download and a synced folder do the same job. Checked
+ * once, since it cannot change while the page is open.
+ */
+function ShareBackupButton() {
+  const { t } = useT()
+  const snapshot = useStore((s) => s.snapshot)
+  const [can] = useState(canShareBackup)
+  const [failed, setFailed] = useState(false)
+
+  if (!can) return null
+
+  return (
+    <>
+      <button
+        className="btn"
+        onClick={async () => {
+          setFailed(false)
+          const outcome = await shareJSON(snapshot())
+          if (outcome === 'failed') setFailed(true)
+        }}
+      >
+        {t('settings.shareBackup')}
+      </button>
+      {/* Full width so it wraps onto its own line under the two buttons. */}
+      <p className="w-full text-sm text-ink-faint">{t('settings.offDeviceHint')}</p>
+      {failed && <p className="w-full text-sm text-danger">{t('settings.shareFailed')}</p>}
+    </>
   )
 }
 
@@ -338,9 +375,12 @@ function ExportControls() {
       <p className="text-sm text-ink-faint">{t('settings.exportLessonsHint')}</p>
 
       <div className="mt-5 border-t border-rule pt-4">
-        <button className="btn" onClick={() => exportJSON(snapshot())}>
-          {t('settings.backup')}
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button className="btn" onClick={() => exportJSON(snapshot())}>
+            {t('settings.backup')}
+          </button>
+          <ShareBackupButton />
+        </div>
         <p className="mt-1 text-sm text-ink-faint">{t('settings.backupHint')}</p>
         <RestoreControl />
       </div>

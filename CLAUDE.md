@@ -249,10 +249,23 @@ Three things it has to get right:
   queue write for the whole file: a year of teaching is thousands of rows. Going
   direct would leave the local cache showing the old data.
 
+**If the backup format ever changes**, bump `SUPPORTED` in `importData.ts` to 2
+and teach `parseBackup` to accept **both** 1 and 2 — reading the old shape and
+filling in whatever the new one adds. Refusing a v1 file would recreate exactly
+the problem this feature was built to fix: a backup she can't restore. The
+version check refuses anything unrecognised only because there is nothing but
+version 1 today; it is not a reason to drop old files later.
+
 The file itself is a plain browser download — the app never holds a copy, which
-is why restoring means picking the file yourself, and why a backup left in
-Downloads doesn't survive losing the phone. Nothing currently moves it off the
-device; the share sheet is the obvious next step if that matters.
+is why restoring means picking the file yourself.
+
+**Getting it off the device.** A backup in Downloads on the phone it was taken
+on protects against a wrong deletion but not against losing the phone, so
+"Send it somewhere" hands the same file to the system share sheet — Drive,
+Files, email, WhatsApp. `canShareBackup()` probes with a real `File`, since the
+phones disagree about which types they accept, and the button isn't rendered at
+all where that fails; a laptop has the download and a synced folder. Cancelling
+the sheet reports an `AbortError` and is silent — it isn't a failure.
 
 All three spreadsheets take a month range (`from`/`to`, "YYYY-MM", either end
 open) and an include-archived switch, off by default. The ledger is still built
