@@ -454,7 +454,7 @@ const S = {
     'Entre na sua conta primeiro — não há conta de onde apagar dados.',
   ],
   'danger.done': ['Everything has been deleted.', 'Tudo foi apagado.'],
-  'settings.shareBackup': ['Send it somewhere', 'Enviar para algum lugar'],
+  'settings.shareBackup': ['Share backup', 'Compartilhar backup'],
   'settings.shareFell': [
     'This phone would not share the file, so it was saved to your downloads instead. Move it from there.',
     'Este celular não compartilhou o arquivo, então ele foi salvo nos seus downloads. Mova de lá.',
