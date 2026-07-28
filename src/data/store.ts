@@ -100,6 +100,8 @@ interface StoreState extends Snapshot {
 
   /** Merge a parsed backup in. Adds what is missing, never overwrites, never deletes. */
   importRows: (backup: Backup) => ImportResult
+  /** Every student, class and lesson, gone -- here and on the server. */
+  deleteEverything: () => void
 
   snapshot: () => Snapshot
 }
@@ -440,6 +442,29 @@ export const useStore = create<StoreState>((set, get) => {
       void get().flush()
 
       return result
+    },
+
+    /**
+     * Start again from nothing. Four queued deletes matched on user_id rather
+     * than thousands matched on id: row-level security already scopes a delete
+     * to the account, so this is both smaller and impossible to get half-right.
+     *
+     * Children before parents, since the queue is FIFO and the server has
+     * foreign keys. Queued rather than sent directly, so it behaves offline like
+     * every other change and reaches the other devices on the next sync.
+     */
+    deleteEverything() {
+      const userId = get().userId
+      if (!userId) return
+
+      set(emptySnapshot())
+      for (const table of ['entries', 'class_students', 'classes', 'students'] as TableName[]) {
+        queue.push({ op: 'delete', table, match: { user_id: userId } })
+      }
+      persistQueue()
+      set({ pendingWrites: queue.length })
+      cacheNow()
+      void get().flush()
     },
 
     snapshot() {

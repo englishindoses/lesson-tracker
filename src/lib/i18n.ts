@@ -411,6 +411,32 @@ const S = {
     'The backup is always the whole thing — the choices above only shape the spreadsheets.',
     'O backup é sempre tudo — as escolhas acima valem só para as planilhas.',
   ],
+  'danger.title': ['Delete everything', 'Apagar tudo'],
+  'danger.hint': [
+    'Removes every student, class, lesson and payment, on this device and on every other. Your account and your settings stay. This cannot be undone.',
+    'Remove todos os alunos, turmas, aulas e pagamentos, neste aparelho e em todos os outros. Sua conta e suas configurações continuam. Não há como desfazer.',
+  ],
+  'danger.backupFirst': [
+    'Take a backup first if there is any chance you will want this data again.',
+    'Faça um backup antes se houver qualquer chance de você querer esses dados de novo.',
+  ],
+  'danger.start': ['Delete all my data', 'Apagar todos os meus dados'],
+  'danger.counts': ['This will delete', 'Isto vai apagar'],
+  'danger.typeToConfirm': [
+    'Type DELETE to confirm',
+    'Digite APAGAR para confirmar',
+  ],
+  // The word she has to type. Translated, because typing an English word to
+  // confirm something irreversible is a poor test of intent in Portuguese.
+  'danger.word': ['DELETE', 'APAGAR'],
+  'danger.confirm': ['Delete it all', 'Apagar tudo'],
+  'danger.cancel': ['Keep my data', 'Manter meus dados'],
+  'danger.nothing': ['There is no data to delete.', 'Não há dados para apagar.'],
+  'danger.signedOut': [
+    'Sign in first — there is no account to delete data from.',
+    'Entre na sua conta primeiro — não há conta de onde apagar dados.',
+  ],
+  'danger.done': ['Everything has been deleted.', 'Tudo foi apagado.'],
   'settings.shareBackup': ['Send it somewhere', 'Enviar para algum lugar'],
   'settings.shareFailed': [
     'The file could not be shared. Use the backup button instead.',

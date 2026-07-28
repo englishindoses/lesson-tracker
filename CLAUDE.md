@@ -282,6 +282,29 @@ the whole line in one cell, which is what made the first version unreadable.
 No `sep=;` preamble — Excel understands it but Google Sheets shows it as a
 stray first row and then stops detecting the separator itself.
 
+## Delete everything
+
+Its own section at the foot of Settings, below the exports on purpose — the file
+that makes it survivable is right above it. `deleteEverything` in the store.
+
+Four queued deletes matched on `user_id`, not thousands matched on `id`:
+row-level security already scopes a delete to the account, so it is smaller and
+can't half-succeed. Children before parents for the foreign keys, and queued
+rather than sent directly so it works offline and reaches the other devices like
+any other change.
+
+Confirmation is **typing a word** (`DELETE` / `APAGAR`, translated — typing an
+English word is a poor test of intent in Portuguese), not a second button you
+can hit twice by reflex. The account, the settings and any backup file all
+survive; only the teaching data goes.
+
+**The reds are hardcoded** in `index.css` — `.danger-zone`, `.danger-text`,
+`.btn-danger`, Tailwind's red-600/700 as literals. Not `--danger`, which is
+tuned per palette and can be a soft pink. This is the one control that should
+look the same alarming red in every look. They are classes rather than
+`bg-red-600` because `.btn` sets its own background after the utilities layer, so
+a utility would lose — the `.btn-selected` trap again.
+
 ## Layout
 
 - Laptop (1024px+): the full table. Below that: stacked cards. Same field

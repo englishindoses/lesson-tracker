@@ -509,6 +509,34 @@ body {
   filter: brightness(1.12);
   background-color: var(--accent);
 }
+
+/* Deleting everything. Deliberately NOT --danger: that is tuned to each palette
+   and can be a soft pink, and this one button should look the same alarming red
+   whichever look she has chosen. A class rather than bg-red-600 because `.btn`
+   sets its own background and lives after the utilities layer, so a utility
+   would lose to it -- the same trap as .btn-selected above.
+   The reds are Tailwind's red-600/700, hardcoded so no theme can reach them. */
+.danger-zone {
+  border: 1px solid #dc2626;
+  border-radius: var(--radius);
+  background-color: transparent;
+}
+.danger-text {
+  color: #dc2626;
+}
+[data-mode='dark'] .danger-text {
+  /* red-500: red-600 on a dark page is too dim to read. */
+  color: #ef4444;
+}
+.btn-danger,
+.btn-danger:hover {
+  background-color: #dc2626;
+  border-color: #b91c1c;
+  color: #ffffff;
+}
+.btn-danger:hover {
+  background-color: #b91c1c;
+}
 /* Page tabs, like the dividers in a ring binder. The active one is filled with
    the palette's highlighter and breaks the rule under the header, so it reads as
    attached to the page below. */

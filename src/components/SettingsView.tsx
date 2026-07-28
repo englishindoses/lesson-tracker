@@ -162,6 +162,100 @@ function MonthSelect({
 }
 
 /**
+ * Deleting the lot. Its own section, its own red, and a word to type rather than
+ * a second button: a confirm you can hit twice by reflex is not a confirm.
+ *
+ * The reds are fixed (`.danger-zone`, `.btn-danger` in index.css) rather than the
+ * palette's `--danger`, which can be a soft pink in the gentler palettes. This
+ * is the one control in the app that should look the same alarming red whatever
+ * look she has chosen.
+ *
+ * Her account, her settings and her backups all survive — only the teaching data
+ * goes. Which is why this sits below the exports: the file that makes it
+ * survivable is right there above it.
+ */
+function DangerZone() {
+  const { t } = useT()
+  const students = useStore((s) => s.students)
+  const classes = useStore((s) => s.classes)
+  const entries = useStore((s) => s.entries)
+  const userId = useStore((s) => s.userId)
+  const deleteEverything = useStore((s) => s.deleteEverything)
+
+  const [open, setOpen] = useState(false)
+  const [typed, setTyped] = useState('')
+  const [done, setDone] = useState(false)
+
+  const word = t('danger.word')
+  const empty = !students.length && !classes.length && !entries.length
+  const counts = [
+    [students.length, t('import.students')] as const,
+    [classes.length, t('import.classes')] as const,
+    [entries.length, t('import.entries')] as const,
+  ].filter(([n]) => n > 0)
+
+  function close() {
+    setOpen(false)
+    setTyped('')
+  }
+
+  return (
+    <section className="danger-zone mb-4 p-4">
+      <h2 className="style-hand danger-text text-xl">{t('danger.title')}</h2>
+      <p className="mb-3 mt-0.5 text-sm text-ink-faint">{t('danger.hint')}</p>
+
+      {done ? (
+        <p className="danger-text text-sm">{t('danger.done')}</p>
+      ) : empty ? (
+        <p className="text-sm text-ink-faint">{t('danger.nothing')}</p>
+      ) : !open ? (
+        <>
+          <p className="mb-3 text-sm text-ink-faint">{t('danger.backupFirst')}</p>
+          <button className="btn btn-danger" onClick={() => setOpen(true)}>
+            {t('danger.start')}
+          </button>
+        </>
+      ) : (
+        <div>
+          <p className="danger-text mb-2 text-sm">
+            {t('danger.counts')}: {counts.map(([n, w]) => `${n} ${w}`).join(', ')}.
+          </p>
+          <label className="block max-w-xs text-sm">
+            <span className="mb-1 block text-ink-soft">{t('danger.typeToConfirm')}</span>
+            <input
+              className="field"
+              value={typed}
+              autoFocus
+              autoCapitalize="characters"
+              autoComplete="off"
+              spellCheck={false}
+              onChange={(e) => setTyped(e.target.value)}
+            />
+          </label>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              className="btn btn-danger"
+              disabled={typed.trim().toUpperCase() !== word || !userId}
+              onClick={() => {
+                deleteEverything()
+                close()
+                setDone(true)
+              }}
+            >
+              {t('danger.confirm')}
+            </button>
+            <button className="btn" onClick={close}>
+              {t('danger.cancel')}
+            </button>
+          </div>
+          {!userId && <p className="danger-text mt-2 text-sm">{t('danger.signedOut')}</p>}
+        </div>
+      )}
+    </section>
+  )
+}
+
+/**
  * Sending the backup to the system share sheet, so it can go to Drive, Files or
  * email instead of the downloads folder of the very device it is protecting.
  *
@@ -557,6 +651,8 @@ export default function SettingsView({
       <Section title={t('settings.data')} hint={t('settings.dataHint')}>
         <ExportControls />
       </Section>
+
+      <DangerZone />
     </div>
   )
 }
