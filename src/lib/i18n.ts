@@ -455,9 +455,9 @@ const S = {
   ],
   'danger.done': ['Everything has been deleted.', 'Tudo foi apagado.'],
   'settings.shareBackup': ['Send it somewhere', 'Enviar para algum lugar'],
-  'settings.shareFailed': [
-    'The file could not be shared. Use the backup button instead.',
-    'Não foi possível compartilhar o arquivo. Use o botão de backup.',
+  'settings.shareFell': [
+    'This phone would not share the file, so it was saved to your downloads instead. Move it from there.',
+    'Este celular não compartilhou o arquivo, então ele foi salvo nos seus downloads. Mova de lá.',
   ],
   'settings.offDeviceHint': [
     'Sending it to Drive, Files or your email keeps it safe if the phone is lost — a backup in Downloads is on the same phone.',

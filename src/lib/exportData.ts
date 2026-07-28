@@ -173,7 +173,10 @@ export function canShareBackup(): boolean {
   }
 }
 
-export type ShareOutcome = 'shared' | 'cancelled' | 'failed'
+export type ShareOutcome =
+  | { result: 'shared' | 'cancelled' }
+  /** Sharing failed, so the file was downloaded instead. `why` is for the message. */
+  | { result: 'downloaded'; why: string }
 
 /**
  * The backup, handed to the share sheet instead of the downloads folder. This is
@@ -182,16 +185,39 @@ export type ShareOutcome = 'shared' | 'cancelled' | 'failed'
  *
  * Cancelling is not a failure: the sheet reports a dismissal as an AbortError,
  * and nothing should be said about it.
+ *
+ * Anything else and the file is downloaded rather than lost. canShare can say
+ * yes and share still refuse -- iOS is particular about JSON, and about how the
+ * call is shaped -- so pressing this must always end with a file somewhere.
+ *
+ * Two attempts before giving up: files alone, then the file re-typed as plain
+ * text. The name still ends .json either way, which is all the restore reads.
  */
 export async function shareJSON(snap: Snapshot): Promise<ShareOutcome> {
   const { name, text } = backupFile(snap)
-  const file = new File([text], name, { type: 'application/json' })
-  try {
-    await navigator.share({ files: [file], title: name })
-    return 'shared'
-  } catch (e) {
-    return (e as Error)?.name === 'AbortError' ? 'cancelled' : 'failed'
+
+  // No title alongside the file: some iOS versions reject the combination, and
+  // the sheet shows the filename anyway.
+  const attempts = [
+    () => new File([text], name, { type: 'application/json' }),
+    () => new File([text], name, { type: 'text/plain' }),
+  ]
+
+  let last: Error | undefined
+  for (const make of attempts) {
+    try {
+      await navigator.share({ files: [make()] })
+      return { result: 'shared' }
+    } catch (e) {
+      const err = e as Error
+      // A dismissal is a decision, not a fault -- stop, say nothing.
+      if (err?.name === 'AbortError') return { result: 'cancelled' }
+      last = err
+    }
   }
+
+  download(name, 'application/json', text)
+  return { result: 'downloaded', why: last?.name || 'Error' }
 }
 
 /**

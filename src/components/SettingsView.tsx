@@ -308,7 +308,9 @@ function ShareBackupButton() {
   const { t } = useT()
   const snapshot = useStore((s) => s.snapshot)
   const [can] = useState(canShareBackup)
-  const [failed, setFailed] = useState(false)
+  // The reason the share sheet refused, kept only so she can tell me what it
+  // said -- the file is downloaded either way, so nothing depends on it.
+  const [fell, setFell] = useState<string | null>(null)
 
   if (!can) return null
 
@@ -317,16 +319,20 @@ function ShareBackupButton() {
       <button
         className="btn"
         onClick={async () => {
-          setFailed(false)
+          setFell(null)
           const outcome = await shareJSON(snapshot())
-          if (outcome === 'failed') setFailed(true)
+          if (outcome.result === 'downloaded') setFell(outcome.why)
         }}
       >
         {t('settings.shareBackup')}
       </button>
       {/* Full width so it wraps onto its own line under the two buttons. */}
       <p className="w-full text-sm text-ink-faint">{t('settings.offDeviceHint')}</p>
-      {failed && <p className="w-full text-sm text-danger">{t('settings.shareFailed')}</p>}
+      {fell && (
+        <p className="w-full text-sm text-danger">
+          {t('settings.shareFell')} <span className="text-ink-faint">({fell})</span>
+        </p>
+      )}
     </>
   )
 }

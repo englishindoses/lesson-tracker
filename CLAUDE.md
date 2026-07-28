@@ -267,6 +267,13 @@ phones disagree about which types they accept, and the button isn't rendered at
 all where that fails; a laptop has the download and a synced folder. Cancelling
 the sheet reports an `AbortError` and is silent — it isn't a failure.
 
+**`canShare` can say yes and `share` still refuse** — this happened on her
+phone. So it tries twice, the file as `application/json` and then as
+`text/plain`, sends no `title` alongside the file (some iOS versions reject the
+combination), and if both fail it **downloads the file** rather than leaving her
+with nothing. The error name is shown in the message purely so she can report
+what it said. Pressing the button always ends with a file somewhere.
+
 All three spreadsheets take a month range (`from`/`to`, "YYYY-MM", either end
 open) and an include-archived switch, off by default. The ledger is still built
 on each class's full history and only the *rows* are filtered, so a March
