@@ -102,6 +102,8 @@ interface StoreState extends Snapshot {
   importRows: (backup: Backup) => ImportResult
   /** Every student, class and lesson, gone -- here and on the server. */
   deleteEverything: () => void
+  /** Throw away writes the server keeps refusing, so syncing can move again. */
+  discardQueue: () => void
 
   snapshot: () => Snapshot
 }
@@ -487,6 +489,20 @@ export const useStore = create<StoreState>((set, get) => {
       set({ pendingWrites: queue.length })
       cacheNow()
       void get().flush()
+    },
+
+    /**
+     * The way out of a jam. One write the server will never accept blocks every
+     * write behind it and, now that a failed flush stops the pull, freezes
+     * syncing altogether. Emptying the queue costs those unsent changes -- the
+     * screen then reloads from the server, which is the truth -- but the
+     * alternative is an app that has quietly stopped saving.
+     */
+    discardQueue() {
+      queue = []
+      persistQueue()
+      set({ pendingWrites: 0, sync: 'syncing', syncError: null })
+      void get().pull()
     },
 
     snapshot() {

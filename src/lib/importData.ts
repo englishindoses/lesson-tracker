@@ -70,12 +70,54 @@ export function parseBackup(text: string): ParseResult {
 
   return {
     ok: true,
-    backup: {
+    backup: tidy({
       students: students as Student[],
       classes: classes as Class[],
       class_students: class_students as ClassStudent[],
       entries: entries as Entry[],
-    },
+    }),
+  }
+}
+
+/**
+ * The columns each table actually has. A backup is an old file by definition,
+ * and the server rejects an insert naming a column that no longer exists -- one
+ * stale field and the whole restore jams, which is exactly what a backup must
+ * not do. So rows are rebuilt from these lists rather than sent as found:
+ * anything the app no longer knows about is dropped, and `sort_key` (generated
+ * by the database) goes with it.
+ *
+ * Keep in step with types.ts and supabase/schema.sql.
+ */
+const FIELDS = {
+  students: ['id', 'user_id', 'name', 'contact', 'level', 'needs', 'notes', 'archived',
+    'created_at', 'updated_at'],
+  classes: ['id', 'user_id', 'name', 'lesson_type', 'default_duration_min', 'pricing_mode',
+    'price_per_lesson', 'monthly_price', 'notes', 'archived', 'created_at', 'updated_at'],
+  class_students: ['class_id', 'student_id', 'user_id'],
+  entries: ['id', 'user_id', 'class_id', 'kind', 'entry_date', 'duration_min', 'presence',
+    'not_charged', 'lesson_notes', 'due_date', 'amount', 'paid', 'paid_date', 'extra_notes',
+    'created_at', 'updated_at'],
+} as const
+
+function onlyKnown<T>(rows: T[], fields: readonly string[]): T[] {
+  return rows.map((row) => {
+    const out: Record<string, unknown> = {}
+    for (const f of fields) {
+      const v = (row as Record<string, unknown>)[f]
+      if (v !== undefined) out[f] = v
+    }
+    return out as T
+  })
+}
+
+/** Strip every column the app doesn't know about, table by table. */
+export function tidy(backup: Backup): Backup {
+  return {
+    students: onlyKnown(backup.students, FIELDS.students),
+    classes: onlyKnown(backup.classes, FIELDS.classes),
+    class_students: onlyKnown(backup.class_students, FIELDS.class_students),
+    entries: onlyKnown(backup.entries, FIELDS.entries),
   }
 }
 

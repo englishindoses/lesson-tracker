@@ -548,6 +548,9 @@ export default function SettingsView({
   const syncLabel = useSyncLabel()
   const email = useStore((s) => s.email)
   const syncError = useStore((s) => s.syncError)
+  const pendingWrites = useStore((s) => s.pendingWrites)
+  const discardQueue = useStore((s) => s.discardQueue)
+  const [discarding, setDiscarding] = useState(false)
   const signOut = useStore((s) => s.signOut)
   const changePassword = useStore((s) => s.changePassword)
 
@@ -659,6 +662,26 @@ export default function SettingsView({
           <p className="mb-3 break-words text-sm text-ink-faint">
             {t('sync.reason')}: {syncError}
           </p>
+        )}
+        {/* Only when the queue is genuinely stuck: a write the server refuses
+            blocks every write behind it, so there has to be a way out. */}
+        {pendingWrites > 0 && syncError && (
+          <div className="mb-3">
+            <button
+              className="btn"
+              onClick={() => {
+                if (discarding) {
+                  discardQueue()
+                  setDiscarding(false)
+                } else setDiscarding(true)
+              }}
+            >
+              {discarding
+                ? t('sync.discardConfirm')
+                : t('sync.discard', { n: pendingWrites })}
+            </button>
+            <p className="mt-1 text-sm text-ink-faint">{t('sync.discardHint')}</p>
+          </div>
         )}
 
         <Toggle

@@ -47,6 +47,12 @@ const S = {
   'sync.errorPending': ['Not sent · {n}', 'Não enviado · {n}'],
   'sync.unconfigured': ['No database', 'Sem banco de dados'],
   'sync.reason': ['The server said', 'O servidor respondeu'],
+  'sync.discard': ['Discard {n} unsent changes', 'Descartar {n} mudanças não enviadas'],
+  'sync.discardHint': [
+    'Only if syncing is stuck. Those changes are lost and the app reloads what the server has.',
+    'Só se a sincronização estiver travada. Essas mudanças são perdidas e o app recarrega o que está no servidor.',
+  ],
+  'sync.discardConfirm': ['Yes, discard them', 'Sim, descartar'],
 
   // -------------------------------------------------------------------- auth
   'auth.tagline': [
