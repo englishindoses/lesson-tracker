@@ -411,6 +411,23 @@ const S = {
     'The backup is always the whole thing — the choices above only shape the spreadsheets.',
     'O backup é sempre tudo — as escolhas acima valem só para as planilhas.',
   ],
+  'update.section': ['App version', 'Versão do app'],
+  'update.sectionHint': [
+    'The app updates itself, but an installed one can be slow to notice. This asks it to look now.',
+    'O app se atualiza sozinho, mas um app instalado pode demorar a perceber. Isto pede para ele verificar agora.',
+  ],
+  'update.check': ['Check for updates', 'Verificar atualizações'],
+  'update.checking': ['Looking…', 'Verificando…'],
+  'update.updating': ['A new version is here — reloading…', 'Nova versão encontrada — recarregando…'],
+  'update.current': ['You have the latest version.', 'Você já tem a versão mais recente.'],
+  'update.failed': [
+    'Could not check — you may be offline.',
+    'Não foi possível verificar — talvez você esteja offline.',
+  ],
+  'update.unsupported': [
+    'This browser is not running the installed app, so a reload is enough.',
+    'Este navegador não está rodando o app instalado, então recarregar a página é suficiente.',
+  ],
   'danger.title': ['Delete everything', 'Apagar tudo'],
   'danger.hint': [
     'Removes every student, class, lesson and payment, on this device and on every other. Your account and your settings stay. This cannot be undone.',

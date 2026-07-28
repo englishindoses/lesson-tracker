@@ -12,6 +12,7 @@ import {
   type ExportOptions,
 } from '../lib/exportData'
 import { readFile } from '../lib/importData'
+import { checkForUpdate, type UpdateCheck as UpdateResult } from '../lib/pwaUpdate'
 import { formatMonth } from '../lib/format'
 import { setStaysLoggedIn, staysLoggedIn } from '../lib/supabase'
 import {
@@ -158,6 +159,46 @@ function MonthSelect({
         ))}
       </select>
     </label>
+  )
+}
+
+/**
+ * Asking the service worker to look for a new build now.
+ *
+ * The app already updates itself in the background, so this exists for the case
+ * of a change pushed a moment ago that the installed app hasn't noticed. When it
+ * does find one it reloads on its own, which is why 'updating' is the last thing
+ * this component ever renders.
+ */
+function UpdateCheck() {
+  const { t } = useT()
+  const [state, setState] = useState<'idle' | 'checking' | UpdateResult>('idle')
+
+  const message: Record<UpdateResult, TKey> = {
+    updating: 'update.updating',
+    current: 'update.current',
+    failed: 'update.failed',
+    unsupported: 'update.unsupported',
+  }
+
+  return (
+    <>
+      <button
+        className="btn"
+        disabled={state === 'checking' || state === 'updating'}
+        onClick={async () => {
+          setState('checking')
+          setState(await checkForUpdate())
+        }}
+      >
+        {state === 'checking' ? t('update.checking') : t('update.check')}
+      </button>
+      {state !== 'idle' && state !== 'checking' && (
+        <p className={`mt-2 text-sm ${state === 'current' ? 'text-good' : 'text-ink-faint'}`}>
+          {t(message[state])}
+        </p>
+      )}
+    </>
   )
 }
 
@@ -646,6 +687,10 @@ export default function SettingsView({
         <button className="btn mt-5" onClick={() => void signOut()}>
           {t('auth.signOut')}
         </button>
+      </Section>
+
+      <Section title={t('update.section')} hint={t('update.sectionHint')}>
+        <UpdateCheck />
       </Section>
 
       <Section title={t('settings.data')} hint={t('settings.dataHint')}>

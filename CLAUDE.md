@@ -282,6 +282,22 @@ the whole line in one cell, which is what made the first version unreadable.
 No `sep=;` preamble — Excel understands it but Google Sheets shows it as a
 stray first row and then stops detecting the separator itself.
 
+## Updating the app
+
+`registerType: 'autoUpdate'`, so a new build is fetched in the background and
+applied on a later launch with nothing to press. The gap that leaves: an
+installed PWA only checks when it feels like it, so a change pushed minutes ago
+can be invisible with no way to hurry it.
+
+Settings → App version has a **Check for updates** button. `src/lib/pwaUpdate.ts`
+owns it: registration moved out of the plugin's injected script
+(`injectRegister: null` in `vite.config.ts`) purely so the registration can be
+kept and `update()` called on demand. If a new worker turns up, autoUpdate
+reloads the page itself — which is why "reloading…" is the last thing that
+component renders. Offline reports "could not check", not an error.
+
+The types were already in place: `tsconfig` lists `vite-plugin-pwa/client`.
+
 ## Delete everything
 
 Its own section at the foot of Settings, below the exports on purpose — the file

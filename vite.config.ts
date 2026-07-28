@@ -10,6 +10,9 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      // Registered by hand in src/lib/pwaUpdate.ts, so Settings can hold on to
+      // the registration and offer a "check for updates now" button.
+      injectRegister: null,
       includeAssets: ['favicon.svg', 'icon-192.png', 'icon-512.png'],
       manifest: {
         name: 'Lesson Tracker',
