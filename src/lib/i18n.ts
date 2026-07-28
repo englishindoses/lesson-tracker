@@ -46,6 +46,7 @@ const S = {
   'sync.error': ['Sync problem', 'Erro de sincronização'],
   'sync.errorPending': ['Not sent · {n}', 'Não enviado · {n}'],
   'sync.unconfigured': ['No database', 'Sem banco de dados'],
+  'sync.reason': ['The server said', 'O servidor respondeu'],
 
   // -------------------------------------------------------------------- auth
   'auth.tagline': [

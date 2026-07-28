@@ -199,6 +199,13 @@ export const useStore = create<StoreState>((set, get) => {
       // edits that haven't landed yet.
       await get().flush()
 
+      // And if they still haven't landed, do not read at all. The read replaces
+      // local state wholesale, so pulling now would wipe every unsent row from
+      // the screen and from the cache -- the queue would still hold them, but
+      // they would be invisible until it drained, which is indistinguishable
+      // from having lost them. This is what ate a restore whose upload failed.
+      if (queue.length) return
+
       try {
         const [students, classes, roster, entries] = await Promise.all([
           supabase.from('students').select('*'),

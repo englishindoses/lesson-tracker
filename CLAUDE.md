@@ -97,6 +97,17 @@ Other rules:
 
 ## Traps already hit — don't repeat these
 
+**A failed flush must block the pull.** `pull()` replaces local state wholesale,
+so reading while the queue still holds unsent rows wipes them from the screen
+and from the cache. The queue still has them, but they are invisible until it
+drains, which is indistinguishable from losing them. This ate a restore whose
+upload was refused: 83 rows queued, "Not sent · 83", then a refresh and an empty
+app. `pull()` now returns early if `queue.length` is non-zero after the flush.
+
+The cost is that a write the server will *never* accept jams the queue and
+freezes syncing. `syncError` is shown in Settings under the account for exactly
+that reason — the status line said "Not sent · 83" and never said why.
+
 **Tailwind opacity modifiers break on this theme.** Colours are CSS variables, so
 `bg-paper/95` emits invalid CSS and the element ends up with *no* background.
 This made the sticky header transparent. Use solid `bg-paper`, or add a token.

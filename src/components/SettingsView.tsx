@@ -547,6 +547,7 @@ export default function SettingsView({
   const { t } = useT()
   const syncLabel = useSyncLabel()
   const email = useStore((s) => s.email)
+  const syncError = useStore((s) => s.syncError)
   const signOut = useStore((s) => s.signOut)
   const changePassword = useStore((s) => s.changePassword)
 
@@ -651,6 +652,14 @@ export default function SettingsView({
 
       <Section title={t('settings.account')} hint={email ?? undefined}>
         <p className={`mb-3 text-sm ${syncLabel.className}`}>{syncLabel.text}</p>
+        {/* The server's own words. Only here, and only when something failed:
+            "Not sent · 83" says a write was refused but never says why, which
+            left a failed restore impossible to diagnose from the phone. */}
+        {syncError && (
+          <p className="mb-3 break-words text-sm text-ink-faint">
+            {t('sync.reason')}: {syncError}
+          </p>
+        )}
 
         <Toggle
           label={t('settings.stayIn')}
