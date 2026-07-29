@@ -662,27 +662,70 @@ body {
 }
 
 /* Today, in the list. Rows are in date order, so today's lesson and today's
-   payment sit next to each other and the outline brackets the whole run:
-   sides on every row, a lid on the first and a floor on the last. Edges only,
-   no background -- the row tints above carry the money and must survive. */
+   payment sit next to each other and the run is enclosed as one block, with a
+   labelled rail down its left side.
+
+   Every edge is a box-shadow, none of them a border. The table is
+   border-collapse: collapse, where a border between two rows is shared with
+   the neighbour and resolved against it -- an accent border-top lost that
+   contest to the plain rule above and the lid simply vanished. Shadows never
+   enter that resolution.
+
+   Composed through variables because three classes land on the same row and a
+   second box-shadow declaration would replace the first outright rather than
+   adding to it. Edges only, no background: the row tints above carry the
+   money and have to survive. */
 .row-today {
+  --today-left: 0 0 0 0 transparent;
+  --today-top: 0 0 0 0 transparent;
+  --today-bottom: 0 0 0 0 transparent;
   box-shadow:
-    inset 2px 0 0 var(--accent),
-    inset -2px 0 0 var(--accent);
+    var(--today-left),
+    inset -2px 0 0 var(--accent),
+    var(--today-top),
+    var(--today-bottom);
 }
-/* The payment row's green edge would be overwritten outright, so put it back
-   alongside the accent one rather than losing it on today's payments. */
+/* Today's payment keeps the green edge that says it is a payment. */
 .row-payment.row-today {
-  box-shadow:
-    inset 3px 0 0 var(--good),
-    inset -2px 0 0 var(--accent);
+  --today-left: inset 3px 0 0 var(--good);
 }
-/* Plain CSS after the utilities layer, so these beat the row's border-rule. */
 .row-today-first {
-  border-top: 2px solid var(--accent);
+  --today-top: inset 0 2px 0 var(--accent);
 }
 .row-today-last {
-  border-bottom: 2px solid var(--accent);
+  --today-bottom: inset 0 -2px 0 var(--accent);
+}
+
+/* The rail: one cell spanning the whole run, with the word set sideways and
+   reading upwards. Sides and ends drawn here so the rail closes the left of
+   the block the rows close on the right. */
+.rail-cell {
+  width: 1.5rem;
+  padding: 0;
+  text-align: center;
+  vertical-align: middle;
+  background-color: var(--accent-soft);
+  box-shadow:
+    inset 2px 0 0 var(--accent),
+    inset 0 2px 0 var(--accent),
+    inset 0 -2px 0 var(--accent);
+}
+/* The same width on every other row, so the columns line up down the table. */
+.rail-blank {
+  width: 1.5rem;
+  padding: 0;
+}
+.rail-word {
+  display: inline-block;
+  writing-mode: vertical-rl;
+  /* vertical-rl reads downwards; the half turn stands it up the other way. */
+  transform: rotate(180deg);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--ink);
 }
 
 /* The same idea on a phone, where the rows are separate cards and there is no

@@ -353,6 +353,20 @@ export default function ClassView({
     return `row-today${first ? ' row-today-first' : ''}${last ? ' row-today-last' : ''}`
   }
 
+  /**
+   * The rail down the left of the run is one cell with a rowSpan, so the first
+   * of today's rows carries it and the rest leave the slot alone. An open
+   * extra-notes line is a table row of its own and has to be counted in.
+   */
+  const firstToday = visible.findIndex(onToday)
+  const todayRowCount = visible.reduce(
+    (n, e) =>
+      onToday(e) ? n + 1 + (e.kind === 'lesson' && expanded.has(e.id) ? 1 : 0) : n,
+    0,
+  )
+  const railFor = (i: number): number | 'skip' | null =>
+    i === firstToday ? todayRowCount : onToday(visible[i]) ? 'skip' : null
+
   return (
     <div className="pb-28 sm:pb-24">
       {/* ------------------------------------------------------------ header */}
@@ -540,6 +554,8 @@ export default function ClassView({
             <table className="w-full border-collapse text-sm">
               <thead className="sticky-head">
                 <tr className="border-b border-rule text-left text-xs uppercase tracking-wide text-ink-faint">
+                  {/* The rail's column. Empty everywhere but today's block. */}
+                  <th className="rail-blank" />
                   <th className="w-8 px-2 py-2" title={t('classView.dontChargeCol')} />
                   <th className="px-2 py-2 font-normal">{t('classView.colDate')}</th>
                   <th className="w-24 px-2 py-2 font-normal">{t('classView.colLength')}</th>
@@ -557,7 +573,7 @@ export default function ClassView({
               <tbody>
                 {visible.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="px-3 py-10 text-center text-ink-faint">
+                    <td colSpan={9} className="px-3 py-10 text-center text-ink-faint">
                       {emptyMessage}
                     </td>
                   </tr>
@@ -568,6 +584,7 @@ export default function ClassView({
                     key={entry.id}
                     {...rowProps(entry)}
                     todayEdges={todayEdges(i)}
+                    rail={railFor(i)}
                     expanded={expanded.has(entry.id)}
                     onToggleExpanded={() => toggleExpanded(entry.id)}
                     onRepeat={() => setRepeating(entry)}
@@ -699,6 +716,8 @@ function TableRow(
   props: RowProps & {
     /** '', or the row-today classes marking this row's place in today's run. */
     todayEdges: string
+    /** How many rows the rail spans here, 'skip' if a row above carries it. */
+    rail: number | 'skip' | null
     expanded: boolean
     onToggleExpanded: () => void
     onRepeat: () => void
@@ -706,7 +725,7 @@ function TableRow(
   },
 ) {
   const { t } = useT()
-  const { entry, line, onPatch, todayEdges, expanded, onToggleExpanded, onRepeat, onDelete } =
+  const { entry, line, onPatch, todayEdges, rail, expanded, onToggleExpanded, onRepeat, onDelete } =
     props
   const isLesson = entry.kind === 'lesson'
   const struck = isLesson && entry.not_charged
@@ -727,6 +746,14 @@ function TableRow(
           isLesson ? rowTint(struck, paidLesson) : 'row-payment'
         } ${mainEdges}`}
       >
+        {rail === 'skip' ? null : typeof rail === 'number' ? (
+          <td className="rail-cell" rowSpan={rail}>
+            <span className="rail-word">{t('app.today')}</span>
+          </td>
+        ) : (
+          <td className="rail-blank" />
+        )}
+
         <td className="px-2 py-1.5">
           <StrikeBox {...props} />
         </td>
@@ -799,6 +826,8 @@ function TableRow(
             todayEdges ? `row-today${closesRun ? ' row-today-last' : ''}` : ''
           }`}
         >
+          {/* Inside today's block the rail already covers this row. */}
+          {!todayEdges && <td className="rail-blank" />}
           <td />
           <td colSpan={7} className="px-2 pb-2">
             <input
