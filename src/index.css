@@ -733,6 +733,16 @@ body {
   background-color: var(--danger-wash);
 }
 
+/* The presence written out, on a laptop. Its own size rather than the chip's,
+   because "Cancelamento em cima da hora" has to fit a square the width of a
+   seventh of the screen -- so it wraps, and it is set small. */
+.day-chip-word {
+  font-size: 0.85rem;
+  line-height: 1.2;
+  text-align: center;
+  text-wrap: balance;
+}
+
 /* The add button. It was a bare + the size of the date and read as decoration;
    on a phone there is no hover to discover it with, so it has to look like a
    button all the time. */

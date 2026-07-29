@@ -321,6 +321,9 @@ const S = {
   'entry.markLessonPaid': ['{presence} — paid', '{presence} — paga'],
 
   // -------------------------------------------------------------- presence
+  // Not a presence value -- the absence of one. A lesson in the diary that
+  // hasn't been marked yet is booked, not blank.
+  'presence.booked': ['Booked', 'Agendada'],
   'presence.present': ['Present', 'Presente'],
   'presence.no_show': ['No-show', 'Faltou'],
   'presence.cancellation': ['Cancellation', 'Cancelamento'],

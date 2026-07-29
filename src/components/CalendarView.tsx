@@ -110,7 +110,7 @@ export default function CalendarView({
               <div className="mt-1 flex flex-col gap-1">
                 {items.map((entry) => {
                   const line = lines.get(entry.id)
-                  const { glyph, paid, label, struck } = entryMark(entry, line, lang)
+                  const { glyph, word, paid, label, struck } = entryMark(entry, line, lang)
                   // The same tints as the table and the cards, in the same
                   // order, plus the one a row never needs: a lesson that was
                   // taught and hasn't been paid for.
@@ -132,7 +132,22 @@ export default function CalendarView({
                       aria-label={`${label} — ${formatDate(iso)}`}
                       className={`day-chip ${tint} ${struck ? 'line-through' : ''}`}
                     >
-                      <span aria-hidden>{glyph}</span>
+                      {/* A laptop square is wide enough to say the presence
+                          outright; a phone square is not, so it keeps the
+                          symbol. A payment stays R$ at both widths -- the
+                          symbol already reads as a word. */}
+                      {entry.kind === 'payment' ? (
+                        <span aria-hidden>{glyph}</span>
+                      ) : (
+                        <>
+                          <span aria-hidden className="lg:hidden">
+                            {glyph}
+                          </span>
+                          <span aria-hidden className="day-chip-word hidden lg:inline">
+                            {word}
+                          </span>
+                        </>
+                      )}
                       {/* Sized off the glyph, so it stays a companion mark
                           rather than competing with the presence. */}
                       {paid && (

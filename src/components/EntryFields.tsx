@@ -76,7 +76,9 @@ export function PresenceSelect({ entry, onPatch }: RowProps) {
         })
       }}
     >
-      <option value="">—</option>
+      {/* Still no presence, and still charges nothing -- but a lesson sitting
+          in the diary unmarked is booked, which is worth saying. */}
+      <option value="">{t('presence.booked')}</option>
       {PRESENCE_ORDER.map((p) => (
         <option key={p} value={p}>
           {PRESENCE_META[p].glyph} {t(presenceKey(p))}
@@ -206,7 +208,12 @@ export function DeleteButton({ onDelete, label }: { onDelete: () => void; label?
   )
 }
 
-/** The mark a row gets in a calendar square: presence, plus a tick when paid. */
+/**
+ * The mark a row gets in a calendar square: presence, plus a tick when paid.
+ *
+ * `glyph` is the symbol, `word` the same thing written out — a narrow square
+ * only has room for the symbol, a wide one is easier to read in words.
+ */
 export function entryMark(entry: Entry, line: Line | undefined, lang: Lang) {
   const say = (key: Parameters<typeof translate>[1], vars?: Record<string, string | number>) =>
     translate(lang, key, vars)
@@ -214,12 +221,19 @@ export function entryMark(entry: Entry, line: Line | undefined, lang: Lang) {
     entry.kind === 'payment' ? entry.paid : line?.status === 'paid' || line?.status === 'free'
   const glyph =
     entry.kind === 'payment' ? 'R$' : entry.presence ? PRESENCE_META[entry.presence].glyph : '·'
-  const presence = entry.presence ? say(presenceKey(entry.presence)) : say('classView.lesson')
+  const presence = entry.presence ? say(presenceKey(entry.presence)) : say('presence.booked')
   const label =
     entry.kind === 'payment'
       ? say(entry.paid ? 'entry.markPaymentReceived' : 'entry.markPaymentDue')
       : line?.status === 'paid'
         ? say('entry.markLessonPaid', { presence })
         : presence
-  return { glyph, paid, label, struck: entry.kind === 'lesson' && entry.not_charged }
+  return {
+    glyph,
+    // Payments keep their symbol at every width: R$ already reads as a word.
+    word: entry.kind === 'payment' ? 'R$' : presence,
+    paid,
+    label,
+    struck: entry.kind === 'lesson' && entry.not_charged,
+  }
 }
