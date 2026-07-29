@@ -81,7 +81,7 @@ export default function CalendarView({
           return (
             <div
               key={i}
-              className={`relative min-h-[5.5rem] border-b border-r border-rule/50 p-1 sm:min-h-[7rem] ${
+              className={`relative min-h-[6.5rem] border-b border-r border-rule/50 p-1 sm:min-h-[8.5rem] ${
                 isToday ? 'day-today' : ''
               }`}
             >
@@ -105,7 +105,9 @@ export default function CalendarView({
                 </button>
               </div>
 
-              <div className="mt-1 flex flex-wrap gap-1">
+              {/* Stacked, not wrapped: at most a lesson and a payment, and a
+                  full-width mark is far easier to read than a small one. */}
+              <div className="mt-1 flex flex-col gap-1">
                 {items.map((entry) => {
                   const line = lines.get(entry.id)
                   const { glyph, paid, label, struck } = entryMark(entry, line, lang)
@@ -131,8 +133,10 @@ export default function CalendarView({
                       className={`day-chip ${tint} ${struck ? 'line-through' : ''}`}
                     >
                       <span aria-hidden>{glyph}</span>
+                      {/* Sized off the glyph, so it stays a companion mark
+                          rather than competing with the presence. */}
                       {paid && (
-                        <span aria-hidden className="text-sm text-good">
+                        <span aria-hidden className="text-[0.6em] text-good">
                           ✓
                         </span>
                       )}

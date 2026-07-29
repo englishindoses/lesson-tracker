@@ -703,17 +703,28 @@ body {
 /* What is in a day. Big enough to read at arm's length and filled with the
    highlighter that says its state, rather than an outline you have to squint
    at: green settled, red owed, grey struck, plain not marked yet. */
+/* A square holds one lesson and one payment at most -- it is one class, and a
+   class does not meet twice in a day -- so a mark can take the full width of
+   the square and be read at a glance rather than squinted at. */
 .day-chip {
-  display: inline-flex;
+  display: flex;
+  width: 100%;
   align-items: center;
-  gap: 0.15rem;
-  min-width: 1.9rem;
-  padding: 0.15rem 0.35rem;
+  justify-content: center;
+  gap: 0.1rem;
+  min-height: 2rem;
+  padding: 0.1rem 0.2rem;
   border: 1px solid var(--rule);
   border-radius: var(--radius);
-  font-size: 1.05rem;
-  line-height: 1.1;
+  font-size: 1.4rem;
+  line-height: 1;
   color: var(--ink);
+}
+@media (min-width: 640px) {
+  .day-chip {
+    min-height: 2.7rem;
+    font-size: 1.9rem;
+  }
 }
 .day-chip:hover {
   border-color: var(--accent);
