@@ -81,7 +81,7 @@ export default function CalendarView({
           return (
             <div
               key={i}
-              className={`relative min-h-[6.5rem] border-b border-r border-rule/50 p-1 sm:min-h-[8.5rem] ${
+              className={`day-cell relative min-h-[6.5rem] border-b border-r border-rule/50 p-1 sm:min-h-[8.5rem] ${
                 isToday ? 'day-today' : ''
               }`}
             >

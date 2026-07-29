@@ -694,6 +694,12 @@ body {
 
 /* ------------------------------------------------------------- calendar --- */
 
+/* Each square measures itself, so what is written inside it can be sized as a
+   share of its width -- see .day-chip-word. */
+.day-cell {
+  container-type: inline-size;
+}
+
 /* Today's square. Inset so it reads as the square being ringed rather than a
    thicker grid line between two days. */
 .day-today {
@@ -733,12 +739,14 @@ body {
   background-color: var(--danger-wash);
 }
 
-/* The presence written out, on a laptop. Its own size rather than the chip's,
-   because "Cancelamento em cima da hora" has to fit a square the width of a
-   seventh of the screen -- so it wraps, and it is set small. */
+/* The presence written out, on a laptop. Sized as a share of the square rather
+   than in rem, so it fills whatever width a seventh of the screen happens to
+   be instead of being set once for a screen size that may not be yours. The
+   clamp keeps "Cancelamento em cima da hora" from swallowing a narrow square
+   and keeps "Presente" from becoming a headline on a wide one. */
 .day-chip-word {
-  font-size: 0.85rem;
-  line-height: 1.2;
+  font-size: clamp(0.95rem, 13cqw, 1.65rem);
+  line-height: 1.1;
   text-align: center;
   text-wrap: balance;
 }
