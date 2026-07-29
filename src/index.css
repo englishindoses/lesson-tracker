@@ -692,6 +692,13 @@ body {
   outline-offset: 2px;
 }
 
+/* A payment card, on Today. Ringed green whether or not the money has come in
+   -- it is a payment either way -- and .row-payment fills it once it has. */
+.card-payment {
+  outline: 2px solid var(--good);
+  outline-offset: 2px;
+}
+
 /* ------------------------------------------------------------- calendar --- */
 
 /* Each square measures itself, so what is written inside it can be sized as a

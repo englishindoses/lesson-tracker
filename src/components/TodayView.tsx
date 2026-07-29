@@ -49,7 +49,10 @@ export default function TodayView({ onOpenClass }: { onOpenClass: (id: string) =
   }, [])
 
   const rows = useMemo(() => {
-    const todays = entries.filter((e) => e.kind === 'lesson' && e.entry_date === today)
+    // A lesson is dated by entry_date, a payment by the day it falls due.
+    const todays = entries.filter(
+      (e) => (e.kind === 'lesson' ? e.entry_date : e.due_date) === today,
+    )
     if (todays.length === 0) return []
 
     // One ledger per class involved, built on that class's whole history --
@@ -69,13 +72,18 @@ export default function TodayView({ onOpenClass }: { onOpenClass: (id: string) =
     }
     // Grouped by class, and the classes in the order they read on the classes
     // page. Time of day isn't recorded, so there is no truer order than this.
+    // Within a class the lesson comes before the payment, as it does in the
+    // class table.
     return out.sort(
       (a, b) =>
-        a.cls.name.localeCompare(b.cls.name) || a.entry.created_at.localeCompare(b.entry.created_at),
+        a.cls.name.localeCompare(b.cls.name) ||
+        (a.entry.kind === b.entry.kind ? 0 : a.entry.kind === 'lesson' ? -1 : 1) ||
+        a.entry.created_at.localeCompare(b.entry.created_at),
     )
   }, [entries, classes, roster, students, today])
 
-  const taught = rows.reduce((sum, r) => sum + (r.entry.duration_min ?? 0), 0)
+  const lessons = rows.filter((r) => r.entry.kind === 'lesson')
+  const taught = lessons.reduce((sum, r) => sum + (r.entry.duration_min ?? 0), 0)
 
   const blankEntry = (classId: string): Omit<Entry, 'kind'> => ({
     id: newId(),
@@ -139,10 +147,10 @@ export default function TodayView({ onOpenClass }: { onOpenClass: (id: string) =
           <h1 className="style-hand rule-under text-2xl">{t('app.today')}</h1>
           <div className="mt-1 text-xs text-ink-soft">
             {formatDate(today)}
-            {rows.length > 0 && (
+            {lessons.length > 0 && (
               <>
                 {' · '}
-                {t('classes.lessonCount', { n: rows.length })}
+                {t('classes.lessonCount', { n: lessons.length })}
                 {taught > 0 && ` · ${duration(taught)}`}
               </>
             )}
@@ -174,7 +182,7 @@ export default function TodayView({ onOpenClass }: { onOpenClass: (id: string) =
   )
 }
 
-/** One of today's lessons: which class it is, then the usual row editors. */
+/** One of today's rows: which class it is, then the usual row editors. */
 function LessonCard({
   row,
   props,
@@ -188,17 +196,32 @@ function LessonCard({
 }) {
   const { t } = useT()
   const { entry, cls, names, line } = row
-  const struck = entry.not_charged
+  const isLesson = entry.kind === 'lesson'
+  const struck = isLesson && entry.not_charged
+
+  // A payment is ringed in green whether or not it has come in yet — it is
+  // money either way. The fill is what says the money has actually arrived.
+  const tint = isLesson
+    ? struck
+      ? 'row-void'
+      : line?.status === 'paid'
+        ? 'row-paid'
+        : ''
+    : `card-payment ${entry.paid ? 'row-payment' : ''}`
 
   return (
     <div
       data-entry-id={entry.id}
-      className={`card p-3 ${
-        struck ? 'row-void' : line?.status === 'paid' ? 'row-paid' : ''
-      } ${struck ? 'struck' : ''}`}
+      className={`card p-3 ${tint} ${struck ? 'struck' : ''}`}
     >
       <div className="flex items-start gap-2">
-        <StrikeBox {...props} />
+        {isLesson ? (
+          <StrikeBox {...props} />
+        ) : (
+          <span className="mt-1 text-xs uppercase tracking-wide text-good">
+            {t('classView.payment')}
+          </span>
+        )}
         <button
           className="min-w-0 flex-1 text-left hover:text-accent"
           onClick={onOpenClass}
@@ -207,7 +230,8 @@ function LessonCard({
           <div className="style-hand truncate text-lg">{cls.name}</div>
           <div className="truncate text-xs text-ink-soft">
             {names.length ? names.join(', ') : t('classes.noStudents')}
-            {cls.pricing_mode === 'per_lesson' &&
+            {isLesson &&
+              cls.pricing_mode === 'per_lesson' &&
               cls.price_per_lesson != null &&
               ` · ${money(cls.price_per_lesson)}`}
           </div>
@@ -216,22 +240,26 @@ function LessonCard({
       </div>
 
       <div className="mt-2 grid grid-cols-2 gap-2">
-        <label className="col-span-2 block text-xs text-ink-soft">
-          {t('entry.presence')}
-          <PresenceSelect {...props} />
-        </label>
+        {isLesson && (
+          <>
+            <label className="col-span-2 block text-xs text-ink-soft">
+              {t('entry.presence')}
+              <PresenceSelect {...props} />
+            </label>
 
-        <label className="block text-xs text-ink-soft">
-          {t('classView.minutes')}
-          <DurationInput {...props} />
-        </label>
+            <label className="block text-xs text-ink-soft">
+              {t('classView.minutes')}
+              <DurationInput {...props} />
+            </label>
+          </>
+        )}
 
-        <label className="block text-xs text-ink-soft">
+        <label className={`block text-xs text-ink-soft ${isLesson ? '' : 'col-span-1'}`}>
           {t('classView.amountBRL')}
           <AmountInput {...props} />
         </label>
 
-        <div className="col-span-2 text-xs text-ink-soft">
+        <div className={`text-xs text-ink-soft ${isLesson ? 'col-span-2' : 'col-span-1'}`}>
           <span className="mb-1 block">{t('entry.paid')}</span>
           <div className="flex items-center gap-2">
             <PaidControl {...props} />
