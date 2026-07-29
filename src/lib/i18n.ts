@@ -219,6 +219,8 @@ const S = {
   'classView.filterPresence': ['Filter by presence', 'Filtrar por presença'],
   'classView.anyPresence': ['Any presence', 'Qualquer presença'],
   'classView.clearFilters': ['Clear filters', 'Limpar filtros'],
+  'classView.asTable': ['Table', 'Tabela'],
+  'classView.asCards': ['Cards', 'Cartões'],
   'classView.addPayment': ['+ Payment', '+ Pagamento'],
   'classView.addLesson': ['+ Lesson', '+ Aula'],
   'classView.unpin': ['Unpin filters', 'Desafixar filtros'],

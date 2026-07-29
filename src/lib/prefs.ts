@@ -24,6 +24,8 @@ export type Prefs = {
   lang?: unknown
   classView?: unknown
   pinFilters?: unknown
+  /** The full table on a narrow screen, instead of one card per row. */
+  phoneTable?: unknown
   /** Only ever adopted, never written: the pre-four-choices theme name. */
   style?: unknown
 }
@@ -33,8 +35,11 @@ const mirrorKey = (uid: string) => `lt.prefs.${uid}`
 /** Who was last signed in, so index.html can pick the right mirror pre-paint. */
 const LAST_USER_KEY = 'lt.lastUser'
 
-/** Written by versions that kept one unscoped copy for the whole device. */
-const LEGACY: Record<keyof Prefs, string> = {
+/**
+ * Written by versions that kept one unscoped copy for the whole device.
+ * Partial: settings added after that era were never stored this way.
+ */
+const LEGACY: Partial<Record<keyof Prefs, string>> = {
   theme: 'lt.theme',
   mode: 'lt.mode',
   lang: 'lt.lang',

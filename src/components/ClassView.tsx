@@ -39,6 +39,8 @@ type ViewMode = 'list' | 'calendar'
 const readView = (): ViewMode => (prefs.get().classView === 'calendar' ? 'calendar' : 'list')
 /** Pinned unless she has said otherwise. */
 const readPinned = () => prefs.get().pinFilters !== false
+/** Cards on a narrow screen unless she has asked for the full table there. */
+const readPhoneTable = () => prefs.get().phoneTable === true
 
 export default function ClassView({
   classId,
@@ -70,6 +72,7 @@ export default function ClassView({
   // and follow the account rather than the machine.
   const view = useSyncExternalStore(prefs.subscribe, readView, readView)
   const pinned = useSyncExternalStore(prefs.subscribe, readPinned, readPinned)
+  const phoneTable = useSyncExternalStore(prefs.subscribe, readPhoneTable, readPhoneTable)
 
   const classEntries = useMemo(
     () => allEntries.filter((e) => e.class_id === classId),
@@ -496,6 +499,17 @@ export default function ClassView({
           ))}
         </select>
 
+        {/* Phones only: the table is always what a laptop gets. It scrolls
+            sideways at this width, which is the trade being offered. */}
+        {view === 'list' && (
+          <button
+            className="btn lg:hidden"
+            onClick={() => prefs.patch({ phoneTable: !phoneTable })}
+          >
+            {phoneTable ? t('classView.asCards') : t('classView.asTable')}
+          </button>
+        )}
+
         {filtersActive && (
           <button
             className="btn"
@@ -549,8 +563,8 @@ export default function ClassView({
             if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setHeld(null)
           }}
         >
-          {/* --------------------------------------------- wide screens: table */}
-          <div className="card hidden overflow-x-auto lg:block">
+          {/* ------------------------------------------------------ the table */}
+          <div className={`card overflow-x-auto lg:block ${phoneTable ? '' : 'hidden'}`}>
             <table className="w-full border-collapse text-sm">
               <thead className="sticky-head">
                 <tr className="border-b border-rule text-left text-xs uppercase tracking-wide text-ink-faint">
@@ -596,7 +610,7 @@ export default function ClassView({
           </div>
 
           {/* -------------------------------------------- narrow screens: cards */}
-          <div className="space-y-2 lg:hidden">
+          <div className={`space-y-2 lg:hidden ${phoneTable ? 'hidden' : ''}`}>
             {visible.length === 0 && (
               <p className="card px-3 py-10 text-center text-sm text-ink-faint">{emptyMessage}</p>
             )}
