@@ -10,7 +10,6 @@ import ClassView from './components/ClassView'
 import TodayView from './components/TodayView'
 import SettingsView from './components/SettingsView'
 import Doodles from './components/Doodles'
-import LanguageToggle from './components/LanguageToggle'
 
 type Tab = 'today' | 'classes' | 'students' | 'settings'
 
@@ -72,10 +71,10 @@ export default function App() {
         className="no-print sticky top-0 z-30 border-b border-rule bg-paper"
       >
         <div className="mx-auto flex max-w-[1600px] items-end gap-2 px-3 pt-2 sm:gap-3 sm:px-6">
-          {/* Wraps rather than truncates: a cut-off tab name is worse than a
-              two-line header, and the header publishes its own height so
-              anything sticking below it follows. */}
-          <nav className="flex min-w-0 flex-wrap items-end gap-y-1">
+          {/* One row. The labels are short and the language toggle has moved to
+              Settings, so three tabs and the gear fit even on a narrow phone
+              in the widest of the lettering sets. */}
+          <nav className="flex min-w-0 items-end">
             {(
               [
                 ['today', t('app.today')],
@@ -103,11 +102,10 @@ export default function App() {
             {syncLabel.text}
           </span>
 
-          <LanguageToggle className="mb-2 ml-auto sm:ml-0" />
-
           {/* Settings is a page like the others, so it gets a tab -- but a
-              labelled one would crowd the two that matter on a phone. The gear
-              is a toggle: pressing it again returns to whatever was open. */}
+              labelled one would crowd the three that matter on a phone. The
+              gear is a toggle: pressing it again returns to whatever was open.
+              ml-auto because the sync line beside it is hidden on a phone. */}
           <button
             aria-current={tab === 'settings' ? 'page' : undefined}
             aria-label={t('app.settings')}
@@ -122,7 +120,7 @@ export default function App() {
               setTab('settings')
               setOpenClassId(null)
             }}
-            className="tab shrink-0 text-lg leading-none"
+            className="tab ml-auto shrink-0 text-lg leading-none sm:ml-0"
           >
             <span aria-hidden>⚙</span>
           </button>
