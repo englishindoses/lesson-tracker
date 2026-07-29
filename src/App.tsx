@@ -60,7 +60,7 @@ export default function App() {
   if (!userId) return <AuthGate />
 
   return (
-    <div className="app-shell paper-bg min-h-screen">
+    <div className="paper-bg min-h-screen">
       {/* Margin decoration. Never over the content. */}
       <Doodles set={theme.doodles} onPhone={theme.doodlesOnPhone} />
 
@@ -71,10 +71,10 @@ export default function App() {
         className="no-print sticky top-0 z-30 border-b border-rule bg-paper"
       >
         <div className="mx-auto flex max-w-[1600px] items-end gap-2 px-3 pt-2 sm:gap-3 sm:px-6">
-          {/* One row, and one that can never be wider than the screen -- see
-              .tab-strip. If the lettering is wide enough that three tabs don't
-              fit, the strip is swiped rather than the page being stretched. */}
-          <nav className="tab-strip flex min-w-0 items-end">
+          {/* One row. The labels are short and the language toggle has moved to
+              Settings, so three tabs and the gear fit even on a narrow phone
+              in the widest of the lettering sets. */}
+          <nav className="flex min-w-0 items-end">
             {(
               [
                 ['today', t('app.today')],
