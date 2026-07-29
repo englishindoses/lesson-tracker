@@ -647,6 +647,13 @@ function Figure({
   )
 }
 
+/** The background tint for a lesson row. Struck first: a row that charges
+ *  nothing is set aside, whatever the ledger says about it. */
+function rowTint(struck: boolean, paid: boolean) {
+  if (struck) return 'row-void'
+  return paid ? 'row-paid' : ''
+}
+
 /* ------------------------------------------------------- wide screens: table */
 
 function TableRow(
@@ -669,7 +676,7 @@ function TableRow(
       <tr
         data-entry-id={entry.id}
         className={`border-b border-rule align-middle ${
-          isLesson ? (paidLesson ? 'row-paid' : '') : 'row-payment'
+          isLesson ? rowTint(struck, paidLesson) : 'row-payment'
         }`}
       >
         <td className="px-2 py-1.5">
@@ -770,7 +777,7 @@ function EntryCard(props: RowProps & { onRepeat: () => void; onDelete: () => voi
     <div
       data-entry-id={entry.id}
       className={`card p-3 ${
-        isLesson ? (paidLesson ? 'row-paid' : '') : 'row-payment'
+        isLesson ? rowTint(struck, paidLesson) : 'row-payment'
       } ${struck ? 'struck' : ''}`}
     >
       <div className="flex items-center gap-2">

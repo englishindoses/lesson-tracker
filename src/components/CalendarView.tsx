@@ -107,14 +107,16 @@ export default function CalendarView({
                 {items.map((entry) => {
                   const line = lines.get(entry.id)
                   const { glyph, paid, label, struck } = entryMark(entry, line, lang)
-                  // Same tints as the table and the cards: a payment chip is
-                  // marked as a payment, a settled lesson chip is tinted.
+                  // Same tints as the table and the cards, in the same order:
+                  // payment, then struck, then settled.
                   const tint =
                     entry.kind === 'payment'
                       ? 'row-payment'
-                      : line?.status === 'paid'
-                        ? 'row-paid'
-                        : ''
+                      : struck
+                        ? 'row-void'
+                        : line?.status === 'paid'
+                          ? 'row-paid'
+                          : ''
                   return (
                     <button
                       key={entry.id}

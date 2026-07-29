@@ -355,6 +355,20 @@
   --grid: #24272c;
 }
 
+/* Two row tints that every palette gets for free, mixed from tokens it already
+   defines rather than hand-picked sixteen times over. Doing it once means a new
+   palette can never forget them or pick a shade that fights the rest.
+
+   --good-deep  a payment row: the same green as a paid lesson, pushed further
+                towards --good so the two greens read as different at a glance.
+   --muted-soft a struck-out row: paper with a little ink stirred in. Neutral by
+                construction, so it stays quiet in light and dark alike and
+                never competes with the money colours. */
+:root {
+  --good-deep: color-mix(in srgb, var(--good-soft) 70%, var(--good) 30%);
+  --muted-soft: color-mix(in srgb, var(--paper) 84%, var(--ink-faint) 16%);
+}
+
 /* ================================================================ EDGES ==== */
 /* Hand-drawn: wobbly corners, ruled inputs, a card that reads as taped in.
    Clean: straight boxes. Every shape rule below keys off this, not off a
@@ -579,14 +593,21 @@ body {
    Tailwind's /opacity modifiers don't work on var() colours, so this is its
    own token rather than bg-accent-soft/30. */
 .row-payment {
-  background-color: var(--good-soft);
+  background-color: var(--good-deep);
   box-shadow: inset 3px 0 0 var(--good);
 }
 
-/* A lesson that has been covered by a payment. Tinted, but without the green
-   edge that marks a payment row, so the two stay distinguishable. */
+/* A lesson that has been covered by a payment. The lighter of the two greens,
+   and without the green edge, so a lesson and a payment never look alike. */
 .row-paid {
   background-color: var(--good-soft);
+}
+
+/* A struck-out lesson charges nothing, so it shouldn't wear a money colour at
+   all. A grey wash, quiet enough to read as set aside rather than flagged.
+   Listed after .row-paid so it wins if a row somehow has both. */
+.row-void {
+  background-color: var(--muted-soft);
 }
 
 /* The strike-out. A pen line through the row, not a greyed-out cell. */
