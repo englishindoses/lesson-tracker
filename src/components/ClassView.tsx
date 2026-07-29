@@ -565,7 +565,7 @@ export default function ClassView({
         >
           {/* ------------------------------------------------------ the table */}
           <div className={`card overflow-x-auto lg:block ${phoneTable ? '' : 'hidden'}`}>
-            <table className="w-full border-collapse text-sm">
+            <table className="table-compact w-full border-collapse text-sm">
               <thead className="sticky-head">
                 <tr className="border-b border-rule text-left text-xs uppercase tracking-wide text-ink-faint">
                   {/* The rail's column. Empty everywhere but today's block. */}

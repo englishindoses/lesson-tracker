@@ -859,6 +859,37 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* The table on a phone.
+ *
+ * The laptop table is spaced for a laptop: 1.5rem of vertical padding a row,
+ * 0.4rem inside every field, and fixed column widths chosen for 1600px. On a
+ * 360px screen that spends height it hasn't got and forces the table wider than
+ * the screen. Everything here is plain CSS after the utilities layer, so it
+ * beats the px-2/py-1.5 on the cells without touching them -- the same reason
+ * .field beats w-auto.
+ *
+ * Released rather than shrunk: `width: auto` lets a column take what its
+ * content needs instead of what a wide screen was told to give it. */
+@media (max-width: 1023px) {
+  .table-compact {
+    font-size: 0.8rem;
+  }
+  .table-compact th,
+  .table-compact td {
+    padding: 0.15rem 0.2rem;
+    width: auto;
+  }
+  .table-compact .field {
+    padding: 0.1rem 0.25rem;
+    font-size: 0.8rem;
+  }
+  /* The rail's lane and the strike-out column stay narrow on purpose. */
+  .table-compact .rail-cell,
+  .table-compact .rail-blank {
+    width: 1.1rem;
+  }
+}
+
 /* Keep the sticky table header legible over scrolling rows. */
 .sticky-head th {
   background-color: var(--paper);
