@@ -488,6 +488,39 @@ body {
   background-color: var(--accent-soft);
 }
 
+/* A filter that is actually filtering. A ring rather than an outline, so the
+   focus outline can still sit on top of it, and drawn on both edge styles --
+   on hand-drawn edges a .field is only a bottom rule, which is far too quiet
+   to notice a month has been picked. Written as .field.filter-on so it beats
+   the [data-edges] rules above; a single class would lose to them. */
+.field.filter-on {
+  border-radius: var(--radius);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+/* Two flashes when a row is added while a filter is on -- the row may not
+   appear, and this says why. Widening the ring rather than fading it, since a
+   fade reads as the app being busy. */
+@keyframes filter-remind {
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px var(--accent),
+      0 0 0 6px var(--accent-soft);
+  }
+}
+.field.filter-remind {
+  animation: filter-remind 0.5s ease-in-out 2;
+}
+@media (prefers-reduced-motion: reduce) {
+  .field.filter-remind {
+    animation: none;
+  }
+}
+
 .btn {
   border: 1px solid var(--ink-faint);
   border-radius: var(--radius);

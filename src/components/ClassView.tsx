@@ -65,6 +65,7 @@ export default function ClassView({
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [repeating, setRepeating] = useState<Entry | null>(null)
   const [openEntryId, setOpenEntryId] = useState<string | null>(null)
+  const [reminding, setReminding] = useState(false)
   // Both of these are preferences: they survive reloads, apply to every class,
   // and follow the account rather than the machine.
   const view = useSyncExternalStore(prefs.subscribe, readView, readView)
@@ -204,6 +205,7 @@ export default function ClassView({
     const previous = lastLessonDate()
     // Weekly classes are the norm, so guess a week after the last one.
     upsertEntry(newLessonOn(previous ? addDays(previous, 7) : todayISO()))
+    remindFilters()
   }
 
   function addPayment() {
@@ -213,6 +215,7 @@ export default function ClassView({
       due_date: todayISO(),
       amount: cls!.pricing_mode === 'monthly' ? cls!.monthly_price : cls!.price_per_lesson,
     })
+    remindFilters()
   }
 
   /** The + inside a calendar square: create there, then open it for filling in. */
@@ -220,6 +223,7 @@ export default function ClassView({
     const entry = newLessonOn(dateISO)
     upsertEntry(entry)
     setOpenEntryId(entry.id)
+    remindFilters()
   }
 
   const patch = (entry: Entry, changes: Partial<Entry>) =>
@@ -288,6 +292,7 @@ export default function ClassView({
       })
     }
     upsertEntries(copies)
+    remindFilters()
   }
 
   const toggleExpanded = (id: string) =>
@@ -300,11 +305,25 @@ export default function ClassView({
 
   const setViewMode = (next: ViewMode) => prefs.patch({ classView: next })
 
+  // The month filter only filters in list view; the calendar shows a month
+  // because that is what a calendar does.
+  const monthFiltering = view === 'list' && month !== 'all'
   const filtersActive =
-    (view === 'list' && month !== 'all') ||
-    kind !== 'all' ||
-    paid !== 'all' ||
-    presence !== 'all'
+    monthFiltering || kind !== 'all' || paid !== 'all' || presence !== 'all'
+
+  /* A new row can land outside the filter and never appear, which looks like
+     the button did nothing. The outlined filters flash twice instead. */
+  function remindFilters() {
+    if (!filtersActive) return
+    // Off, then on a frame later: without the gap a second press won't restart
+    // an animation that is already running.
+    setReminding(false)
+    requestAnimationFrame(() => setReminding(true))
+  }
+
+  /** The classes for a filter control: a ring if it is filtering, flashing if
+   *  a row has just been added behind it. */
+  const ring = (on: boolean) => (on ? (reminding ? 'filter-on filter-remind' : 'filter-on') : '')
 
   const rowProps = (entry: Entry): RowProps => ({
     entry,
@@ -350,6 +369,9 @@ export default function ClassView({
       {/* ----------------------------------------------------------- filters */}
       <div
         style={pinned ? { top: 'var(--header-h, 3.25rem)' } : undefined}
+        // Animation events bubble, so one handler here retires the flash for
+        // however many filters were wearing it.
+        onAnimationEnd={() => setReminding(false)}
         className={`no-print mb-3 flex flex-wrap items-center gap-2 text-sm ${
           pinned ? 'sticky z-20 -mx-3 border-b border-rule bg-paper px-3 py-2 sm:-mx-6 sm:px-6' : ''
         }`}
@@ -395,7 +417,7 @@ export default function ClassView({
           </div>
         ) : (
           <select
-            className="field field-inline"
+            className={`field field-inline ${ring(monthFiltering)}`}
             value={month}
             onChange={(e) => setMonth(e.target.value)}
             aria-label={t('classView.filterMonth')}
@@ -410,7 +432,7 @@ export default function ClassView({
         )}
 
         <select
-          className="field field-inline"
+          className={`field field-inline ${ring(kind !== 'all')}`}
           value={kind}
           onChange={(e) => setKind(e.target.value as KindFilter)}
           aria-label={t('classView.filterKind')}
@@ -421,7 +443,7 @@ export default function ClassView({
         </select>
 
         <select
-          className="field field-inline"
+          className={`field field-inline ${ring(paid !== 'all')}`}
           value={paid}
           onChange={(e) => setPaid(e.target.value as PaidFilter)}
           aria-label={t('classView.filterPaid')}
@@ -432,7 +454,7 @@ export default function ClassView({
         </select>
 
         <select
-          className="field field-inline"
+          className={`field field-inline ${ring(presence !== 'all')}`}
           value={presence}
           onChange={(e) => setPresence(e.target.value as Presence | 'all')}
           aria-label={t('classView.filterPresence')}
