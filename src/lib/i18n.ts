@@ -34,6 +34,9 @@ const S = {
 
   // --------------------------------------------------------------------- app
   'app.title': ['Lesson Tracker', 'Controle de Aulas'],
+  // The tab, not the page heading: "Lesson Tracker" is the app's name and is
+  // far too long to sit next to two other tabs on a phone.
+  'app.classes': ['Classes', 'Turmas'],
   'app.today': ['Today', 'Hoje'],
   'app.students': ['Students', 'Alunos'],
   'app.settings': ['Settings', 'Configurações'],

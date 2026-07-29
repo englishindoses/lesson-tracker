@@ -592,10 +592,13 @@ body {
 /* Page tabs, like the dividers in a ring binder. The active one is filled with
    the palette's highlighter and breaks the rule under the header, so it reads as
    attached to the page below. */
+/* Tighter side padding on a phone. Three tabs, the language toggle and the
+   gear have to share one narrow row, and a script face sets far wider than a
+   sans at the same size. */
 .tab {
   position: relative;
   margin-bottom: -1px;
-  padding: 0.3rem 0.85rem 0.4rem;
+  padding: 0.3rem 0.5rem 0.4rem;
   border: 1px solid transparent;
   border-bottom: 0;
   border-top-left-radius: var(--radius);
@@ -618,6 +621,12 @@ body {
   inset: auto 0 -1px 0;
   height: 2px;
   background-color: var(--accent-soft);
+}
+@media (min-width: 640px) {
+  .tab {
+    padding-left: 0.85rem;
+    padding-right: 0.85rem;
+  }
 }
 [data-edges='hand'] .tab {
   border-radius: 11px 9px 0 0 / 9px 12px 0 0;
