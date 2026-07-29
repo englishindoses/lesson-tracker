@@ -338,6 +338,21 @@ export default function ClassView({
   const emptyMessage =
     classEntries.length === 0 ? t('classView.empty') : t('classView.noMatches')
 
+  /**
+   * Today's rows, outlined as one block. They are in date order, so a lesson
+   * taught today and a payment taken today are already neighbours — the run
+   * gets sides all the way down, a lid on the first row and a floor on the
+   * last, rather than each row being boxed separately.
+   */
+  const today = todayISO()
+  const onToday = (e: Entry) => (e.entry_date ?? e.due_date) === today
+  const todayEdges = (i: number) => {
+    if (!onToday(visible[i])) return ''
+    const first = i === 0 || !onToday(visible[i - 1])
+    const last = i === visible.length - 1 || !onToday(visible[i + 1])
+    return `row-today${first ? ' row-today-first' : ''}${last ? ' row-today-last' : ''}`
+  }
+
   return (
     <div className="pb-28 sm:pb-24">
       {/* ------------------------------------------------------------ header */}
@@ -548,10 +563,11 @@ export default function ClassView({
                   </tr>
                 )}
 
-                {visible.map((entry) => (
+                {visible.map((entry, i) => (
                   <TableRow
                     key={entry.id}
                     {...rowProps(entry)}
+                    todayEdges={todayEdges(i)}
                     expanded={expanded.has(entry.id)}
                     onToggleExpanded={() => toggleExpanded(entry.id)}
                     onRepeat={() => setRepeating(entry)}
@@ -571,6 +587,7 @@ export default function ClassView({
               <EntryCard
                 key={entry.id}
                 {...rowProps(entry)}
+                today={onToday(entry)}
                 onRepeat={() => setRepeating(entry)}
                 onDelete={() => deleteEntry(entry.id)}
               />
@@ -680,6 +697,8 @@ function rowTint(struck: boolean, paid: boolean) {
 
 function TableRow(
   props: RowProps & {
+    /** '', or the row-today classes marking this row's place in today's run. */
+    todayEdges: string
     expanded: boolean
     onToggleExpanded: () => void
     onRepeat: () => void
@@ -687,11 +706,18 @@ function TableRow(
   },
 ) {
   const { t } = useT()
-  const { entry, line, onPatch, expanded, onToggleExpanded, onRepeat, onDelete } = props
+  const { entry, line, onPatch, todayEdges, expanded, onToggleExpanded, onRepeat, onDelete } =
+    props
   const isLesson = entry.kind === 'lesson'
   const struck = isLesson && entry.not_charged
   const cell = struck ? 'struck' : ''
   const paidLesson = isLesson && line?.status === 'paid'
+
+  // The extra-notes row belongs to the same lesson, so the outline has to run
+  // around both -- the floor moves down to it when it is open.
+  const extraRow = expanded && isLesson
+  const closesRun = todayEdges.includes('row-today-last')
+  const mainEdges = extraRow ? todayEdges.replace(' row-today-last', '') : todayEdges
 
   return (
     <>
@@ -699,7 +725,7 @@ function TableRow(
         data-entry-id={entry.id}
         className={`border-b border-rule align-middle ${
           isLesson ? rowTint(struck, paidLesson) : 'row-payment'
-        }`}
+        } ${mainEdges}`}
       >
         <td className="px-2 py-1.5">
           <StrikeBox {...props} />
@@ -767,8 +793,12 @@ function TableRow(
         </td>
       </tr>
 
-      {expanded && isLesson && (
-        <tr className="border-b border-rule">
+      {extraRow && (
+        <tr
+          className={`border-b border-rule ${
+            todayEdges ? `row-today${closesRun ? ' row-today-last' : ''}` : ''
+          }`}
+        >
           <td />
           <td colSpan={7} className="px-2 pb-2">
             <input
@@ -787,9 +817,11 @@ function TableRow(
 
 /* ----------------------------------------------------- narrow screens: cards */
 
-function EntryCard(props: RowProps & { onRepeat: () => void; onDelete: () => void }) {
+function EntryCard(
+  props: RowProps & { today: boolean; onRepeat: () => void; onDelete: () => void },
+) {
   const { t } = useT()
-  const { entry, line, onPatch, onRepeat, onDelete } = props
+  const { entry, line, onPatch, today, onRepeat, onDelete } = props
   const [showExtra, setShowExtra] = useState(Boolean(entry.extra_notes))
   const isLesson = entry.kind === 'lesson'
   const struck = isLesson && entry.not_charged
@@ -800,7 +832,7 @@ function EntryCard(props: RowProps & { onRepeat: () => void; onDelete: () => voi
       data-entry-id={entry.id}
       className={`card p-3 ${
         isLesson ? rowTint(struck, paidLesson) : 'row-payment'
-      } ${struck ? 'struck' : ''}`}
+      } ${struck ? 'struck' : ''} ${today ? 'card-today' : ''}`}
     >
       <div className="flex items-center gap-2">
         {isLesson ? (

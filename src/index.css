@@ -367,6 +367,10 @@
 :root {
   --good-deep: color-mix(in srgb, var(--good-soft) 70%, var(--good) 30%);
   --muted-soft: color-mix(in srgb, var(--paper) 84%, var(--ink-faint) 16%);
+  /* A lesson taught but not paid for. --danger-soft alone runs from a strong
+     terracotta to a pale pink depending on the palette; pulling it towards the
+     paper lands every one of them in the same place. */
+  --danger-wash: color-mix(in srgb, var(--danger-soft) 55%, var(--paper) 45%);
 }
 
 /* ================================================================ EDGES ==== */
@@ -655,6 +659,89 @@ body {
    Listed after .row-paid so it wins if a row somehow has both. */
 .row-void {
   background-color: var(--muted-soft);
+}
+
+/* Today, in the list. Rows are in date order, so today's lesson and today's
+   payment sit next to each other and the outline brackets the whole run:
+   sides on every row, a lid on the first and a floor on the last. Edges only,
+   no background -- the row tints above carry the money and must survive. */
+.row-today {
+  box-shadow:
+    inset 2px 0 0 var(--accent),
+    inset -2px 0 0 var(--accent);
+}
+/* The payment row's green edge would be overwritten outright, so put it back
+   alongside the accent one rather than losing it on today's payments. */
+.row-payment.row-today {
+  box-shadow:
+    inset 3px 0 0 var(--good),
+    inset -2px 0 0 var(--accent);
+}
+/* Plain CSS after the utilities layer, so these beat the row's border-rule. */
+.row-today-first {
+  border-top: 2px solid var(--accent);
+}
+.row-today-last {
+  border-bottom: 2px solid var(--accent);
+}
+
+/* The same idea on a phone, where the rows are separate cards and there is no
+   run to bracket -- each card gets its own ring. */
+.card-today {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------- calendar --- */
+
+/* Today's square. Inset so it reads as the square being ringed rather than a
+   thicker grid line between two days. */
+.day-today {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+/* What is in a day. Big enough to read at arm's length and filled with the
+   highlighter that says its state, rather than an outline you have to squint
+   at: green settled, red owed, grey struck, plain not marked yet. */
+.day-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  min-width: 1.9rem;
+  padding: 0.15rem 0.35rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  font-size: 1.05rem;
+  line-height: 1.1;
+  color: var(--ink);
+}
+.day-chip:hover {
+  border-color: var(--accent);
+}
+.day-chip-due {
+  background-color: var(--danger-wash);
+}
+
+/* The add button. It was a bare + the size of the date and read as decoration;
+   on a phone there is no hover to discover it with, so it has to look like a
+   button all the time. */
+.day-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 1px dashed var(--ink-faint);
+  border-radius: var(--radius);
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--ink-soft);
+}
+.day-add:hover {
+  border-style: solid;
+  border-color: var(--accent);
+  background-color: var(--accent-soft);
+  color: var(--ink);
 }
 
 /* The strike-out. A pen line through the row, not a greyed-out cell. */

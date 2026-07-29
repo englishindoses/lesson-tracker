@@ -81,34 +81,37 @@ export default function CalendarView({
           return (
             <div
               key={i}
-              className="group relative min-h-[4.5rem] border-b border-r border-rule/50 p-1 sm:min-h-[6rem]"
+              className={`relative min-h-[5.5rem] border-b border-r border-rule/50 p-1 sm:min-h-[7rem] ${
+                isToday ? 'day-today' : ''
+              }`}
             >
-              <div className="flex items-start justify-between">
+              <div className="flex items-start justify-between gap-1">
                 <span
-                  className={`text-xs tabular ${
+                  className={`tabular ${
                     isToday
-                      ? 'rounded bg-accent px-1.5 py-0.5 font-semibold text-paper'
-                      : 'px-1 text-ink-soft'
+                      ? 'rounded bg-accent px-1.5 py-0.5 text-sm font-semibold text-paper'
+                      : 'px-1 text-xs text-ink-soft'
                   }`}
                 >
                   {day}
                 </span>
                 <button
-                  className="rounded px-1 text-sm leading-none text-ink-faint hover:bg-accent-soft hover:text-ink"
+                  className="day-add"
                   onClick={() => onAdd(iso)}
                   title={t('calendar.add', { date: formatDate(iso) })}
                   aria-label={t('calendar.add', { date: formatDate(iso) })}
                 >
-                  +
+                  <span aria-hidden>+</span>
                 </button>
               </div>
 
-              <div className="mt-0.5 flex flex-wrap gap-1">
+              <div className="mt-1 flex flex-wrap gap-1">
                 {items.map((entry) => {
                   const line = lines.get(entry.id)
                   const { glyph, paid, label, struck } = entryMark(entry, line, lang)
-                  // Same tints as the table and the cards, in the same order:
-                  // payment, then struck, then settled.
+                  // The same tints as the table and the cards, in the same
+                  // order, plus the one a row never needs: a lesson that was
+                  // taught and hasn't been paid for.
                   const tint =
                     entry.kind === 'payment'
                       ? 'row-payment'
@@ -116,21 +119,23 @@ export default function CalendarView({
                         ? 'row-void'
                         : line?.status === 'paid'
                           ? 'row-paid'
-                          : ''
+                          : line?.status === 'due'
+                            ? 'day-chip-due'
+                            : ''
                   return (
                     <button
                       key={entry.id}
                       onClick={() => onOpen(entry)}
                       title={`${label} — ${formatDate(iso)}`}
                       aria-label={`${label} — ${formatDate(iso)}`}
-                      className={`flex items-center gap-0.5 rounded border px-1 py-0.5 text-xs leading-none hover:border-accent ${
-                        entry.kind === 'payment'
-                          ? 'border-accent/60 text-accent'
-                          : 'border-rule text-ink'
-                      } ${tint} ${struck ? 'opacity-50 line-through' : ''}`}
+                      className={`day-chip ${tint} ${struck ? 'line-through' : ''}`}
                     >
-                      <span>{glyph}</span>
-                      {paid && <span className="text-good">✓</span>}
+                      <span aria-hidden>{glyph}</span>
+                      {paid && (
+                        <span aria-hidden className="text-sm text-good">
+                          ✓
+                        </span>
+                      )}
                     </button>
                   )
                 })}
