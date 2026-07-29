@@ -7,11 +7,12 @@ import AuthGate from './components/AuthGate'
 import StudentsView from './components/StudentsView'
 import ClassesView from './components/ClassesView'
 import ClassView from './components/ClassView'
+import TodayView from './components/TodayView'
 import SettingsView from './components/SettingsView'
 import Doodles from './components/Doodles'
 import LanguageToggle from './components/LanguageToggle'
 
-type Tab = 'classes' | 'students' | 'settings'
+type Tab = 'today' | 'classes' | 'students' | 'settings'
 
 export default function App() {
   const { theme, mode, setTheme, setMode } = useTheme()
@@ -76,6 +77,7 @@ export default function App() {
           <nav className="flex min-w-0 items-end gap-1">
             {(
               [
+                ['today', t('app.today')],
                 ['classes', t('app.title')],
                 ['students', t('app.students')],
               ] as [Tab, string][]
@@ -131,6 +133,8 @@ export default function App() {
       <main className="relative z-10 mx-auto max-w-[1600px] px-3 py-4 sm:px-6 sm:py-6">
         {openClassId ? (
           <ClassView classId={openClassId} onBack={() => setOpenClassId(null)} />
+        ) : tab === 'today' ? (
+          <TodayView onOpenClass={setOpenClassId} />
         ) : tab === 'classes' ? (
           <ClassesView onOpen={setOpenClassId} />
         ) : tab === 'students' ? (

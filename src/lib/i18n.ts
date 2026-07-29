@@ -34,6 +34,7 @@ const S = {
 
   // --------------------------------------------------------------------- app
   'app.title': ['Lesson Tracker', 'Controle de Aulas'],
+  'app.today': ['Today', 'Hoje'],
   'app.students': ['Students', 'Alunos'],
   'app.settings': ['Settings', 'Configurações'],
   'app.opening': ['Opening the notebook…', 'Abrindo o caderno…'],
@@ -125,6 +126,15 @@ const S = {
   'students.needs': ['Needs / goals', 'Necessidades / objetivos'],
   'students.notes': ['Notes', 'Observações'],
   'students.archived': ['Archived (no longer studying)', 'Arquivado (não estuda mais)'],
+
+  // ------------------------------------------------------------------- today
+  'today.none': ['Nothing on today.', 'Nada marcado para hoje.'],
+  'today.pickClass': ['Which class?', 'Qual turma?'],
+  'today.noClasses': [
+    'No classes yet — set one up first.',
+    'Nenhuma turma ainda — crie uma primeiro.',
+  ],
+  'today.openClass': ['Open this class', 'Abrir esta turma'],
 
   // ----------------------------------------------------------------- classes
   'classes.add': ['+ Class', '+ Turma'],
