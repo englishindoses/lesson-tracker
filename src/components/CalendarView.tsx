@@ -85,16 +85,11 @@ export default function CalendarView({
                 isToday ? 'day-today' : ''
               }`}
             >
-              <div className="flex items-start justify-between gap-1">
-                <span
-                  className={`tabular ${
-                    isToday
-                      ? 'rounded bg-accent px-1.5 py-0.5 text-sm font-semibold text-paper'
-                      : 'px-1 text-xs text-ink-soft'
-                  }`}
-                >
-                  {day}
-                </span>
+              <div className="flex items-start justify-between">
+                {/* Every date is written the same way. Today is marked by the
+                    ring on the square, and a pill here as well made today's
+                    square hold a wider, taller row than all the others. */}
+                <span className="tabular text-xs text-ink-soft">{day}</span>
                 <button
                   className="day-add"
                   onClick={() => onAdd(iso)}

@@ -756,15 +756,24 @@ body {
    button all the time. */
 .day-add {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 1.6rem;
-  height: 1.6rem;
+  width: 1.35rem;
+  height: 1.35rem;
   border: 1px dashed var(--ink-faint);
   border-radius: var(--radius);
-  font-size: 1.1rem;
+  font-size: 1rem;
   line-height: 1;
   color: var(--ink-soft);
+}
+/* A phone square is about 45px wide, and the date has to share it. */
+@media (min-width: 640px) {
+  .day-add {
+    width: 1.7rem;
+    height: 1.7rem;
+    font-size: 1.2rem;
+  }
 }
 .day-add:hover {
   border-style: solid;
