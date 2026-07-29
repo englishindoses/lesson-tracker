@@ -396,6 +396,15 @@ html {
   font-size: calc(100% * var(--body-scale));
 }
 
+/* Nothing may make the page wider than the screen. If it does, the browser
+   widens the layout viewport to fit and draws the entire app zoomed out, which
+   looks like a broken app rather than one row overflowing. `clip` rather than
+   `hidden` on purpose: hidden would turn this into a scroll container and
+   break every sticky header inside it. */
+.app-shell {
+  overflow-x: clip;
+}
+
 body {
   background-color: var(--paper);
   color: var(--ink);
@@ -596,9 +605,21 @@ body {
 /* Page tabs, like the dividers in a ring binder. The active one is filled with
    the palette's highlighter and breaks the rule under the header, so it reads as
    attached to the page below. */
-/* Tighter side padding on a phone. Three tabs, the language toggle and the
-   gear have to share one narrow row, and a script face sets far wider than a
-   sans at the same size. */
+/* The tab strip scrolls sideways rather than pushing the page wider.
+   Load-bearing: a row wider than the screen makes the browser widen the layout
+   viewport to fit it, and then the WHOLE app is drawn zoomed out with no way
+   to pinch back -- the minimum scale becomes "show the whole page". Clipping
+   instead would cut a tab name off, which is what this replaced. */
+.tab-strip {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tab-strip::-webkit-scrollbar {
+  display: none;
+}
+
+/* Tighter side padding on a phone. Three tabs and the gear have to share one
+   narrow row, and a script face sets far wider than a sans at the same size. */
 .tab {
   position: relative;
   margin-bottom: -1px;
