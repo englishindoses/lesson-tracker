@@ -910,6 +910,14 @@ body {
     min-width: 8rem;
     white-space: nowrap;
   }
+  /* A column whose contents live in the drawer on a phone. The cell has to stay
+     for the column count to line up with the header, so it collapses to
+     nothing instead of being hidden. */
+  .table-compact th.col-hide,
+  .table-compact td.col-hide {
+    width: 0;
+    padding: 0;
+  }
 }
 
 /* Keep the sticky table header legible over scrolling rows. */

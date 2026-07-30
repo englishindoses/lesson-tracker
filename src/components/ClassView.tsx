@@ -363,8 +363,7 @@ export default function ClassView({
    */
   const firstToday = visible.findIndex(onToday)
   const todayRowCount = visible.reduce(
-    (n, e) =>
-      onToday(e) ? n + 1 + (e.kind === 'lesson' && expanded.has(e.id) ? 1 : 0) : n,
+    (n, e) => (onToday(e) ? n + 1 + (expanded.has(e.id) ? 1 : 0) : n),
     0,
   )
   const railFor = (i: number): number | 'skip' | null =>
@@ -582,7 +581,9 @@ export default function ClassView({
                   <th className="w-28 px-2 py-2 text-center font-normal">
                     {t('classView.colPaid')}
                   </th>
-                  <th className="px-2 py-2 font-normal">{t('classView.colNotes')}</th>
+                  <th className="col-hide px-2 py-2 font-normal">
+                    <span className="hidden lg:inline">{t('classView.colNotes')}</span>
+                  </th>
                   <th className="w-20 px-2 py-2" />
                 </tr>
               </thead>
@@ -750,7 +751,7 @@ function TableRow(
 
   // The extra-notes row belongs to the same lesson, so the outline has to run
   // around both -- the floor moves down to it when it is open.
-  const extraRow = expanded && isLesson
+  const extraRow = expanded
   const closesRun = todayEdges.includes('row-today-last')
   const mainEdges = extraRow ? todayEdges.replace(' row-today-last', '') : todayEdges
 
@@ -805,54 +806,77 @@ function TableRow(
           <PaidControl {...props} />
         </td>
 
-        <td className={`px-2 py-1.5 ${cell}`}>
-          <NotesInput {...props} />
+        {/* A phone hasn't the width for notes as well as the money, so they
+            move into the drawer with everything else that can wait. The cell
+            itself stays: hiding a td would leave this row a column short of the
+            header and slide every heading along one. */}
+        <td className={`col-hide px-2 py-1.5 ${cell}`}>
+          <div className="hidden lg:block">
+            <NotesInput {...props} />
+          </div>
         </td>
 
         <td className="px-1 py-1.5 text-right">
           <div className="flex items-center justify-end gap-0.5">
+            {/* On a phone a payment needs the drawer too -- it is the only way
+                to reach its note and its delete. */}
+            <button
+              className={`px-1 text-ink-faint hover:text-ink ${isLesson ? '' : 'lg:hidden'}`}
+              onClick={onToggleExpanded}
+              title={t('classView.extraNotes')}
+              aria-label={t('classView.extraNotes')}
+            >
+              {expanded ? '▾' : '▸'}
+            </button>
             {isLesson && (
-              <>
-                <button
-                  className="px-1 text-ink-faint hover:text-ink"
-                  onClick={onToggleExpanded}
-                  title={t('classView.extraNotes')}
-                  aria-label={t('classView.extraNotes')}
-                >
-                  {expanded ? '▾' : '▸'}
-                </button>
-                <button
-                  className="px-1 text-ink-faint hover:text-ink"
-                  onClick={onRepeat}
-                  title={t('classView.repeatWeekly')}
-                  aria-label={t('classView.repeatWeekly')}
-                >
-                  ⟳
-                </button>
-              </>
+              <button
+                className="hidden px-1 text-ink-faint hover:text-ink lg:inline"
+                onClick={onRepeat}
+                title={t('classView.repeatWeekly')}
+                aria-label={t('classView.repeatWeekly')}
+              >
+                ⟳
+              </button>
             )}
-            <DeleteButton onDelete={onDelete} />
+            <span className="hidden lg:inline">
+              <DeleteButton onDelete={onDelete} />
+            </span>
           </div>
         </td>
       </tr>
 
       {extraRow && (
         <tr
-          className={`border-b border-rule ${
+          className={`border-b border-rule ${isLesson ? '' : 'lg:hidden'} ${
             todayEdges ? `row-today${closesRun ? ' row-today-last' : ''}` : ''
           }`}
         >
           {/* Inside today's block the rail already covers this row. */}
           {!todayEdges && <td className="rail-blank" />}
           <td />
-          <td colSpan={7} className="px-2 pb-2">
-            <input
-              className="field"
-              placeholder={t('classView.extraNotesHint')}
-              aria-label={t('classView.extraNotes')}
-              value={entry.extra_notes ?? ''}
-              onChange={(e) => onPatch({ extra_notes: e.target.value || null })}
-            />
+          <td colSpan={7} className="space-y-1.5 px-2 pb-2">
+            <div className="lg:hidden">
+              <NotesInput {...props} />
+            </div>
+
+            {isLesson && (
+              <input
+                className="field"
+                placeholder={t('classView.extraNotesHint')}
+                aria-label={t('classView.extraNotes')}
+                value={entry.extra_notes ?? ''}
+                onChange={(e) => onPatch({ extra_notes: e.target.value || null })}
+              />
+            )}
+
+            <div className="flex items-center gap-3 lg:hidden">
+              {isLesson && (
+                <button className="btn" onClick={onRepeat}>
+                  ⟳ {t('classView.repeatWeekly')}
+                </button>
+              )}
+              <DeleteButton onDelete={onDelete} label={t('common.delete')} />
+            </div>
           </td>
         </tr>
       )}
