@@ -901,6 +901,15 @@ body {
   .table-compact .col-narrow .field {
     min-width: 0;
   }
+  /* The date is the one cell whose text must never be cut: Sat 25/07/2026 and
+     the picker button need a real floor, or the columns either side take the
+     room and it ends up unreadable. If that makes the table wider than the
+     screen the card scrolls sideways, which is the better trade. */
+  .table-compact th.col-date,
+  .table-compact td.col-date {
+    min-width: 8rem;
+    white-space: nowrap;
+  }
 }
 
 /* Keep the sticky table header legible over scrolling rows. */

@@ -571,7 +571,7 @@ export default function ClassView({
                   {/* The rail's column. Empty everywhere but today's block. */}
                   <th className="rail-blank" />
                   <th className="w-8 px-2 py-2" title={t('classView.dontChargeCol')} />
-                  <th className="px-2 py-2 font-normal">{t('classView.colDate')}</th>
+                  <th className="col-date px-2 py-2 font-normal">{t('classView.colDate')}</th>
                   <th className="col-narrow w-24 px-2 py-2 font-normal">
                     {t('classView.colLength')}
                   </th>
@@ -774,7 +774,7 @@ function TableRow(
           <StrikeBox {...props} />
         </td>
 
-        <td className={`px-2 py-1.5 ${cell}`}>
+        <td className={`col-date px-2 py-1.5 ${cell}`}>
           <DateInput {...props} />
           {!isLesson && <div className="mt-0.5 text-xs text-ink-faint">{t('classView.due')}</div>}
         </td>
