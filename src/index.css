@@ -888,6 +888,19 @@ body {
   .table-compact .rail-blank {
     width: 1.1rem;
   }
+  /* Length and Amount hold short numbers, but an <input> reports an intrinsic
+     width of about twenty characters whatever is in it -- which is what kept
+     these two columns wide even after the fixed widths were released. Cap them
+     at roughly their heading, and let min-width: 0 allow the field inside to
+     follow the cell down. */
+  .table-compact th.col-narrow,
+  .table-compact td.col-narrow {
+    width: 3.6rem;
+    max-width: 3.6rem;
+  }
+  .table-compact .col-narrow .field {
+    min-width: 0;
+  }
 }
 
 /* Keep the sticky table header legible over scrolling rows. */

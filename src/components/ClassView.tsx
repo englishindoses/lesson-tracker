@@ -572,9 +572,11 @@ export default function ClassView({
                   <th className="rail-blank" />
                   <th className="w-8 px-2 py-2" title={t('classView.dontChargeCol')} />
                   <th className="px-2 py-2 font-normal">{t('classView.colDate')}</th>
-                  <th className="w-24 px-2 py-2 font-normal">{t('classView.colLength')}</th>
+                  <th className="col-narrow w-24 px-2 py-2 font-normal">
+                    {t('classView.colLength')}
+                  </th>
                   <th className="w-44 px-2 py-2 font-normal">{t('classView.colPresence')}</th>
-                  <th className="w-32 px-2 py-2 text-right font-normal">
+                  <th className="col-narrow w-32 px-2 py-2 text-right font-normal">
                     {t('classView.colAmount')}
                   </th>
                   <th className="w-28 px-2 py-2 text-center font-normal">
@@ -777,7 +779,7 @@ function TableRow(
           {!isLesson && <div className="mt-0.5 text-xs text-ink-faint">{t('classView.due')}</div>}
         </td>
 
-        <td className={`px-2 py-1.5 ${cell}`}>
+        <td className={`col-narrow px-2 py-1.5 ${cell}`}>
           {isLesson ? (
             <DurationInput {...props} />
           ) : (
@@ -795,7 +797,7 @@ function TableRow(
           )}
         </td>
 
-        <td className={`px-2 py-1.5 text-right ${cell}`}>
+        <td className={`col-narrow px-2 py-1.5 text-right ${cell}`}>
           <AmountInput {...props} />
         </td>
 
