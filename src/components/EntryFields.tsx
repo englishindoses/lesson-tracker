@@ -81,7 +81,7 @@ export function PresenceSelect({ entry, onPatch }: RowProps) {
       <option value="">{t('presence.booked')}</option>
       {PRESENCE_ORDER.map((p) => (
         <option key={p} value={p}>
-          {PRESENCE_META[p].glyph} {t(presenceKey(p))}
+          {t(presenceKey(p))}
         </option>
       ))}
     </select>

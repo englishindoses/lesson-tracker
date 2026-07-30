@@ -1,7 +1,7 @@
 import { useMemo, useState, useSyncExternalStore } from 'react'
 import { newId, nowISO, useStore } from '../data/store'
 import * as prefs from '../lib/prefs'
-import { PRESENCE_META, PRESENCE_ORDER, type Entry, type Presence } from '../lib/types'
+import { PRESENCE_ORDER, type Entry, type Presence } from '../lib/types'
 import { buildLedger, sortEntries, totalsFor, type Line } from '../lib/ledger'
 import {
   addDays,
@@ -493,7 +493,7 @@ export default function ClassView({
           <option value="all">{t('classView.anyPresence')}</option>
           {PRESENCE_ORDER.map((p) => (
             <option key={p} value={p}>
-              {PRESENCE_META[p].glyph} {t(presenceKey(p))}
+              {t(presenceKey(p))}
             </option>
           ))}
         </select>
