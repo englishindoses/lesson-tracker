@@ -75,14 +75,20 @@ export interface Entry {
  * How each presence value is drawn and whether it bills by default. The wording
  * lives in i18n.ts under presence.* -- only the glyph and the money rule are
  * properties of the data.
+ *
+ * Emoji rather than geometric symbols: the only place these are still shown is
+ * a calendar square on a phone, which is too small for the word, and they are
+ * far easier to tell apart at that size. The cost is that they are drawn by the
+ * phone rather than by the font, so they carry their own colours and ignore the
+ * palette -- and the same square looks a little different on another device.
  */
 export const PRESENCE_META: Record<Presence, { glyph: string; chargeable: boolean }> = {
-  present: { glyph: '×', chargeable: true },
-  no_show: { glyph: '⊘', chargeable: true },
-  cancellation: { glyph: '○', chargeable: false },
-  late_cancellation: { glyph: '◑', chargeable: true },
-  teacher_cancellation: { glyph: '—', chargeable: false },
-  reschedule: { glyph: '›', chargeable: false },
+  present: { glyph: '✅', chargeable: true },
+  no_show: { glyph: '❌', chargeable: true },
+  cancellation: { glyph: '🚫', chargeable: false },
+  late_cancellation: { glyph: '⏰', chargeable: true },
+  teacher_cancellation: { glyph: '🧑‍🏫', chargeable: false },
+  reschedule: { glyph: '📅', chargeable: false },
 }
 
 export const PRESENCE_ORDER: Presence[] = [
