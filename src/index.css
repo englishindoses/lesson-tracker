@@ -599,10 +599,12 @@ body {
 /* Tighter side padding on a phone. Three tabs, the language toggle and the
    gear have to share one narrow row, and a script face sets far wider than a
    sans at the same size. */
+/* The phone padding is tight because four tabs and the gear have to sit on one
+   row at 360px in the widest lettering set. It opens up again at 640px. */
 .tab {
   position: relative;
   margin-bottom: -1px;
-  padding: 0.3rem 0.5rem 0.4rem;
+  padding: 0.3rem 0.35rem 0.4rem;
   border: 1px solid transparent;
   border-bottom: 0;
   border-top-left-radius: var(--radius);

@@ -353,6 +353,27 @@ look the same alarming red in every look. They are classes rather than
 `bg-red-600` because `.btn` sets its own background after the utilities layer, so
 a utility would lose — the `.btn-selected` trap again.
 
+## The Month tab
+
+`MonthView.tsx`, the fourth tab. One table: a row per class with that month's
+credit, unpaid, owed and time taught, and a total row underneath. The class
+name opens the class.
+
+It reuses the same slicing as the bottom bar — each class's ledger is still
+built on its full history and only the *rows counted* are narrowed to the
+month, so the months add back up to the class. That is also why the footnote
+under the table says to open a class for its full standing.
+
+A class with nothing in the month isn't listed; archived classes are behind
+the same toggle as the Classes page. The month dropdown offers every month
+that has rows, plus this one, plus wherever the ‹ › arrows have walked to —
+they can leave the list, and the dropdown still has to be able to show where
+you are.
+
+**Four tabs and the gear have to fit one row at 360px**, which is why `.tab`
+has tight horizontal padding below 640px. A fifth tab, or a longer label than
+Month / Mês, needs that checked again on a phone.
+
 ## Layout
 
 - Laptop (1024px+): the full table. Below that: stacked cards. Same field

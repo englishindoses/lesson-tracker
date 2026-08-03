@@ -8,10 +8,11 @@ import StudentsView from './components/StudentsView'
 import ClassesView from './components/ClassesView'
 import ClassView from './components/ClassView'
 import TodayView from './components/TodayView'
+import MonthView from './components/MonthView'
 import SettingsView from './components/SettingsView'
 import Doodles from './components/Doodles'
 
-type Tab = 'today' | 'classes' | 'students' | 'settings'
+type Tab = 'today' | 'month' | 'classes' | 'students' | 'settings'
 
 export default function App() {
   const { theme, mode, setTheme, setMode } = useTheme()
@@ -72,12 +73,13 @@ export default function App() {
       >
         <div className="mx-auto flex max-w-[1600px] items-end gap-2 px-3 pt-2 sm:gap-3 sm:px-6">
           {/* One row. The labels are short and the language toggle has moved to
-              Settings, so three tabs and the gear fit even on a narrow phone
-              in the widest of the lettering sets. */}
+              Settings, so four tabs and the gear fit even on a narrow phone in
+              the widest of the lettering sets -- see the padding on `.tab`. */}
           <nav className="flex min-w-0 items-end">
             {(
               [
                 ['today', t('app.today')],
+                ['month', t('app.month')],
                 ['classes', t('app.classes')],
                 ['students', t('app.students')],
               ] as [Tab, string][]
@@ -134,6 +136,8 @@ export default function App() {
           <ClassView classId={openClassId} onBack={() => setOpenClassId(null)} />
         ) : tab === 'today' ? (
           <TodayView onOpenClass={setOpenClassId} />
+        ) : tab === 'month' ? (
+          <MonthView onOpenClass={setOpenClassId} />
         ) : tab === 'classes' ? (
           <ClassesView onOpen={setOpenClassId} />
         ) : tab === 'students' ? (

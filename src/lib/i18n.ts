@@ -38,6 +38,7 @@ const S = {
   // far too long to sit next to two other tabs on a phone.
   'app.classes': ['Classes', 'Turmas'],
   'app.today': ['Today', 'Hoje'],
+  'app.month': ['Month', 'Mês'],
   'app.students': ['Students', 'Alunos'],
   'app.settings': ['Settings', 'Configurações'],
   'app.opening': ['Opening the notebook…', 'Abrindo o caderno…'],
@@ -155,6 +156,19 @@ const S = {
   'classes.lessonCount': ['{n} lessons', '{n} aulas'],
   'classes.credit': ['{amount} credit', '{amount} de crédito'],
   'classes.settled': ['settled', 'em dia'],
+
+  // ------------------------------------------------------------- this month
+  'month.hours': ['Taught', 'Dadas'],
+  'month.total': ['Total', 'Total'],
+  'month.nothing': [
+    'No lessons or payments this month.',
+    'Nenhuma aula ou pagamento neste mês.',
+  ],
+  'month.nothingAtAll': ['Nothing here yet.', 'Nada aqui ainda.'],
+  'month.note': [
+    'Credit, unpaid and owed count only what falls in the month shown. Open a class for its full standing.',
+    'Crédito, não pago e deve contam só o que cai no mês mostrado. Abra a turma para ver a situação completa.',
+  ],
 
   // ------------------------------------------------------------ class editor
   'classEditor.one': ['Class', 'Turma'],
