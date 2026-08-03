@@ -260,10 +260,7 @@ const S = {
   'classView.figureCredit': ['Credit', 'Crédito'],
   'classView.figureUnpaid': ['Unpaid', 'Não pago'],
   'classView.figureOwed': ['Owed', 'Deve'],
-  'classView.showing': ['Showing:', 'Mostrando:'],
-  'classView.allRows': ['All:', 'Tudo:'],
   'classView.taught': ['Taught {time}', 'Dadas {time}'],
-  'classView.scheduled': ['Scheduled {time}', 'Agendadas {time}'],
   'classView.charged': ['Charged {amount}', 'Cobrado {amount}'],
   'classView.received': ['Received {amount}', 'Recebido {amount}'],
 

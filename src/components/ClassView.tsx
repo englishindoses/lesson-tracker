@@ -2,11 +2,10 @@ import { useMemo, useState, useSyncExternalStore } from 'react'
 import { newId, nowISO, useStore } from '../data/store'
 import * as prefs from '../lib/prefs'
 import { PRESENCE_ORDER, type Entry, type Presence } from '../lib/types'
-import { buildLedger, sortEntries, totalsFor, type Line } from '../lib/ledger'
+import { buildLedger, figuresFor, sortEntries, type Line } from '../lib/ledger'
 import {
   addDays,
   addMonths,
-  duration,
   formatDate,
   formatMonth,
   money,
@@ -79,8 +78,9 @@ export default function ClassView({
     [allEntries, classId],
   )
 
-  // The ledger is always built on the whole history, never the filtered view:
-  // credit and what's owed describe the student, not the month on screen.
+  // The ledger is always built on the whole history, never the filtered view —
+  // a March payment still settles a February lesson. The bottom bar then takes
+  // its slice of it, which is what `figuresFor` is for.
   const ledger = useMemo(
     () =>
       cls
@@ -148,7 +148,7 @@ export default function ClassView({
     )
   }, [matching, held, classEntries])
 
-  const totals = useMemo(() => totalsFor(visible, lines), [visible, lines])
+  const figures = useMemo(() => figuresFor(visible, lines), [visible, lines])
 
   const names = useMemo(
     () =>
@@ -313,6 +313,22 @@ export default function ClassView({
   const monthFiltering = view === 'list' && month !== 'all'
   const filtersActive =
     monthFiltering || kind !== 'all' || paid !== 'all' || presence !== 'all'
+
+  /* What the money at the foot of the page is counting, in words. Empty when
+     nothing is filtered, since then it is simply the whole class. The calendar
+     always shows one month, so it always names it. */
+  const filterLabel = [
+    view === 'calendar' ? formatMonth(calendarMonth) : monthFiltering ? formatMonth(month) : '',
+    kind === 'lesson'
+      ? t('classView.kindLesson')
+      : kind === 'payment'
+        ? t('classView.kindPayment')
+        : '',
+    paid === 'paid' ? t('classView.paidPaid') : paid === 'unpaid' ? t('classView.paidUnpaid') : '',
+    presence === 'all' ? '' : t(presenceKey(presence)),
+  ]
+    .filter(Boolean)
+    .join(', ')
 
   /* A new row can land outside the filter and never appear, which looks like
      the button did nothing. The outlined filters flash twice instead. */
@@ -633,42 +649,28 @@ export default function ClassView({
       {/* ------------------------------------------------------------ totals */}
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-rule bg-paper">
         <div className="mx-auto max-w-[1600px] px-3 py-2 sm:px-6">
-          {/* The three money figures describe the whole class, not the filtered
-              view — what a student owes isn't a per-month question. */}
-          <div className="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-1">
-            <span className="flex flex-wrap items-baseline gap-x-5 gap-y-1">
-              <Figure
-                label={t('classView.figureCredit')}
-                value={money(ledger.credit)}
-                className="text-good"
-              />
-              <Figure
-                label={t('classView.figureUnpaid')}
-                value={money(ledger.unpaid)}
-                className="text-danger"
-              />
-              <Figure
-                label={t('classView.figureOwed')}
-                value={moneySigned(ledger.owed)}
-                className="text-ink"
-                big
-              />
-            </span>
-
-            <span className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-ink-soft">
-              <span className="hidden sm:inline">
-                {filtersActive || view === 'calendar'
-                  ? t('classView.showing')
-                  : t('classView.allRows')}
-              </span>
-              <span>{t('classes.lessonCount', { n: totals.lessonCount })}</span>
-              <span>{t('classView.taught', { time: duration(totals.taughtMinutes) })}</span>
-              <span className="hidden lg:inline">
-                {t('classView.scheduled', { time: duration(totals.scheduledMinutes) })}
-              </span>
-              <span>{t('classView.charged', { amount: money(totals.charged) })}</span>
-              <span>{t('classView.received', { amount: money(totals.received) })}</span>
-            </span>
+          {/* The three money figures count the rows on screen. With nothing
+              filtered that is the whole class; filtered, it is that slice of
+              it — so the label spells out which, and Owed then means what is
+              outstanding there rather than what the student owes altogether. */}
+          <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1">
+            <Figure
+              label={t('classView.figureCredit')}
+              value={money(figures.credit)}
+              className="text-good"
+            />
+            <Figure
+              label={t('classView.figureUnpaid')}
+              value={money(figures.unpaid)}
+              className="text-danger"
+            />
+            <Figure
+              label={t('classView.figureOwed')}
+              value={moneySigned(figures.owed)}
+              className="text-ink"
+              big
+            />
+            {filterLabel && <span className="text-xs text-ink-soft">({filterLabel})</span>}
           </div>
         </div>
       </div>

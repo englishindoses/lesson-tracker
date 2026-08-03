@@ -77,9 +77,18 @@ half-paid lesson. Whatever is left over is the student's **credit**.
 **Owed = unpaid lessons − credit.** It goes negative when they've paid ahead,
 meaning you're holding their money.
 
-The bottom bar shows three figures, and they describe the **whole class**, not
-the filtered view — what a student owes isn't a per-month question. The other
-stats (lessons, time, charged, received) stay filtered.
+The bottom bar shows those three figures for **the rows on screen**, with the
+active filters named in brackets after them. `figuresFor` in `ledger.ts` does
+it, and it is a *slice* of the real ledger rather than a second sum done a
+different way: every line carries its own `owing` and `unspent`, so the parts
+always add back up to the whole class and no payment is ever counted twice. A
+May payment that settled a July lesson leaves that lesson out of July's unpaid,
+and the leftover credit is counted in May, where the money arrived.
+
+The cost, which is the point of it: with a filter on, **Owed means what's
+outstanding in that slice**, not what the student owes altogether. Only the
+unfiltered view answers that — hence the bracketed label. `ledger.check.ts` has
+a section on the slicing, including that the months sum to the class.
 
 Other rules:
 - The first-column checkbox (`not_charged`) strikes a row out: it stays in the

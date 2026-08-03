@@ -43,6 +43,11 @@ export interface Line {
   /** How much of `charge` has been covered — all of it, or none. */
   covered: number
   status: PaidStatus
+  /** This row's share of the class's `unpaid`. */
+  owing: number
+  /** This row's share of the class's `credit` — money received on it that no
+   *  lesson has used up. */
+  unspent: number
 }
 
 /** A class's standing: what's outstanding, and what's paid ahead. */
@@ -103,6 +108,8 @@ export function buildLedger(cls: Class, allEntries: Entry[]): Ledger {
         covered: 0,
         status:
           entry.presence == null ? 'pending' : charge > 0 ? 'due' : 'free',
+        owing: 0,
+        unspent: 0,
       })
     } else {
       const amount = entry.amount ?? 0
@@ -113,20 +120,36 @@ export function buildLedger(cls: Class, allEntries: Entry[]): Ledger {
         credit: entry.paid ? amount : 0,
         covered: entry.paid ? amount : 0,
         status: entry.paid ? 'received' : 'expected',
+        owing: 0,
+        unspent: 0,
       })
     }
   }
 
-  // Tick off whole lessons, oldest first, with the money actually received.
-  let pot =
+  /* The money received, oldest payment first, each still holding whatever is
+     left of it. Lessons draw from the front, so at the end every unspent real
+     can be pointed back at the payment it arrived on -- which is what lets the
+     bottom bar slice `credit` by whatever is filtered. Monthly invoices consume
+     their own payment above, so there is nothing here to draw on. */
+  const purse =
     cls.pricing_mode === 'monthly'
-      ? // Monthly invoices already consumed their own payment above.
-        0
-      : ordered.reduce(
-          (sum, e) => sum + (e.kind === 'payment' && e.paid ? e.amount ?? 0 : 0),
-          0,
-        )
+      ? []
+      : ordered
+          .filter((e) => e.kind === 'payment' && e.paid)
+          .map((e) => ({ id: e.id, left: e.amount ?? 0 }))
 
+  const draw = (amount: number) => {
+    let needed = amount
+    for (const p of purse) {
+      if (needed <= 0) break
+      const taken = Math.min(p.left, needed)
+      p.left -= taken
+      needed -= taken
+    }
+  }
+
+  // Tick off whole lessons, oldest first, with the money actually received.
+  let pot = purse.reduce((sum, p) => sum + p.left, 0)
   let unpaid = 0
 
   for (const entry of ordered) {
@@ -138,25 +161,67 @@ export function buildLedger(cls: Class, allEntries: Entry[]): Ledger {
     // outright, everything from here on stays due and the rest is credit.
     if (pot >= line.charge - 0.001) {
       pot -= line.charge
+      draw(line.charge)
       line.covered = line.charge
       line.status = 'paid'
     } else {
       line.covered = 0
       line.status = 'due'
+      line.owing = line.charge
       unpaid += line.charge
     }
   }
 
   if (cls.pricing_mode === 'monthly') {
     for (const entry of ordered) {
-      if (entry.kind === 'payment' && !entry.paid) unpaid += entry.amount ?? 0
+      if (entry.kind === 'payment' && !entry.paid) {
+        const amount = entry.amount ?? 0
+        lines.get(entry.id)!.owing = amount
+        unpaid += amount
+      }
     }
   }
 
-  const credit = Math.max(0, Number(pot.toFixed(2)))
+  let credit = 0
+  for (const p of purse) {
+    const left = Math.max(0, Number(p.left.toFixed(2)))
+    lines.get(p.id)!.unspent = left
+    credit += left
+  }
+
+  credit = Number(credit.toFixed(2))
   unpaid = Number(unpaid.toFixed(2))
 
   return { lines, credit, unpaid, owed: Number((unpaid - credit).toFixed(2)) }
+}
+
+/**
+ * The three money figures for whatever rows are on screen.
+ *
+ * Every row carries its own share of what's unpaid and of the credit sitting
+ * in hand, so this is a slice of the real ledger rather than a second sum done
+ * a different way: filter to July and you get July's part, clear the filters
+ * and the parts add back up to exactly the whole class.
+ *
+ * The consequence is that with a filter on, `owed` is what's outstanding in
+ * that slice — not what the student owes you altogether. Only the unfiltered
+ * view answers that.
+ */
+export function figuresFor(rows: Entry[], lines: Map<string, Line>) {
+  let credit = 0
+  let unpaid = 0
+
+  for (const row of rows) {
+    const line = lines.get(row.id)
+    if (!line) continue
+    credit += line.unspent
+    unpaid += line.owing
+  }
+
+  credit = Number(credit.toFixed(2))
+  unpaid = Number(unpaid.toFixed(2))
+
+  return { credit, unpaid, owed: Number((unpaid - credit).toFixed(2)) }
 }
 
 export interface Totals {

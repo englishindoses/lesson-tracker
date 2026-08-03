@@ -5,7 +5,7 @@
  * noticed for months, so every rule in the ledger gets an example here with the
  * answer worked out by hand. If you change ledger.ts, run this.
  */
-import { buildLedger, totalsFor } from './ledger'
+import { buildLedger, figuresFor, totalsFor } from './ledger'
 import type { Class, Entry } from './types'
 
 let failures = 0
@@ -279,6 +279,66 @@ section('The ledger uses full history even when the view is filtered')
   check('March alone charged', t.charged, 100)
   check('March alone received', t.received, 200)
   check('what is owed ignores the filter', led.owed, 0)
+}
+
+// ---------------------------------------------------------------------------
+section('The bottom bar slices the ledger by whatever is filtered')
+{
+  // February: one lesson, unpaid. March: two lessons and 250 paid, which
+  // settles February first, then March's first lesson, leaving 50 in hand.
+  const entries = [
+    lesson('feb', '2026-02-25'),
+    lesson('mar1', '2026-03-04'),
+    lesson('mar2', '2026-03-11'),
+    payment('p1', '2026-03-05', 250, true),
+  ]
+  const led = buildLedger(perLesson, entries)
+  const inMonth = (m: string) => entries.filter((e) => (e.entry_date ?? e.due_date)!.startsWith(m))
+
+  check('unfiltered matches the class ledger', figuresFor(entries, led.lines), {
+    credit: led.credit,
+    unpaid: led.unpaid,
+    owed: led.owed,
+  })
+
+  const feb = figuresFor(inMonth('2026-02'), led.lines)
+  check('February alone owes nothing - March paid it off', feb.unpaid, 0)
+
+  const mar = figuresFor(inMonth('2026-03'), led.lines)
+  check('March carries the one unpaid lesson', mar.unpaid, 100)
+  check('and the 50 left over from its payment', mar.credit, 50)
+  check('so March is owed 50', mar.owed, 50)
+  check('the months add up to the whole', feb.unpaid + mar.unpaid, led.unpaid)
+  check('and so does the credit', feb.credit + mar.credit, led.credit)
+
+  // Filtering to the payment rows shows the money in hand and nothing owed.
+  const payments = figuresFor(entries.filter((e) => e.kind === 'payment'), led.lines)
+  check('payments only: the credit sits on the payment row', payments.credit, 50)
+  check('payments only: nothing unpaid there', payments.unpaid, 0)
+
+  // A lesson paid off by an earlier payment carries no debt of its own.
+  const paidAhead = [lesson('l1', '2026-06-03'), payment('p', '2026-05-30', 100, true)]
+  const pa = buildLedger(perLesson, paidAhead)
+  check('a lesson settled in advance owes nothing on its own', figuresFor([paidAhead[0]], pa.lines).unpaid, 0)
+  check('and the payment kept no credit back', figuresFor([paidAhead[1]], pa.lines).credit, 0)
+}
+
+// ---------------------------------------------------------------------------
+section('Slicing a monthly package')
+{
+  const entries = [
+    lesson('l1', '2026-03-04'),
+    payment('mar', '2026-03-01', 400, true),
+    lesson('l2', '2026-04-01'),
+    payment('apr', '2026-04-01', 400, false),
+  ]
+  const led = buildLedger(monthly, entries)
+  const march = figuresFor(entries.slice(0, 2), led.lines)
+  const april = figuresFor(entries.slice(2), led.lines)
+  check('the paid month is settled', march.owed, 0)
+  check('the unpaid month is owed in full', april.owed, 400)
+  check('no credit is invented on a monthly package', march.credit + april.credit, 0)
+  check('the two months add up to the class', march.unpaid + april.unpaid, led.unpaid)
 }
 
 // ---------------------------------------------------------------------------
