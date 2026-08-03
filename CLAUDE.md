@@ -353,6 +353,28 @@ look the same alarming red in every look. They are classes rather than
 `bg-red-600` because `.btn` sets its own background after the utilities layer, so
 a utility would lose — the `.btn-selected` trap again.
 
+## The back button
+
+There is no router. Which page you are on is `view` in `App.tsx` — a tab and
+an optionally open class — and every move through the app is a **history entry
+carrying that view on `history.state`**. `go()` pushes, a `popstate` listener
+puts it back. The URL never changes, so nothing can go wrong with the Pages
+subpath and a reload still fetches the page it always did.
+
+Before this, the phone's back button left the app from anywhere, because as
+far as the browser was concerned there had only ever been one page.
+
+- **A reload lands where you were**, since the browser hands the same entry
+  back with the view still on it. If the class it names has since gone,
+  `ClassView` already says so.
+- **Back is for pages, not dialogs** — she asked for that explicitly. A dialog
+  is closed with the × in `Modal`, Escape, or a tap outside. Dialogs render
+  inside the page that owns them, so navigating away takes them with it and
+  can't strand one open.
+- The gear **pushes** an entry rather than calling `history.back()`. Back would
+  be exact, but after a reload on Settings there is no earlier entry to go to
+  and it would leave the app.
+
 ## The Month tab
 
 `MonthView.tsx`, the fourth tab. One table: a row per class with that month's

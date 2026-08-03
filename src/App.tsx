@@ -14,6 +14,19 @@ import Doodles from './components/Doodles'
 
 type Tab = 'today' | 'month' | 'classes' | 'students' | 'settings'
 
+/** Everything that decides which page you are looking at. */
+type View = { tab: Tab; classId: string | null }
+
+const HOME: View = { tab: 'classes', classId: null }
+
+const sameView = (a: View, b: View) => a.tab === b.tab && a.classId === b.classId
+
+/** The view stashed on a history entry, if it is one of ours and still sane. */
+function viewFromHistory(state: unknown): View | null {
+  const saved = (state as { ltView?: View } | null)?.ltView
+  return saved && typeof saved.tab === 'string' ? saved : null
+}
+
 export default function App() {
   const { theme, mode, setTheme, setMode } = useTheme()
   const { t } = useT()
@@ -22,19 +35,53 @@ export default function App() {
   const userId = useStore((s) => s.userId)
   const syncLabel = useSyncLabel()
 
-  const [tab, setTab] = useState<Tab>('classes')
-  const [openClassId, setOpenClassId] = useState<string | null>(null)
+  /* Reloading lands you back where you were: the browser hands the same
+     history entry back, and the view is riding on it. */
+  const [view, setView] = useState<View>(() => viewFromHistory(window.history.state) ?? HOME)
+  const { tab, classId: openClassId } = view
   /** Where the gear was pressed, so pressing it again goes back there. */
-  const [beforeSettings, setBeforeSettings] = useState<{ tab: Tab; classId: string | null }>({
-    tab: 'classes',
-    classId: null,
-  })
+  const [beforeSettings, setBeforeSettings] = useState<View>(HOME)
 
   const headerRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     void init()
   }, [init])
+
+  /**
+   * Moving about the app is a history entry, so the phone's back button walks
+   * back through it instead of straight out of it.
+   *
+   * Nothing is written to the URL — the view rides on `history.state`. There is
+   * no router and no path to get wrong under the Pages subpath, and a reload
+   * still fetches the same page it always did.
+   *
+   * Dialogs are deliberately not part of this. Back is for pages; a dialog is
+   * closed with its ×, Escape, or a tap outside it. A dialog belongs to the
+   * page under it, so navigating away takes it with it and can't strand one.
+   */
+  const go = (next: View) => {
+    if (sameView(view, next)) return
+    window.history.pushState({ ltView: next }, '')
+    setView(next)
+  }
+
+  useEffect(() => {
+    // Stamp the entry we opened on, or the first back press has nothing to
+    // land on and leaves the app from the second page in.
+    window.history.replaceState(
+      { ...(window.history.state as object | null), ltView: view },
+      '',
+    )
+    // Once, for the entry we arrived on. Every later entry is stamped by `go`.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    const onPop = (e: PopStateEvent) => setView(viewFromHistory(e.state) ?? HOME)
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
 
   // Anything else that wants to stick below the header needs its real height,
   // which changes with font size and screen width -- so publish it as a
@@ -87,10 +134,7 @@ export default function App() {
               <button
                 key={value}
                 aria-current={tab === value && !openClassId ? 'page' : undefined}
-                onClick={() => {
-                  setTab(value)
-                  setOpenClassId(null)
-                }}
+                onClick={() => go({ tab: value, classId: null })}
                 className="tab style-hand text-base sm:text-lg"
               >
                 {label}
@@ -114,13 +158,11 @@ export default function App() {
             title={t('app.settings')}
             onClick={() => {
               if (tab === 'settings') {
-                setTab(beforeSettings.tab)
-                setOpenClassId(beforeSettings.classId)
+                go(beforeSettings)
                 return
               }
-              setBeforeSettings({ tab, classId: openClassId })
-              setTab('settings')
-              setOpenClassId(null)
+              setBeforeSettings(view)
+              go({ tab: 'settings', classId: null })
             }}
             className="tab ml-auto shrink-0 text-lg leading-none sm:ml-0"
           >
@@ -133,13 +175,14 @@ export default function App() {
           normal-flow content. */}
       <main className="relative z-10 mx-auto max-w-[1600px] px-3 py-4 sm:px-6 sm:py-6">
         {openClassId ? (
-          <ClassView classId={openClassId} onBack={() => setOpenClassId(null)} />
+          // Back out to whichever tab the class was opened from.
+          <ClassView classId={openClassId} onBack={() => go({ tab, classId: null })} />
         ) : tab === 'today' ? (
-          <TodayView onOpenClass={setOpenClassId} />
+          <TodayView onOpenClass={(id) => go({ tab, classId: id })} />
         ) : tab === 'month' ? (
-          <MonthView onOpenClass={setOpenClassId} />
+          <MonthView onOpenClass={(id) => go({ tab, classId: id })} />
         ) : tab === 'classes' ? (
-          <ClassesView onOpen={setOpenClassId} />
+          <ClassesView onOpen={(id) => go({ tab, classId: id })} />
         ) : tab === 'students' ? (
           <StudentsView />
         ) : (
