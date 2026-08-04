@@ -148,7 +148,10 @@ export default function ClassView({
     )
   }, [matching, held, classEntries])
 
-  const figures = useMemo(() => figuresFor(visible, lines), [visible, lines])
+  /* Counted over `matching`, not `visible`: a row held on screen because you
+     are editing it has already stopped matching the filters, and money that
+     jumps the moment you tab into a row reads as a mistake in the sums. */
+  const figures = useMemo(() => figuresFor(matching, lines), [matching, lines])
 
   const names = useMemo(
     () =>
